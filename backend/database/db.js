@@ -80,7 +80,8 @@ async function executeInMemoryQuery(text, params) {
   if (normalizedSql.includes('SELECT COUNT(*) AS total FROM appointments')) {
     let count = inMemoryDb.appointments.length;
     if (params.length > 0 && params[0] !== 'all') {
-      count = inMemoryDb.appointments.filter(a => a.status === params[0]).length;
+      const filter = String(params[0]).toLowerCase();
+      count = inMemoryDb.appointments.filter(a => String(a.status).toLowerCase() === filter).length;
     }
     return {
       rows: [{ total: count.toString() }],
@@ -203,11 +204,11 @@ async function executeInMemoryQuery(text, params) {
     let offset = 0;
 
     // Check if status filter is applied
-    if (normalizedSql.includes('WHERE status = $1')) {
-      const statusFilter = params[0];
+    if (normalizedSql.includes('WHERE status = $1') || normalizedSql.includes('WHERE LOWER(status) = $1')) {
+      const statusFilter = String(params[0] || '').toLowerCase();
       limit = Number(params[1]) || 50;
       offset = Number(params[2]) || 0;
-      list = list.filter(a => a.status === statusFilter);
+      list = list.filter(a => String(a.status).toLowerCase() === statusFilter);
     } else {
       limit = Number(params[0]) || 50;
       offset = Number(params[1]) || 0;

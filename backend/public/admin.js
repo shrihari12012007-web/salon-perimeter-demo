@@ -54,16 +54,25 @@
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
   const deletePreviewCard = document.getElementById('deletePreviewCard');
 
-  // Helper: Toast Message
+  // Helper: Toast Message (supports info, success, error)
   let toastTimer = null;
-  function showToast(message) {
+  function showToast(message, type = 'info') {
     if (!toastPopup) return;
     toastPopup.textContent = message;
-    toastPopup.classList.add('show');
+    toastPopup.className = `toast-popup show ${type === 'error' ? 'toast-error' : type === 'success' ? 'toast-success' : ''}`;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       toastPopup.classList.remove('show');
-    }, 3500);
+    }, type === 'error' ? 5000 : 3500);
+  }
+
+  // Helper: Apply summary statistics to dashboard counters
+  function applyStats(stats) {
+    if (!stats) return;
+    if (statPending) statPending.textContent = stats.pending ?? 0;
+    if (statConfirmed) statConfirmed.textContent = stats.confirmed ?? 0;
+    if (statCompleted) statCompleted.textContent = stats.completed ?? 0;
+    if (statTotal) statTotal.textContent = stats.total ?? 0;
   }
 
   // Helper: Format Date consistently without timezone-shift bugs
@@ -204,28 +213,30 @@
     await Promise.all([loadStats(), loadAppointments()]);
   }
 
-  // Fetch Stats
+  // Fetch Stats directly from database (always bypass cache)
   async function loadStats() {
     try {
-      const res = await fetch('/api/admin/stats', {
-        headers: { 'Authorization': `Bearer ${currentToken}` }
+      const res = await fetch(`/api/admin/stats?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Authorization': `Bearer ${currentToken}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
       });
       if (res.status === 401) return logout();
       if (!res.ok) return;
 
       const data = await res.json();
       if (data.stats) {
-        if (statPending) statPending.textContent = data.stats.pending || 0;
-        if (statConfirmed) statConfirmed.textContent = data.stats.confirmed || 0;
-        if (statCompleted) statCompleted.textContent = data.stats.completed || 0;
-        if (statTotal) statTotal.textContent = data.stats.total || 0;
+        applyStats(data.stats);
       }
     } catch (err) {
       console.error('Error loading stats:', err);
     }
   }
 
-  // Fetch Appointments
+  // Fetch Appointments directly from database (always bypass cache)
   async function loadAppointments() {
     if (!enquiriesBody) return;
 
@@ -234,9 +245,14 @@
     tableWrap.style.display = 'none';
 
     try {
-      const url = `/api/admin/appointments?status=${currentFilter}&page=${currentPage}&limit=20`;
+      const url = `/api/admin/appointments?status=${encodeURIComponent(currentFilter)}&page=${currentPage}&limit=20&_t=${Date.now()}`;
       const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${currentToken}` }
+        cache: 'no-store',
+        headers: {
+          'Authorization': `Bearer ${currentToken}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
       });
 
       if (res.status === 401) return logout();
@@ -246,12 +262,15 @@
       if (res.ok && data.appointments) {
         totalPages = data.totalPages || 1;
         renderAppointments(data.appointments, data.total, data.page);
+        if (data.stats) {
+          applyStats(data.stats);
+        }
       } else {
-        showToast(data.message || 'Failed to fetch enquiries.');
+        showToast(data.message || 'Failed to fetch enquiries.', 'error');
       }
     } catch (err) {
       console.error('Error fetching enquiries:', err);
-      showToast('Error connecting to backend API.');
+      showToast('Error connecting to backend API.', 'error');
     } finally {
       tableLoader.style.display = 'none';
     }
@@ -288,6 +307,7 @@
         ? escapeHtml(item.message.trim()) 
         : '<span class="notes-empty">No additional notes</span>';
       const notesTitle = hasNotes ? escapeHtml(item.message.trim()) : 'No additional notes provided';
+      const itemStatus = String(item.status || 'pending').toLowerCase();
 
       return `
         <tr data-id="${item.id}">
@@ -305,11 +325,11 @@
           </td>
           <td class="cell-notes" data-label="Notes / Requirements" title="${notesTitle}">${notes}</td>
           <td data-label="Status">
-            <select class="status-select ${item.status}" data-id="${item.id}" aria-label="Update enquiry status">
-              <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
-              <option value="confirmed" ${item.status === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
-              <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>🌸 Completed</option>
-              <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+            <select class="status-select ${itemStatus}" data-id="${item.id}" data-current-status="${itemStatus}" aria-label="Update enquiry status">
+              <option value="pending" ${itemStatus === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+              <option value="confirmed" ${itemStatus === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
+              <option value="completed" ${itemStatus === 'completed' ? 'selected' : ''}>🌸 Completed</option>
+              <option value="cancelled" ${itemStatus === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
             </select>
           </td>
           <td data-label="Actions">
@@ -325,8 +345,10 @@
     document.querySelectorAll('.status-select').forEach((select) => {
       select.addEventListener('change', async () => {
         const id = select.getAttribute('data-id');
+        const previousStatus = select.getAttribute('data-current-status') || 'pending';
         const newStatus = select.value;
-        await updateStatus(id, newStatus, select);
+        if (newStatus === previousStatus) return;
+        await updateStatus(id, newStatus, previousStatus, select);
       });
     });
 
@@ -398,14 +420,20 @@
     });
   }
 
-  // Update Status API call
-  async function updateStatus(id, newStatus, selectElement) {
+  // Update Status API call: waits for PostgreSQL confirmation before marking success
+  async function updateStatus(id, newStatus, previousStatus, selectElement) {
+    selectElement.disabled = true;
+    selectElement.style.opacity = '0.5';
+
     try {
       const res = await fetch(`/api/admin/appointments/${id}/status`, {
         method: 'PATCH',
+        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentToken}`
+          'Authorization': `Bearer ${currentToken}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -413,20 +441,42 @@
       if (res.status === 401) return logout();
 
       const data = await res.json();
-      if (res.ok) {
-        selectElement.className = `status-select ${newStatus}`;
-        showToast(`Status updated to "${newStatus}".`);
-        await loadStats(); // Refresh count metrics immediately
+      if (res.ok && data.success) {
+        // CONFIRMED by database
+        const confirmedStatus = String(data.appointment?.status || newStatus).toLowerCase();
+        selectElement.setAttribute('data-current-status', confirmedStatus);
+        selectElement.value = confirmedStatus;
+        selectElement.className = `status-select ${confirmedStatus}`;
+
+        const item = currentAppointments.find(a => a.id === id);
+        if (item) item.status = confirmedStatus;
+
+        showToast(`Status updated to "${confirmedStatus}".`, 'success');
+
+        if (data.stats) {
+          applyStats(data.stats);
+        } else {
+          await loadStats();
+        }
+
         if (currentFilter !== 'all') {
-          loadAppointments(); // Refresh current filter view if item moved out of filter
+          await loadAppointments();
         }
       } else {
-        showToast(data.message || 'Failed to update status.');
-        loadAppointments();
+        // REVERT selection on error — NEVER show successful status change without DB confirmation
+        selectElement.value = previousStatus;
+        selectElement.className = `status-select ${previousStatus}`;
+        showToast(data.message || 'Failed to update status in database.', 'error');
       }
     } catch (err) {
-      showToast('Error updating status.');
-      loadAppointments();
+      console.error('Error updating status:', err);
+      // REVERT selection on network error
+      selectElement.value = previousStatus;
+      selectElement.className = `status-select ${previousStatus}`;
+      showToast('Network error: Unable to update status in database.', 'error');
+    } finally {
+      selectElement.disabled = false;
+      selectElement.style.opacity = '1';
     }
   }
 
@@ -435,22 +485,26 @@
     try {
       const res = await fetch(`/api/admin/appointments/${id}`, {
         method: 'DELETE',
+        cache: 'no-store',
         headers: {
-          'Authorization': `Bearer ${currentToken}`
+          'Authorization': `Bearer ${currentToken}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         }
       });
 
       if (res.status === 401) return logout();
 
       const data = await res.json();
-      if (res.ok) {
-        showToast('Enquiry record deleted.');
+      if (res.ok && data.success) {
+        showToast('Enquiry record deleted.', 'success');
+        if (data.stats) applyStats(data.stats);
         await loadDashboardData();
       } else {
-        showToast(data.message || 'Failed to delete record.');
+        showToast(data.message || 'Failed to delete record.', 'error');
       }
     } catch (err) {
-      showToast('Error communicating with server.');
+      showToast('Error communicating with server.', 'error');
     }
   }
 

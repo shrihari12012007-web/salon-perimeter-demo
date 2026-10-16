@@ -138,17 +138,18 @@ function validateAppointment(req, res, next) {
  */
 function validateStatusUpdate(req, res, next) {
   const allowedStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-  const { status } = req.body || {};
+  const rawStatus = req.body && req.body.status;
+  const statusStr = typeof rawStatus === 'string' ? rawStatus.trim().toLowerCase() : '';
 
-  if (!status || !allowedStatuses.includes(status.toLowerCase())) {
+  if (!statusStr || !allowedStatuses.includes(statusStr)) {
     return res.status(400).json({
       success: false,
       error: 'INVALID_STATUS',
-      message: `Status must be one of: ${allowedStatuses.join(', ')}`
+      message: `Status must be one of: pending, confirmed, completed, cancelled (received: "${rawStatus || ''}")`
     });
   }
 
-  req.validatedStatus = status.toLowerCase();
+  req.validatedStatus = statusStr;
   next();
 }
 

@@ -331,6 +331,23 @@ async function runTests() {
       assert.strictEqual(res.body.stats.confirmed, preConfirmed + 1, 'Confirmed count must increase by 1');
     });
 
+    // 12c. Status Case-Insensitivity: Accepts exact string "Pending" and persists
+    await test('PATCH /api/admin/appointments/:id/status accepts exact string "Pending" and updates record', async () => {
+      assert.ok(testAppointmentId);
+      const res = await request('PATCH', `/api/admin/appointments/${testAppointmentId}/status`, {
+        status: 'Pending'
+      }, {
+        'Authorization': `Bearer ${authToken}`
+      });
+
+      assert.strictEqual(res.status, 200);
+      assert.strictEqual(res.body.success, true);
+      assert.strictEqual(res.body.appointment.status, 'pending');
+
+      // Verify stats in PATCH response reflects pending update
+      assert.strictEqual(res.body.stats.pending, prePending);
+    });
+
     // 13. Admin: Delete enquiry
     await test('DELETE /api/admin/appointments/:id deletes enquiry record', async () => {
       assert.ok(testAppointmentId);

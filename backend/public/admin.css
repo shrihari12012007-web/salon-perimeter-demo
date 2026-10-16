@@ -617,6 +617,19 @@ h1, h2, h3, .admin-title {
   transform: translateY(0);
 }
 
+.toast-popup.toast-error {
+  background-color: #B71C1C;
+  color: #FFFFFF;
+  border-left: 4px solid #FF8A80;
+  box-shadow: 0 4px 20px rgba(183, 28, 28, 0.35);
+}
+
+.toast-popup.toast-success {
+  background-color: #1F1B18;
+  color: #FFFFFF;
+  border-left: 4px solid #4CAF50;
+}
+
 /* Modal Dialog */
 .modal-overlay {
   position: fixed;
