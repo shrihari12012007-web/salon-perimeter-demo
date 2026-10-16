@@ -60,6 +60,7 @@
 
         <div class="admin-user-group">
           <span class="user-pill" id="adminUserPill">Logged in as <strong>Owner</strong></span>
+          <button class="btn btn-sm btn-outline" id="changePasswordBtn">Change Password</button>
           <a href="/" target="_blank" class="btn btn-sm btn-ghost">View Website ↗</a>
           <button class="btn btn-sm btn-outline" id="logoutBtn">Log Out</button>
         </div>
@@ -168,6 +169,35 @@
         </div>
       </section>
     </main>
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="passwordModal" style="display: none;">
+      <div class="modal-backdrop" id="passwordModalBackdrop"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Change Admin Password</h3>
+          <button class="modal-close-btn" id="closePasswordModalBtn" type="button" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="changePasswordForm">
+          <div class="login-alert" id="passwordModalAlert" style="display: none;"></div>
+          <div class="form-field">
+            <label for="currentPasswordInput">Current Password</label>
+            <input type="password" id="currentPasswordInput" required autocomplete="current-password" placeholder="Enter current password">
+          </div>
+          <div class="form-field">
+            <label for="newPasswordInput">New Password (minimum 6 characters)</label>
+            <input type="password" id="newPasswordInput" minlength="6" required autocomplete="new-password" placeholder="Enter new strong password">
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-sm btn-outline" id="cancelPasswordModalBtn">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-primary" id="savePasswordBtn">
+              <span>Save New Password</span>
+              <span class="spinner" style="display: none;" aria-hidden="true"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Toast Notification Popup -->
     <div class="toast-popup" id="toastPopup" role="status" aria-live="polite"></div>

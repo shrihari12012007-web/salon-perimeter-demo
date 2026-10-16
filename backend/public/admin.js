@@ -413,6 +413,94 @@
       .replace(/'/g, '&#039;');
   }
 
+  // Change Password Modal Handlers
+  const changePasswordBtn = document.getElementById('changePasswordBtn');
+  const passwordModal = document.getElementById('passwordModal');
+  const passwordModalBackdrop = document.getElementById('passwordModalBackdrop');
+  const closePasswordModalBtn = document.getElementById('closePasswordModalBtn');
+  const cancelPasswordModalBtn = document.getElementById('cancelPasswordModalBtn');
+  const changePasswordForm = document.getElementById('changePasswordForm');
+  const passwordModalAlert = document.getElementById('passwordModalAlert');
+  const currentPasswordInput = document.getElementById('currentPasswordInput');
+  const newPasswordInput = document.getElementById('newPasswordInput');
+  const savePasswordBtn = document.getElementById('savePasswordBtn');
+
+  function openPasswordModal() {
+    if (!passwordModal) return;
+    if (passwordModalAlert) passwordModalAlert.style.display = 'none';
+    if (changePasswordForm) changePasswordForm.reset();
+    passwordModal.style.display = 'flex';
+    if (currentPasswordInput) currentPasswordInput.focus();
+  }
+
+  function closePasswordModal() {
+    if (!passwordModal) return;
+    passwordModal.style.display = 'none';
+  }
+
+  if (changePasswordBtn) changePasswordBtn.addEventListener('click', openPasswordModal);
+  if (closePasswordModalBtn) closePasswordModalBtn.addEventListener('click', closePasswordModal);
+  if (cancelPasswordModalBtn) cancelPasswordModalBtn.addEventListener('click', closePasswordModal);
+  if (passwordModalBackdrop) passwordModalBackdrop.addEventListener('click', closePasswordModal);
+
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (passwordModalAlert) passwordModalAlert.style.display = 'none';
+
+      const currentPassword = currentPasswordInput?.value || '';
+      const newPassword = newPasswordInput?.value || '';
+
+      if (!currentPassword || !newPassword) return;
+
+      if (savePasswordBtn) {
+        savePasswordBtn.disabled = true;
+        const sp = savePasswordBtn.querySelector('.spinner');
+        if (sp) sp.style.display = 'inline-block';
+      }
+
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+
+        if (res.status === 401) {
+          const errData = await res.json();
+          if (errData.error === 'INCORRECT_PASSWORD') {
+            passwordModalAlert.textContent = 'Current password is incorrect.';
+            passwordModalAlert.style.display = 'block';
+            return;
+          }
+          return logout();
+        }
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          closePasswordModal();
+          showToast('Admin password updated successfully!');
+        } else {
+          passwordModalAlert.textContent = data.message || 'Failed to update password.';
+          passwordModalAlert.style.display = 'block';
+        }
+      } catch (err) {
+        passwordModalAlert.textContent = 'Network error. Please try again.';
+        passwordModalAlert.style.display = 'block';
+      } finally {
+        if (savePasswordBtn) {
+          savePasswordBtn.disabled = false;
+          const sp = savePasswordBtn.querySelector('.spinner');
+          if (sp) sp.style.display = 'none';
+        }
+      }
+    });
+  }
+
   // Startup: verify session
   checkSession();
 })();

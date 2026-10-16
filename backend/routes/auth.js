@@ -105,4 +105,71 @@ router.get('/verify', requireAuth, (req, res) => {
   });
 });
 
+/**
+ * POST /api/auth/change-password
+ * Changes password for authenticated admin user
+ */
+router.post('/change-password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'MISSING_FIELDS',
+        message: 'Current password and new password are required.'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'PASSWORD_TOO_SHORT',
+        message: 'New password must be at least 6 characters long.'
+      });
+    }
+
+    const result = await db.query(
+      'SELECT id, username, password_hash FROM admin_users WHERE id = $1 LIMIT 1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found.'
+      });
+    }
+
+    const admin = result.rows[0];
+    const isMatch = await bcrypt.compare(currentPassword, admin.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'INCORRECT_PASSWORD',
+        message: 'Current password is incorrect.'
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    await db.query(
+      'UPDATE admin_users SET password_hash = $1 WHERE id = $2',
+      [newHash, admin.id]
+    );
+
+    return res.json({
+      success: true,
+      message: 'Password updated successfully.'
+    });
+  } catch (error) {
+    console.error('[AUTH] Change password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to change password. Please try again.'
+    });
+  }
+});
+
 module.exports = router;

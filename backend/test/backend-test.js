@@ -14,50 +14,72 @@ let baseUrl;
 let authToken = '';
 let testAppointmentId = '';
 
-// Helper to make HTTP requests
+const { EventEmitter } = require('events');
+const { Readable, PassThrough } = require('stream');
+
+// In-process request helper (zero socket / port permission issues)
 function request(method, path, data = null, headers = {}) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(path, baseUrl);
-    const options = {
-      method,
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      headers: {
-        'Accept': 'application/json',
-        ...headers
-      }
+  return new Promise((resolve) => {
+    const socket = new PassThrough();
+    socket.remoteAddress = '127.0.0.1';
+    socket.encrypted = false;
+
+    const req = new Readable();
+    req._read = () => {};
+    req.method = method;
+    req.url = path;
+    req.originalUrl = path;
+    req.query = {};
+    req.socket = socket;
+    req.ip = '127.0.0.1';
+    req.headers = {
+      'accept': 'application/json',
+      ...Object.fromEntries(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v]))
     };
 
-    let bodyStr = '';
     if (data) {
-      bodyStr = JSON.stringify(data);
-      options.headers['Content-Type'] = 'application/json';
-      options.headers['Content-Length'] = Buffer.byteLength(bodyStr);
+      const bodyStr = JSON.stringify(data);
+      req.headers['content-type'] = 'application/json';
+      req.headers['content-length'] = Buffer.byteLength(bodyStr);
+      req.push(bodyStr);
     }
+    req.push(null);
 
-    const req = http.request(options, (res) => {
-      let responseBody = '';
-      res.setEncoding('utf8');
-      res.on('data', chunk => responseBody += chunk);
-      res.on('end', () => {
-        let parsed = null;
-        try {
-          parsed = JSON.parse(responseBody);
-        } catch {
-          parsed = responseBody;
-        }
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body: parsed
-        });
+    const res = new EventEmitter();
+    let responseBody = '';
+    const responseHeaders = {};
+    res._headers = responseHeaders;
+    res.statusCode = 200;
+
+    res.setHeader = (name, value) => {
+      responseHeaders[name.toLowerCase()] = value;
+    };
+    res.getHeader = (name) => responseHeaders[name.toLowerCase()];
+    res.removeHeader = (name) => {
+      delete responseHeaders[name.toLowerCase()];
+    };
+    res.hasHeader = (name) => Object.prototype.hasOwnProperty.call(responseHeaders, name.toLowerCase());
+    res.writeHead = (status, hdrs) => {
+      res.statusCode = status;
+      if (hdrs) Object.assign(responseHeaders, hdrs);
+    };
+    res.write = (chunk) => {
+      responseBody += chunk;
+    };
+    res.end = (chunk) => {
+      if (chunk) responseBody += chunk;
+      let parsed = responseBody;
+      try {
+        parsed = JSON.parse(responseBody);
+      } catch {}
+      resolve({
+        status: res.statusCode,
+        headers: responseHeaders,
+        body: parsed
       });
-    });
+    };
 
-    req.on('error', reject);
-    if (bodyStr) req.write(bodyStr);
-    req.end();
+    app(req, res);
   });
 }
 
@@ -104,18 +126,10 @@ async function runTests() {
     }
   }
 
-  // Setup Server
+  // Setup database tables & seed admin
   await db.initDatabase();
-  await new Promise((resolve) => {
-    server = app.listen(0, () => {
-      port = server.address().port;
-      baseUrl = `http://127.0.0.1:${port}`;
-      resolve();
-    });
-  });
 
-  try {
-    // 1. Health Endpoint Test
+  // 1. Health Endpoint Test
     await test('GET /api/health returns HTTP 200 with operational status', async () => {
       const res = await request('GET', '/api/health');
       assert.strictEqual(res.status, 200);
@@ -214,7 +228,7 @@ async function runTests() {
     await test('POST /api/auth/login succeeds with valid credentials and issues JWT token', async () => {
       const res = await request('POST', '/api/auth/login', {
         username: process.env.ADMIN_USERNAME || 'salon_owner',
-        password: process.env.ADMIN_PASSWORD || 'Perimeter@Shimoga2026'
+        password: process.env.ADMIN_PASSWORD || 'SalonPerimeter#2026'
       });
 
       assert.strictEqual(res.status, 200);
@@ -223,6 +237,37 @@ async function runTests() {
       assert.strictEqual(res.body.user.role, 'owner');
 
       authToken = res.body.token;
+    });
+
+    // 8b. Auth: Change password endpoint
+    await test('POST /api/auth/change-password validates current password and updates password', async () => {
+      // Wrong current password
+      const badRes = await request('POST', '/api/auth/change-password', {
+        currentPassword: 'wrong_password',
+        newPassword: 'BrandNewPassword#2026'
+      }, {
+        'Authorization': `Bearer ${authToken}`
+      });
+      assert.strictEqual(badRes.status, 401);
+      assert.strictEqual(badRes.body.error, 'INCORRECT_PASSWORD');
+
+      // Valid current password
+      const goodRes = await request('POST', '/api/auth/change-password', {
+        currentPassword: 'SalonPerimeter#2026',
+        newPassword: 'BrandNewPassword#2026'
+      }, {
+        'Authorization': `Bearer ${authToken}`
+      });
+      assert.strictEqual(goodRes.status, 200);
+      assert.strictEqual(goodRes.body.success, true);
+
+      // Revert back so subsequent tests or restarts stay on SalonPerimeter#2026
+      await request('POST', '/api/auth/change-password', {
+        currentPassword: 'BrandNewPassword#2026',
+        newPassword: 'SalonPerimeter#2026'
+      }, {
+        'Authorization': `Bearer ${authToken}`
+      });
     });
 
     // 9. Admin: Unauthenticated request rejected
@@ -280,12 +325,6 @@ async function runTests() {
       assert.strictEqual(res.status, 200);
       assert.strictEqual(res.body.success, true);
     });
-
-  } finally {
-    if (server) {
-      server.close();
-    }
-  }
 
   console.log('\n============================================================');
   console.log(`Test Results: ${passed} passed, ${failed} failed.`);

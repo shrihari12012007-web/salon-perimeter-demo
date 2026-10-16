@@ -28,7 +28,7 @@ function createRateLimiter({ windowMs = 15 * 60 * 1000, max = 100, message = 'To
 
   return (req, res, next) => {
     // Identify client by IP (or X-Forwarded-For when behind proxy like Render)
-    const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || req.ip || '127.0.0.1';
     const key = crypto.createHash('sha256').update(clientIp).digest('hex');
 
     const now = Date.now();

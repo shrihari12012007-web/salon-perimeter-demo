@@ -28,7 +28,7 @@ services:
       - key: ADMIN_USERNAME
         value: salon_owner
       - key: ADMIN_PASSWORD
-        value: Perimeter@Shimoga2026
+        value: SalonPerimeter#2026
       - key: EMAIL_NOTIFICATIONS_ENABLED
         value: "false"
 

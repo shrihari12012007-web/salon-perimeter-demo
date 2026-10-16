@@ -126,10 +126,19 @@ async function executeInMemoryQuery(text, params) {
     };
   }
 
-  // 6. Find admin user by username
+  // 6. Find admin user by username or ID
   if (normalizedSql.includes('FROM admin_users WHERE username = $1')) {
     const username = params[0];
     const user = inMemoryDb.admin_users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    return {
+      rows: user ? [user] : [],
+      rowCount: user ? 1 : 0
+    };
+  }
+
+  if (normalizedSql.includes('FROM admin_users WHERE id = $1')) {
+    const id = params[0];
+    const user = inMemoryDb.admin_users.find(u => u.id === Number(id));
     return {
       rows: user ? [user] : [],
       rowCount: user ? 1 : 0
@@ -156,12 +165,32 @@ async function executeInMemoryQuery(text, params) {
     };
   }
 
-  // 8. Update admin last login
+  // 8. Update admin last login or password
   if (normalizedSql.includes('UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = $1')) {
     const id = params[0];
     const user = inMemoryDb.admin_users.find(u => u.id === Number(id));
     if (user) {
       user.last_login = new Date().toISOString();
+      return { rows: [user], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  if (normalizedSql.includes('UPDATE admin_users SET password_hash = $1 WHERE username = $2')) {
+    const [password_hash, username] = params;
+    const user = inMemoryDb.admin_users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    if (user) {
+      user.password_hash = password_hash;
+      return { rows: [user], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+
+  if (normalizedSql.includes('UPDATE admin_users SET password_hash = $1 WHERE id = $2')) {
+    const [password_hash, id] = params;
+    const user = inMemoryDb.admin_users.find(u => u.id === Number(id));
+    if (user) {
+      user.password_hash = password_hash;
       return { rows: [user], rowCount: 1 };
     }
     return { rows: [], rowCount: 0 };
@@ -264,21 +293,27 @@ async function initDatabase() {
       }
     }
 
-    // Seed default admin user if configured and no users exist
+    // Seed or synchronize admin user credentials
     const adminUser = process.env.ADMIN_USERNAME || 'salon_owner';
-    const adminPass = process.env.ADMIN_PASSWORD || 'Perimeter@Shimoga2026';
+    const adminPass = process.env.ADMIN_PASSWORD || 'SalonPerimeter#2026';
 
-    const checkAdmin = await query('SELECT COUNT(*) AS count FROM admin_users');
-    const count = parseInt(checkAdmin.rows[0]?.count || '0', 10);
+    const existingAdmin = await query('SELECT id, username FROM admin_users WHERE username = $1 LIMIT 1', [adminUser]);
 
-    if (count === 0) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(adminPass, salt);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminPass, salt);
+
+    if (existingAdmin.rows.length === 0) {
       await query(
         'INSERT INTO admin_users (username, password_hash, email, role) VALUES ($1, $2, $3, $4)',
         [adminUser, hashedPassword, 'perimeter.shimoga@gmail.com', 'owner']
       );
       console.log(`[DATABASE] Default admin account seeded: username="${adminUser}"`);
+    } else {
+      await query(
+        'UPDATE admin_users SET password_hash = $1 WHERE username = $2',
+        [hashedPassword, adminUser]
+      );
+      console.log(`[DATABASE] Admin account password synchronized for: username="${adminUser}"`);
     }
   } catch (error) {
     console.error('[DATABASE] Initialization error:', error.message);
