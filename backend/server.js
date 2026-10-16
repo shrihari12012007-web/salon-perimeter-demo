@@ -34,6 +34,7 @@ app.use(
 // CORS Configuration
 const defaultAllowedOrigins = [
   'https://shrihari12012007-web.github.io',
+  'https://salon-perimeter-backend.onrender.com',
   'http://localhost:5500',
   'http://127.0.0.1:5500',
   'http://localhost:3000',
@@ -54,10 +55,11 @@ app.use(
       // Allow requests with no origin (like mobile apps, curl, postman, same-origin)
       if (!origin) return callback(null, true);
 
-      // Check exact match or localhost pattern
+      // Check exact match, localhost, GitHub Pages, or Render domain
       const isAllowed = allowedOrigins.includes(origin) || 
         /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-        origin.endsWith('.github.io');
+        origin.endsWith('.github.io') ||
+        origin.endsWith('.onrender.com');
 
       if (isAllowed) {
         callback(null, true);
