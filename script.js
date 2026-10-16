@@ -373,6 +373,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const summaryNotes = document.getElementById('summaryNotes');
   const summaryNotesRow = document.getElementById('summaryNotesRow');
 
+  // Helper: Parse embedded email from notes for backward compatibility
+  function parseEnquiryMessage(rawMessage, existingEmail) {
+    let email = existingEmail || '';
+    let notes = (rawMessage || '').trim();
+
+    if (!email && notes) {
+      const match = notes.match(/^Email:\s*([^\r\n]+)/i);
+      if (match) {
+        email = match[1].trim();
+        notes = notes.slice(match[0].length).trim();
+      }
+    } else if (email && notes) {
+      const match = notes.match(/^Email:\s*([^\r\n]+)/i);
+      if (match) {
+        notes = notes.slice(match[0].length).trim();
+      }
+    }
+
+    return { email, notes };
+  }
+
   // Validation Helpers
   function setFieldError(field, errorId, message) {
     if (!field) return;
@@ -612,6 +633,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
 
+          // Parse embedded email and notes for backward compatibility
+          const parsed = parseEnquiryMessage(
+            savedRecord.notes !== undefined ? savedRecord.notes : savedRecord.message,
+            savedRecord.email || emailVal
+          );
+
           // Populate Confirmation Modal with actual confirmed values from database
           if (summaryName) summaryName.textContent = savedRecord.customer_name;
           if (summaryPhone) summaryPhone.textContent = savedRecord.phone;
@@ -619,16 +646,17 @@ document.addEventListener('DOMContentLoaded', () => {
           if (summaryDate) summaryDate.textContent = formattedDate;
           if (summaryTime) summaryTime.textContent = savedRecord.preferred_time;
 
+          // 1. Keep optional email displayed only in the Email row
           if (summaryEmailRow && summaryEmail) {
-            const displayEmail = savedRecord.email || emailVal;
-            if (displayEmail) {
-              summaryEmail.textContent = displayEmail;
+            if (parsed.email) {
+              summaryEmail.textContent = parsed.email;
               summaryEmailRow.style.display = 'flex';
             } else {
               summaryEmailRow.style.display = 'none';
             }
           }
 
+          // Reference ID row
           const summaryRefRow = document.getElementById('summaryRefRow');
           const summaryRefId = document.getElementById('summaryRefId');
           if (summaryRefRow && summaryRefId) {
@@ -640,12 +668,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
 
+          // 2 & 3. Do not repeat email inside Message/Notes; if blank, display "No additional notes"
           if (summaryNotes && summaryNotesRow) {
-            if (savedRecord.message) {
-              summaryNotes.textContent = savedRecord.message;
-              summaryNotesRow.style.display = 'flex';
+            summaryNotesRow.style.display = 'flex';
+            if (parsed.notes && parsed.notes.trim()) {
+              summaryNotes.textContent = parsed.notes.trim();
+              summaryNotes.classList.remove('notes-empty');
             } else {
-              summaryNotesRow.style.display = 'none';
+              summaryNotes.textContent = 'No additional notes';
+              summaryNotes.classList.add('notes-empty');
             }
           }
 

@@ -212,9 +212,37 @@ async function runTests() {
       assert.strictEqual(res.body.data.customer_name, 'Kavitha Shetty');
       assert.strictEqual(res.body.data.email, 'kavitha@example.com');
       assert.strictEqual(res.body.data.status, 'pending');
-      assert.ok(res.body.data.message.includes('Email: kavitha@example.com'));
+      assert.ok(res.body.data.raw_message.includes('Email: kavitha@example.com'));
+      assert.strictEqual(res.body.data.notes, 'First time visit. Looking for layered haircut.');
+      assert.strictEqual(res.body.data.message, 'First time visit. Looking for layered haircut.');
 
       testAppointmentId = res.body.data.id;
+    });
+
+    // 5b. Public Appointments: Valid Submission with Email and NO notes
+    let testEmailOnlyId = '';
+    await test('POST /api/appointments saves submission with email and blank notes, keeping notes empty', async () => {
+      const validDate = getFutureNonTuesdayDate(6);
+      const res = await request('POST', '/api/appointments', {
+        customer_name: 'Meera Rao',
+        phone: '+91 98450 12345',
+        email: 'meera.rao@example.com',
+        service: "Intensive Hair Spa",
+        preferred_date: validDate,
+        preferred_time: '02:30 PM - 04:00 PM',
+        message: ''
+      });
+
+      assert.strictEqual(res.status, 201);
+      assert.strictEqual(res.body.success, true);
+      assert.strictEqual(res.body.data.customer_name, 'Meera Rao');
+      assert.strictEqual(res.body.data.email, 'meera.rao@example.com');
+      assert.strictEqual(res.body.data.notes, '');
+      assert.strictEqual(res.body.data.message, '');
+      assert.strictEqual(res.body.data.raw_message, 'Email: meera.rao@example.com');
+      assert.ok(!res.body.data.notes.includes('Email:'));
+
+      testEmailOnlyId = res.body.data.id;
     });
 
     // 6. Duplicate Submission Protection
@@ -296,7 +324,7 @@ async function runTests() {
     });
 
     // 10. Admin: Fetch appointments with valid JWT
-    await test('GET /api/admin/appointments lists enquiries for authenticated owner', async () => {
+    await test('GET /api/admin/appointments lists enquiries for authenticated owner with separated email and notes', async () => {
       const res = await request('GET', '/api/admin/appointments', null, {
         'Authorization': `Bearer ${authToken}`
       });
@@ -305,6 +333,58 @@ async function runTests() {
       assert.strictEqual(res.body.success, true);
       assert.ok(Array.isArray(res.body.appointments));
       assert.ok(res.body.appointments.length >= 1);
+
+      // Verify appointment with notes and email
+      const kavitha = res.body.appointments.find(a => a.id === testAppointmentId);
+      assert.ok(kavitha);
+      assert.strictEqual(kavitha.email, 'kavitha@example.com');
+      assert.strictEqual(kavitha.notes, 'First time visit. Looking for layered haircut.');
+      assert.ok(!kavitha.notes.includes('Email:'));
+
+      // Verify appointment with email and blank notes
+      const meera = res.body.appointments.find(a => a.id === testEmailOnlyId);
+      assert.ok(meera);
+      assert.strictEqual(meera.email, 'meera.rao@example.com');
+      assert.strictEqual(meera.notes, '');
+
+      // Clean up meera record so counters for subsequent tests match pre-existing expectations
+      await request('DELETE', `/api/admin/appointments/${testEmailOnlyId}`, null, {
+        'Authorization': `Bearer ${authToken}`
+      });
+    });
+
+    // 10b. Backward Compatibility: Legacy format where email is embedded in message
+    await test('GET /api/admin/appointments parses legacy records with embedded email and preserves notes', async () => {
+      // Insert simulated legacy record with embedded email directly into database
+      const insertLegacy = await db.query(
+        `INSERT INTO appointments (customer_name, phone, service, preferred_date, preferred_time, message, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+        [
+          'Deepa Nayak',
+          '+91 97410 54321',
+          'Skin & Beauty Rituals',
+          getFutureNonTuesdayDate(7),
+          '11:30 AM - 01:00 PM',
+          'Email: deepa@example.com\nRequires hypoallergenic face products.',
+          'pending'
+        ]
+      );
+      const legacyId = insertLegacy.rows[0].id;
+
+      const res = await request('GET', '/api/admin/appointments', null, {
+        'Authorization': `Bearer ${authToken}`
+      });
+
+      const foundLegacy = res.body.appointments.find(a => a.id === legacyId);
+      assert.ok(foundLegacy);
+      assert.strictEqual(foundLegacy.email, 'deepa@example.com');
+      assert.strictEqual(foundLegacy.notes, 'Requires hypoallergenic face products.');
+      assert.ok(!foundLegacy.notes.includes('Email:'));
+
+      // Clean up legacy test record
+      await request('DELETE', `/api/admin/appointments/${legacyId}`, null, {
+        'Authorization': `Bearer ${authToken}`
+      });
     });
 
     // 11. Admin: Fetch stats

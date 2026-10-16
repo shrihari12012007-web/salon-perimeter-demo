@@ -276,6 +276,27 @@
     }
   }
 
+  // Helper: Parse embedded email from notes for backward compatibility
+  function parseEnquiryMessage(rawMessage, existingEmail) {
+    let email = existingEmail || '';
+    let notes = (rawMessage || '').trim();
+
+    if (!email && notes) {
+      const match = notes.match(/^Email:\s*([^\r\n]+)/i);
+      if (match) {
+        email = match[1].trim();
+        notes = notes.slice(match[0].length).trim();
+      }
+    } else if (email && notes) {
+      const match = notes.match(/^Email:\s*([^\r\n]+)/i);
+      if (match) {
+        notes = notes.slice(match[0].length).trim();
+      }
+    }
+
+    return { email, notes };
+  }
+
   // Render Appointments Table
   function renderAppointments(appointments, total, page) {
     currentAppointments = appointments || [];
@@ -302,21 +323,29 @@
     enquiriesBody.innerHTML = appointments.map((item) => {
       const createdStr = formatDateTime(item.created_at);
       const prefDateStr = formatDate(item.preferred_date);
-      const hasNotes = Boolean(item.message && item.message.trim());
-      const notes = hasNotes 
-        ? escapeHtml(item.message.trim()) 
+      const parsed = parseEnquiryMessage(item.notes !== undefined ? item.notes : item.message, item.email);
+      const hasActualNotes = Boolean(parsed.notes && parsed.notes.trim());
+      const notes = hasActualNotes 
+        ? escapeHtml(parsed.notes.trim()) 
         : '<span class="notes-empty">No additional notes</span>';
-      const notesTitle = hasNotes ? escapeHtml(item.message.trim()) : 'No additional notes provided';
+      const notesTitle = hasActualNotes ? escapeHtml(parsed.notes.trim()) : 'No additional notes provided';
       const itemStatus = String(item.status || 'pending').toLowerCase();
 
       return `
         <tr data-id="${item.id}">
           <td class="cell-time" data-label="Received">${createdStr}</td>
           <td class="cell-name" data-label="Client Name">${escapeHtml(item.customer_name)}</td>
-          <td class="cell-phone" data-label="Phone Number">
+          <td class="cell-phone" data-label="Contact">
             <a href="tel:${escapeHtml(item.phone)}" title="Call client at ${escapeHtml(item.phone)}">
               📞 ${escapeHtml(item.phone)}
             </a>
+            ${parsed.email ? `
+              <div class="cell-email" style="margin-top: 3px;">
+                <a href="mailto:${escapeHtml(parsed.email)}" title="Email client at ${escapeHtml(parsed.email)}" style="font-size: 11px; color: var(--text-secondary); text-decoration: none;">
+                  ✉️ ${escapeHtml(parsed.email)}
+                </a>
+              </div>
+            ` : ''}
           </td>
           <td class="cell-service" data-label="Requested Service">${escapeHtml(item.service)}</td>
           <td class="cell-date-time" data-label="Date &amp; Time">
@@ -367,6 +396,10 @@
     if (!item || !deleteModal) return;
     pendingDeleteId = id;
 
+    const parsed = parseEnquiryMessage(item.notes !== undefined ? item.notes : item.message, item.email);
+    const hasNotes = Boolean(parsed.notes && parsed.notes.trim());
+    const displayNotes = hasNotes ? escapeHtml(parsed.notes.trim()) : 'No additional notes';
+
     if (deletePreviewCard) {
       deletePreviewCard.innerHTML = `
         <div class="delete-preview-row">
@@ -377,6 +410,12 @@
           <span class="delete-preview-label">Phone</span>
           <span class="delete-preview-value">${escapeHtml(item.phone)}</span>
         </div>
+        ${parsed.email ? `
+        <div class="delete-preview-row">
+          <span class="delete-preview-label">Email</span>
+          <span class="delete-preview-value">${escapeHtml(parsed.email)}</span>
+        </div>
+        ` : ''}
         <div class="delete-preview-row">
           <span class="delete-preview-label">Service</span>
           <span class="delete-preview-value">${escapeHtml(item.service)}</span>
@@ -384,6 +423,10 @@
         <div class="delete-preview-row">
           <span class="delete-preview-label">Preferred</span>
           <span class="delete-preview-value">${formatDate(item.preferred_date)} &bull; ${escapeHtml(item.preferred_time)}</span>
+        </div>
+        <div class="delete-preview-row">
+          <span class="delete-preview-label">Notes</span>
+          <span class="delete-preview-value ${hasNotes ? '' : 'notes-empty'}">${displayNotes}</span>
         </div>
       `;
     }

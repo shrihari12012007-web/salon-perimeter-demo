@@ -82,11 +82,13 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
         id: createdAppointment.id,
         customer_name: createdAppointment.customer_name,
         phone: createdAppointment.phone,
-        email: email || undefined,
+        email: email || '',
         service: createdAppointment.service,
         preferred_date: createdAppointment.preferred_date,
         preferred_time: createdAppointment.preferred_time,
-        message: createdAppointment.message,
+        notes: (message || '').trim(),
+        message: (message || '').trim(),
+        raw_message: createdAppointment.message,
         status: createdAppointment.status,
         created_at: createdAppointment.created_at
       }

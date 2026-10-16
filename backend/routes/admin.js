@@ -87,6 +87,24 @@ router.get('/stats', async (req, res) => {
 });
 
 /**
+ * Parses embedded email from raw message field for backward compatibility
+ */
+function parseEnquiryMessage(rawMessage) {
+  let email = '';
+  let notes = (rawMessage || '').trim();
+
+  if (notes) {
+    const match = notes.match(/^Email:\s*([^\r\n]+)/i);
+    if (match) {
+      email = match[1].trim();
+      notes = notes.slice(match[0].length).trim();
+    }
+  }
+
+  return { email, notes };
+}
+
+/**
  * GET /api/admin/appointments
  * Retrieves enquiries with status filter and pagination
  */
@@ -112,7 +130,10 @@ router.get('/appointments', async (req, res) => {
          LIMIT $2 OFFSET $3`,
         [status, limit, offset]
       );
-      appointments = rowsRes.rows;
+      appointments = rowsRes.rows.map(item => {
+        const { email, notes } = parseEnquiryMessage(item.message);
+        return { ...item, email, notes };
+      });
     } else {
       const countRes = await db.query('SELECT COUNT(*) AS total FROM appointments');
       total = parseInt(countRes.rows[0]?.total || '0', 10);
@@ -124,7 +145,10 @@ router.get('/appointments', async (req, res) => {
          LIMIT $1 OFFSET $2`,
         [limit, offset]
       );
-      appointments = rowsRes.rows;
+      appointments = rowsRes.rows.map(item => {
+        const { email, notes } = parseEnquiryMessage(item.message);
+        return { ...item, email, notes };
+      });
     }
 
     const stats = await getAppointmentStats();
@@ -178,10 +202,18 @@ router.patch('/appointments/:id/status', validateStatusUpdate, async (req, res) 
 
     const stats = await getAppointmentStats();
 
+    const updated = result.rows[0];
+    const { email, notes } = parseEnquiryMessage(updated.message);
+    const appointment = {
+      ...updated,
+      email,
+      notes
+    };
+
     return res.json({
       success: true,
       message: `Enquiry status updated to "${newStatus}".`,
-      appointment: result.rows[0],
+      appointment,
       stats
     });
   } catch (error) {

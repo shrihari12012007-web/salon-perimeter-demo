@@ -2049,6 +2049,12 @@ h1, h2, h3, h4, h5 {
   color: var(--rose-gold);
 }
 
+.ticket-row .t-val.notes-empty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: 400;
+}
+
 .confirm-reminder-box {
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
