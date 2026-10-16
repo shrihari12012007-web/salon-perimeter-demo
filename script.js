@@ -389,15 +389,35 @@ document.addEventListener('DOMContentLoaded', () => {
     field.setAttribute('aria-invalid', 'false');
   }
 
+  // Form Error Banner Elements & Helpers
+  const formErrorBanner = document.getElementById('formErrorBanner');
+  const formErrorText = document.getElementById('formErrorText');
+
+  function showFormError(msg) {
+    if (formErrorBanner) {
+      if (formErrorText) formErrorText.textContent = msg;
+      formErrorBanner.style.display = 'flex';
+      formErrorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function hideFormError() {
+    if (formErrorBanner) {
+      formErrorBanner.style.display = 'none';
+    }
+  }
+
   // Real-time error clearing on input
   if (clientName) {
     clientName.addEventListener('input', () => {
+      hideFormError();
       if (clientName.value.trim().length >= 2) clearFieldError(clientName, 'nameError');
     });
   }
 
   if (clientPhone) {
     clientPhone.addEventListener('input', () => {
+      hideFormError();
       const cleanPhone = clientPhone.value.replace(/[\s\-\(\)\+]/g, '');
       if (cleanPhone.length >= 10) clearFieldError(clientPhone, 'phoneError');
     });
@@ -405,12 +425,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (serviceSelect) {
     serviceSelect.addEventListener('change', () => {
+      hideFormError();
       if (serviceSelect.value) clearFieldError(serviceSelect, 'serviceError');
     });
   }
 
   if (prefTime) {
     prefTime.addEventListener('change', () => {
+      hideFormError();
       if (prefTime.value) clearFieldError(prefTime, 'timeError');
     });
   }
@@ -431,15 +453,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return false;
   }
 
-  // Form Submission Handler
+  // Form Submission Handler with Real Full-Stack API Integration
   let isSubmitting = false;
 
   if (appointmentForm) {
-    appointmentForm.addEventListener('submit', (e) => {
+    appointmentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       // Prevent accidental duplicate submission
       if (isSubmitting) return;
+
+      hideFormError();
 
       let isValid = true;
       let firstErrorField = null;
@@ -496,51 +520,99 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Set submitting state
+      // Set submitting state & show loading spinner
       isSubmitting = true;
       if (submitBtn) {
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
       }
 
-      // Simulate responsive front-end submission without page reload
-      setTimeout(() => {
+      // Build payload for API
+      const messageVal = clientMessage ? clientMessage.value.trim() : '';
+      const payload = {
+        customer_name: nameVal,
+        phone: phoneVal,
+        service: serviceSelect.value,
+        preferred_date: dateVal,
+        preferred_time: prefTime.value,
+        message: messageVal
+      };
+
+      const apiBaseUrl = (window.SALON_CONFIG && window.SALON_CONFIG.API_BASE_URL) ? window.SALON_CONFIG.API_BASE_URL : '';
+      const endpoint = `${apiBaseUrl}/api/appointments`;
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Success confirmed by backend database
+          const savedRecord = data.data || payload;
+
+          // Format Date nicely for display
+          const dateObj = new Date(savedRecord.preferred_date + 'T00:00:00');
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          const formattedDate = !isNaN(dateObj.getTime()) 
+            ? dateObj.toLocaleDateString('en-IN', options) 
+            : savedRecord.preferred_date;
+
+          // Populate Confirmation Modal with actual confirmed values from database
+          if (summaryName) summaryName.textContent = savedRecord.customer_name;
+          if (summaryPhone) summaryPhone.textContent = savedRecord.phone;
+          if (summaryService) summaryService.textContent = savedRecord.service;
+          if (summaryDate) summaryDate.textContent = formattedDate;
+          if (summaryTime) summaryTime.textContent = savedRecord.preferred_time;
+
+          const summaryRefRow = document.getElementById('summaryRefRow');
+          const summaryRefId = document.getElementById('summaryRefId');
+          if (summaryRefRow && summaryRefId) {
+            if (savedRecord.id) {
+              summaryRefId.textContent = savedRecord.id;
+              summaryRefRow.style.display = 'flex';
+            } else {
+              summaryRefRow.style.display = 'none';
+            }
+          }
+
+          if (summaryNotes && summaryNotesRow) {
+            if (savedRecord.message) {
+              summaryNotes.textContent = savedRecord.message;
+              summaryNotesRow.style.display = 'flex';
+            } else {
+              summaryNotesRow.style.display = 'none';
+            }
+          }
+
+          // Clear form after verified database storage
+          appointmentForm.reset();
+          initMinDate();
+
+          // Open Confirmation Modal displaying confirmed request details
+          lastModalTrigger = submitBtn;
+          openConfirmationModal();
+        } else {
+          // Server or validation failure — do NOT display fake success modal
+          const errorMsg = data.message || 'Unable to submit your appointment enquiry. Please try again or call +91 95913 24243.';
+          showFormError(errorMsg);
+        }
+      } catch (networkError) {
+        console.error('[APPOINTMENTS] Network connection error:', networkError);
+        showFormError('Could not connect to the booking server. Please verify your connection or call Salon Perimeter directly at +91 95913 24243.');
+      } finally {
         isSubmitting = false;
         if (submitBtn) {
           submitBtn.classList.remove('loading');
           submitBtn.disabled = false;
         }
-
-        // Format Date nicely for display
-        const dateObj = new Date(dateVal + 'T00:00:00');
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const formattedDate = dateObj.toLocaleDateString('en-IN', options);
-
-        // Populate Confirmation Modal with actual submitted values
-        if (summaryName) summaryName.textContent = nameVal;
-        if (summaryPhone) summaryPhone.textContent = phoneVal;
-        if (summaryService) summaryService.textContent = serviceSelect.value;
-        if (summaryDate) summaryDate.textContent = formattedDate;
-        if (summaryTime) summaryTime.textContent = prefTime.value;
-
-        const messageVal = clientMessage ? clientMessage.value.trim() : '';
-        if (summaryNotes && summaryNotesRow) {
-          if (messageVal) {
-            summaryNotes.textContent = messageVal;
-            summaryNotesRow.style.display = 'flex';
-          } else {
-            summaryNotesRow.style.display = 'none';
-          }
-        }
-
-        // Clear the form after successful demonstration submission as required
-        appointmentForm.reset();
-        initMinDate();
-
-        // Open Confirmation Modal
-        lastModalTrigger = submitBtn;
-        openConfirmationModal();
-      }, 500);
+      }
     });
   }
 

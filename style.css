@@ -1754,6 +1754,20 @@ h1, h2, h3, h4, h5 {
   color: var(--text-muted);
 }
 
+.form-error-banner {
+  background-color: #FDF2F2;
+  border: 1px solid #F8B4B4;
+  color: #9B1C1C;
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 .form-group {
   margin-bottom: 1.35rem;
   position: relative;

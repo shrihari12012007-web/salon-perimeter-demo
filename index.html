@@ -1053,6 +1053,12 @@
 
           <form id="appointmentForm" novalidate>
             
+            <!-- Server Error Banner -->
+            <div class="form-error-banner" id="formErrorBanner" role="alert" style="display: none;" aria-live="polite">
+              <span class="error-banner-icon" aria-hidden="true">⚠️</span>
+              <span id="formErrorText">An error occurred while submitting your request.</span>
+            </div>
+            
             <!-- 1. Full Name -->
             <div class="form-group">
               <label for="clientName">Full Name <span class="required" aria-hidden="true">*</span></label>
@@ -1170,7 +1176,7 @@
     <div class="confirmation-backdrop" id="confirmationBackdrop"></div>
     <div class="confirmation-card" role="document">
       <div class="confirmation-header">
-        <div class="confirm-badge">DEMO SIMULATION COMPLETED</div>
+        <div class="confirm-badge">REQUEST RECORDED IN SYSTEM</div>
         <button class="confirm-close-btn" id="confirmClose" aria-label="Close summary modal">&times;</button>
       </div>
 
@@ -1181,15 +1187,19 @@
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
         </div>
-        <h3 class="confirm-title" id="confirmTitle">Enquiry Submitted (Demo)</h3>
+        <h3 class="confirm-title" id="confirmTitle">Appointment Request Received</h3>
         
         <!-- Mandated Exact Phrasing -->
-        <p class="confirm-mandated-notice">
-          <strong>Demo enquiry submitted successfully. No appointment has been booked, and this request has not been sent to the salon.</strong>
+        <p class="confirm-mandated-notice" id="confirmNotice">
+          <strong>Your appointment request has been received. The salon must confirm availability before your appointment is confirmed.</strong>
         </p>
 
         <!-- Summary Ticket Table -->
         <div class="summary-ticket">
+          <div class="ticket-row" id="summaryRefRow" style="display: none;">
+            <span class="t-label">Reference ID:</span>
+            <span class="t-val" id="summaryRefId" style="font-family: monospace; font-size: 0.85rem; color: var(--rose-gold);">—</span>
+          </div>
           <div class="ticket-row">
             <span class="t-label">Name:</span>
             <span class="t-val" id="summaryName">—</span>
@@ -1450,7 +1460,8 @@
     </a>
   </aside>
 
-  <!-- Script -->
+  <!-- Configuration & Script -->
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

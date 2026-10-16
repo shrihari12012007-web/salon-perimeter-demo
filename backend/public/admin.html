@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salon Perimeter Shimoga | Owner Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ============================================== -->
+  <!-- 1. LOGIN SCREEN OVERLAY                        -->
+  <!-- ============================================== -->
+  <div class="login-container" id="loginScreen">
+    <div class="login-card">
+      <div class="brand-badge">SALON PERIMETER SHIMOGA</div>
+      <h1 class="login-title">Owner Administration</h1>
+      <p class="login-subtitle">Appointment enquiries management &bull; Women &amp; Children Sanctuary</p>
+
+      <div class="login-alert" id="loginAlert" role="alert" style="display: none;"></div>
+
+      <form id="loginForm">
+        <div class="form-field">
+          <label for="usernameInput">Username</label>
+          <input type="text" id="usernameInput" name="username" placeholder="e.g. salon_owner" required autocomplete="username">
+        </div>
+        <div class="form-field">
+          <label for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" name="password" placeholder="••••••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary full-width" id="loginBtn">
+          <span>Sign In to Dashboard</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <small>Sharavathi Nagar Main Road, Shivamogga &bull; +91 95913 24243</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- 2. ADMIN DASHBOARD SCREEN                      -->
+  <!-- ============================================== -->
+  <div class="dashboard-container" id="dashboardScreen" style="display: none;">
+    <!-- Top Navigation -->
+    <header class="admin-header">
+      <div class="admin-header-inner">
+        <div class="admin-brand">
+          <span class="logo-mark">SP</span>
+          <div>
+            <h2 class="admin-title">Salon Perimeter Shimoga</h2>
+            <p class="admin-subtitle">Appointment Enquiries &bull; Women &amp; Children</p>
+          </div>
+        </div>
+
+        <div class="admin-user-group">
+          <span class="user-pill" id="adminUserPill">Logged in as <strong>Owner</strong></span>
+          <a href="/" target="_blank" class="btn btn-sm btn-ghost">View Website ↗</a>
+          <button class="btn btn-sm btn-outline" id="logoutBtn">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Stats Overview Row -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon pending-icon">⏳</span>
+          <div>
+            <h3 class="stat-value" id="statPending">0</h3>
+            <span class="stat-label">Pending Action</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon confirmed-icon">✅</span>
+          <div>
+            <h3 class="stat-value" id="statConfirmed">0</h3>
+            <span class="stat-label">Confirmed Bookings</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon completed-icon">🌸</span>
+          <div>
+            <h3 class="stat-value" id="statCompleted">0</h3>
+            <span class="stat-label">Completed Visits</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon total-icon">📋</span>
+          <div>
+            <h3 class="stat-value" id="statTotal">0</h3>
+            <span class="stat-label">Total Received</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enquiries Management Panel -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Client Appointment Enquiries</h2>
+            <p class="panel-subtitle">Review incoming reservation requests and update their confirmation status.</p>
+          </div>
+
+          <div class="panel-actions">
+            <!-- Filter Tabs -->
+            <div class="filter-group">
+              <button class="filter-btn active" data-status="all">All</button>
+              <button class="filter-btn" data-status="pending">Pending</button>
+              <button class="filter-btn" data-status="confirmed">Confirmed</button>
+              <button class="filter-btn" data-status="completed">Completed</button>
+              <button class="filter-btn" data-status="cancelled">Cancelled</button>
+            </div>
+
+            <button class="btn btn-sm btn-outline refresh-btn" id="refreshBtn" title="Refresh Enquiries">
+              <span>↻ Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Loading Indicator -->
+        <div class="table-loader" id="tableLoader" style="display: none;">
+          <div class="spinner"></div>
+          <p>Loading enquiries...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="table-empty" id="tableEmpty" style="display: none;">
+          <div class="empty-icon">📭</div>
+          <h3>No Enquiries Found</h3>
+          <p>No appointment enquiries match the selected filter criteria.</p>
+        </div>
+
+        <!-- Enquiries Responsive Table -->
+        <div class="table-responsive" id="tableWrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Received</th>
+                <th>Client Name</th>
+                <th>Phone Number</th>
+                <th>Requested Service</th>
+                <th>Preferred Date &amp; Time</th>
+                <th>Notes / Requirements</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="enquiriesBody">
+              <!-- Dynamically populated via admin.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-footer" id="paginationFooter">
+          <span class="page-info" id="pageInfo">Showing 0 of 0</span>
+          <div class="page-btns">
+            <button class="btn btn-sm btn-outline" id="prevPageBtn" disabled>&larr; Previous</button>
+            <button class="btn btn-sm btn-outline" id="nextPageBtn" disabled>Next &rarr;</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Toast Notification Popup -->
+    <div class="toast-popup" id="toastPopup" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
