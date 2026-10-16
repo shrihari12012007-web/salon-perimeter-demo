@@ -98,7 +98,7 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'SERVER_ERROR',
-      message: 'We were unable to process your appointment enquiry due to an internal error. Please try again or call us directly at +91 95913 24243.'
+      message: 'We were unable to process your appointment enquiry due to an internal error. Please try again or call us directly at +91 98765 43210.'
     });
   }
 });

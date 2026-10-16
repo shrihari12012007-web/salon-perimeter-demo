@@ -69,7 +69,7 @@ function createRateLimiter({ windowMs = 15 * 60 * 1000, max = 100, message = 'To
 const appointmentLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  message: 'Too many appointment enquiries submitted from this network. Please wait a few minutes before trying again or call us directly at +91 95913 24243.'
+  message: 'Too many appointment enquiries submitted from this network. Please wait a few minutes before trying again or call us directly at +91 98765 43210.'
 });
 
 // Admin login brute-force limiter: 10 login attempts per 15 minutes per IP

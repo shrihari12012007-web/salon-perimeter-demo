@@ -112,7 +112,7 @@ app.get('/', (req, res) => {
     name: 'Salon Perimeter Shimoga Backend API',
     target: "Women's & Children's Salon",
     location: 'Sharavathi Nagar Main Road, Shivamogga, Karnataka',
-    contact: '+91 95913 24243',
+    contact: '+91 98765 43210',
     demoNotice: 'Unofficial portfolio demonstration website backend',
     status: 'operational',
     adminPanel: '/admin',

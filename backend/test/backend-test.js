@@ -194,7 +194,7 @@ async function runTests() {
       const validDate = getFutureNonTuesdayDate(5);
       const res = await request('POST', '/api/appointments', {
         customer_name: 'Kavitha Shetty',
-        phone: '+91 95913 24243',
+        phone: '+91 98765 43210',
         email: 'kavitha@example.com',
         service: "Women's Haircut & Styling",
         preferred_date: validDate,
@@ -250,7 +250,7 @@ async function runTests() {
       const validDate = getFutureNonTuesdayDate(5);
       const res = await request('POST', '/api/appointments', {
         customer_name: 'Kavitha Shetty',
-        phone: '+91 95913 24243',
+        phone: '+91 98765 43210',
         service: "Women's Haircut & Styling",
         preferred_date: validDate,
         preferred_time: '10:00 AM - 11:30 AM'

@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Validate Phone
       const phoneVal = clientPhone ? clientPhone.value.trim() : '';
       if (!isSensibleIndianPhone(phoneVal)) {
-        setFieldError(clientPhone, 'phoneError', 'Please enter a valid 10-digit Indian phone number (e.g. +91 95913 24243).');
+        setFieldError(clientPhone, 'phoneError', 'Please enter a valid 10-digit Indian phone number (e.g. +91 98765 43210).');
         isValid = false;
         if (!firstErrorField) firstErrorField = clientPhone;
       } else {
@@ -689,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
           openConfirmationModal();
         } else {
           // Server or validation failure — do NOT display fake success modal
-          let errorMsg = data.message || 'Unable to submit your appointment enquiry. Please try again or call +91 95913 24243.';
+          let errorMsg = data.message || 'Unable to submit your appointment enquiry. Please try again or call +91 98765 43210.';
           if (data.errors && typeof data.errors === 'object') {
             const firstKey = Object.keys(data.errors)[0];
             if (data.errors[firstKey]) errorMsg = data.errors[firstKey];
@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (networkError) {
         console.error('[APPOINTMENTS] Network connection error:', networkError);
-        showFormError('Could not connect to the booking server. Please verify your connection or call Salon Perimeter directly at +91 95913 24243.');
+        showFormError('Could not connect to the booking server. Please verify your connection or call Salon Perimeter directly at +91 98765 43210.');
       } finally {
         isSubmitting = false;
         if (submitBtn) {
