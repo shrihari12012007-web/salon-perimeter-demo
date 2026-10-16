@@ -1,7 +1,7 @@
 /**
  * Salon Perimeter Shimoga — Interactive Demo Website Script
  * Exclusively Serving Women & Children • Shivamogga, Karnataka
- * Features: Mobile Nav, Services Filter, Gallery Lightbox, Form Validation & Simulation Modal
+ * Features: Mobile Nav, Services Filter, Accessible Gallery Lightbox, Form Validation & Demo Simulation Modal
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,16 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const prefDateInput = document.getElementById('prefDate');
   const dateHint = document.getElementById('dateHint');
 
-  if (prefDateInput) {
-    // Prevent selection of past dates by setting min attribute to today (YYYY-MM-DD)
+  // Prevent selection of past dates by dynamically setting min to today (YYYY-MM-DD)
+  function initMinDate() {
+    if (!prefDateInput) return;
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
-    const minDateString = `${yyyy}-${mm}-${dd}`;
-    prefDateInput.min = minDateString;
+    prefDateInput.min = `${yyyy}-${mm}-${dd}`;
+  }
+  initMinDate();
 
-    // Real-time check for Tuesday closure
+  if (prefDateInput) {
     prefDateInput.addEventListener('change', () => {
       validateDateSelection(prefDateInput.value);
     });
@@ -35,11 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function validateDateSelection(dateValue) {
     const dateError = document.getElementById('dateError');
-    const formGroup = prefDateInput.closest('.form-group');
+    const formGroup = prefDateInput ? prefDateInput.closest('.form-group') : null;
 
     if (!dateValue) {
       if (dateError) dateError.textContent = 'Please choose a preferred date.';
       if (formGroup) formGroup.classList.add('has-error');
+      if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'true');
       return false;
     }
 
@@ -52,23 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedDate < today) {
       if (dateError) dateError.textContent = 'Appointments cannot be scheduled on past dates.';
       if (formGroup) formGroup.classList.add('has-error');
+      if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'true');
       return false;
     }
 
-    // Tuesday is day 2
+    // Tuesday is day 2 (Salon Perimeter is closed on Tuesdays)
     if (dayOfWeek === 2) {
-      if (dateError) dateError.textContent = 'Salon Perimeter is closed on Tuesdays. Please pick Wed–Mon.';
+      if (dateError) dateError.textContent = 'Salon Perimeter is closed on Tuesdays. Please select Wed–Mon.';
       if (formGroup) formGroup.classList.add('has-error');
+      if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'true');
       if (dateHint) {
-        dateHint.textContent = '⚠️ Closed on Tuesdays. Please select another day.';
+        dateHint.textContent = '⚠️ Closed on Tuesdays. Please pick another day.';
         dateHint.classList.add('warning');
       }
       return false;
     }
 
-    // Clear error
+    // Date is valid
     if (dateError) dateError.textContent = '';
     if (formGroup) formGroup.classList.remove('has-error');
+    if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'false');
     if (dateHint) {
       dateHint.textContent = 'Min: Today • Closed on Tuesdays';
       dateHint.classList.remove('warning');
@@ -86,14 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', () => {
     const scrollY = window.pageYOffset;
 
-    // Sticky header shadow
-    if (scrollY > 40) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
+    if (header) {
+      if (scrollY > 40) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
     }
 
-    // Active nav link highlight on scroll
+    // Highlight active section nav link
     let currentSectionId = '';
     sections.forEach(section => {
       const sectionTop = section.offsetTop - 120;
@@ -121,19 +128,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuBackdrop = document.getElementById('menuBackdrop');
   const mobileDrawer = document.getElementById('mobileDrawer');
   const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  let lastNavTrigger = null;
 
   function openMobileMenu() {
+    if (!mobileDrawer) return;
+    lastNavTrigger = document.activeElement;
     mobileDrawer.classList.add('open');
     mobileDrawer.setAttribute('aria-hidden', 'false');
-    menuToggle.setAttribute('aria-expanded', 'true');
+    if (menuToggle) menuToggle.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
+    if (menuClose) menuClose.focus();
   }
 
   function closeMobileMenu() {
+    if (!mobileDrawer) return;
     mobileDrawer.classList.remove('open');
     mobileDrawer.setAttribute('aria-hidden', 'true');
-    menuToggle.setAttribute('aria-expanded', 'false');
+    if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
+    if (lastNavTrigger && typeof lastNavTrigger.focus === 'function') {
+      lastNavTrigger.focus();
+    }
   }
 
   if (menuToggle) menuToggle.addEventListener('click', openMobileMenu);
@@ -146,17 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (mobileDrawer.classList.contains('open')) closeMobileMenu();
-      if (lightboxModal && lightboxModal.classList.contains('open')) closeLightbox();
-      if (confirmationModal && confirmationModal.classList.contains('open')) closeConfirmationModal();
-    }
-  });
-
   // ==========================================================================
-  // 4. SERVICE CARDS CATEGORY FILTER
+  // 4. SERVICE CARDS CATEGORY FILTER & ENQUIRE BUTTON PRE-FILL
   // ==========================================================================
   const serviceTabs = document.querySelectorAll('.filter-tab');
   const serviceCards = document.querySelectorAll('.service-card');
@@ -179,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
           card.style.opacity = '0';
           setTimeout(() => {
             card.style.opacity = '1';
-          }, 50);
+          }, 40);
         } else {
           card.style.display = 'none';
         }
@@ -187,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // "Enquire Now" button clicks on service cards pre-fill the form
+  // "Enquire Now" buttons on service cards pre-fill the form and scroll down
   const selectServiceBtns = document.querySelectorAll('.select-service-btn');
   const serviceSelect = document.getElementById('serviceSelect');
 
@@ -208,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Highlight select field
         serviceSelect.focus();
         serviceSelect.style.borderColor = 'var(--rose-gold)';
-        serviceSelect.style.boxShadow = '0 0 0 4px rgba(183, 110, 121, 0.3)';
+        serviceSelect.style.boxShadow = '0 0 0 4px rgba(168, 90, 101, 0.25)';
         setTimeout(() => {
           serviceSelect.style.boxShadow = '';
         }, 1500);
@@ -217,12 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // 5. GALLERY FILTER & LIGHTBOX MODAL
+  // 5. GALLERY FILTER & ACCESSIBLE LIGHTBOX MODAL
   // ==========================================================================
   const galleryFilterBtns = document.querySelectorAll('.gallery-filter-btn');
   const galleryItems = document.querySelectorAll('.gallery-item');
 
-  // Filter gallery
   galleryFilterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       galleryFilterBtns.forEach(b => b.classList.remove('active'));
@@ -241,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Lightbox Data Collection
+  // Lightbox Data & Controls
   const lightboxModal = document.getElementById('lightboxModal');
   const lightboxBackdrop = document.getElementById('lightboxBackdrop');
   const lightboxClose = document.getElementById('lightboxClose');
@@ -254,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentGalleryIndex = 0;
   const galleryData = [];
+  let lastGalleryTrigger = null;
 
   galleryItems.forEach((item, index) => {
     const img = item.querySelector('img');
@@ -264,14 +270,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     galleryData.push({ src, alt, title, category });
 
-    // Open lightbox on click or Enter key
+    // Open lightbox on click or Enter/Space
     item.addEventListener('click', () => {
+      lastGalleryTrigger = item;
       openLightbox(index);
     });
 
     item.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
+        lastGalleryTrigger = item;
         openLightbox(index);
       }
     });
@@ -292,17 +300,22 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxModal.classList.remove('open');
     lightboxModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (lastGalleryTrigger && typeof lastGalleryTrigger.focus === 'function') {
+      lastGalleryTrigger.focus();
+    }
   }
 
   function updateLightboxContent() {
     const item = galleryData[currentGalleryIndex];
     if (!item) return;
 
-    lightboxImg.src = item.src;
-    lightboxImg.alt = item.alt;
-    lightboxTitle.textContent = item.title;
-    lightboxCategory.textContent = item.category;
-    lightboxCounter.textContent = `${currentGalleryIndex + 1} of ${galleryData.length}`;
+    if (lightboxImg) {
+      lightboxImg.src = item.src;
+      lightboxImg.alt = item.alt;
+    }
+    if (lightboxTitle) lightboxTitle.textContent = item.title;
+    if (lightboxCategory) lightboxCategory.textContent = item.category;
+    if (lightboxCounter) lightboxCounter.textContent = `${currentGalleryIndex + 1} of ${galleryData.length}`;
   }
 
   function prevLightboxItem() {
@@ -320,27 +333,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (lightboxPrev) lightboxPrev.addEventListener('click', prevLightboxItem);
   if (lightboxNext) lightboxNext.addEventListener('click', nextLightboxItem);
 
-  // Keyboard navigation for Lightbox
-  document.addEventListener('keydown', (e) => {
-    if (!lightboxModal || !lightboxModal.classList.contains('open')) return;
-
-    if (e.key === 'ArrowLeft') {
-      prevLightboxItem();
-    } else if (e.key === 'ArrowRight') {
-      nextLightboxItem();
-    }
-  });
+  // Close if clicking outside the modal dialog
+  if (lightboxModal) {
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) {
+        closeLightbox();
+      }
+    });
+  }
 
   // ==========================================================================
-  // 6. APPOINTMENT ENQUIRY FORM VALIDATION & SIMULATION
+  // 6. APPOINTMENT ENQUIRY FORM VALIDATION & FRONT-END SIMULATION
   // ==========================================================================
   const appointmentForm = document.getElementById('appointmentForm');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Input Fields
+  // Input Fields (Exactly the 6 requested fields)
   const clientName = document.getElementById('clientName');
   const clientPhone = document.getElementById('clientPhone');
-  const guestType = document.getElementById('guestType');
   const clientMessage = document.getElementById('clientMessage');
   const prefTime = document.getElementById('prefTime');
 
@@ -349,12 +359,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const confirmationBackdrop = document.getElementById('confirmationBackdrop');
   const confirmClose = document.getElementById('confirmClose');
   const confirmDoneBtn = document.getElementById('confirmDoneBtn');
-  const confirmResetBtn = document.getElementById('confirmResetBtn');
+  let lastModalTrigger = null;
 
-  // Summary Elements
+  // Summary Ticket Elements
   const summaryName = document.getElementById('summaryName');
   const summaryPhone = document.getElementById('summaryPhone');
-  const summaryGuest = document.getElementById('summaryGuest');
   const summaryService = document.getElementById('summaryService');
   const summaryDate = document.getElementById('summaryDate');
   const summaryTime = document.getElementById('summaryTime');
@@ -363,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Validation Helpers
   function setFieldError(field, errorId, message) {
+    if (!field) return;
     const formGroup = field.closest('.form-group');
     const errorEl = document.getElementById(errorId);
     if (formGroup) formGroup.classList.add('has-error');
@@ -371,6 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function clearFieldError(field, errorId) {
+    if (!field) return;
     const formGroup = field.closest('.form-group');
     const errorEl = document.getElementById(errorId);
     if (formGroup) formGroup.classList.remove('has-error');
@@ -378,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     field.setAttribute('aria-invalid', 'false');
   }
 
-  // Real-time clearing of errors
+  // Real-time error clearing on input
   if (clientName) {
     clientName.addEventListener('input', () => {
       if (clientName.value.trim().length >= 2) clearFieldError(clientName, 'nameError');
@@ -389,12 +400,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clientPhone.addEventListener('input', () => {
       const cleanPhone = clientPhone.value.replace(/[\s\-\(\)\+]/g, '');
       if (cleanPhone.length >= 10) clearFieldError(clientPhone, 'phoneError');
-    });
-  }
-
-  if (guestType) {
-    guestType.addEventListener('change', () => {
-      if (guestType.value) clearFieldError(guestType, 'guestError');
     });
   }
 
@@ -410,57 +415,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Sensible Indian Mobile Phone Validation
+  function isSensibleIndianPhone(phoneString) {
+    if (!phoneString) return false;
+    // Strip all formatting spaces, hyphens, plus, parentheses
+    const clean = phoneString.replace(/[\s\-\(\)\+]/g, '');
+    
+    // 10 digits starting with 6, 7, 8, or 9
+    if (/^[6-9]\d{9}$/.test(clean)) return true;
+    // 12 digits starting with country code 91 followed by 6-9
+    if (/^91[6-9]\d{9}$/.test(clean)) return true;
+    // 11 digits starting with trunk 0 followed by 6-9
+    if (/^0[6-9]\d{9}$/.test(clean)) return true;
+    
+    return false;
+  }
+
   // Form Submission Handler
+  let isSubmitting = false;
+
   if (appointmentForm) {
     appointmentForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
+      // Prevent accidental duplicate submission
+      if (isSubmitting) return;
+
       let isValid = true;
       let firstErrorField = null;
 
-      // Validate Name
+      // 1. Validate Name
       const nameVal = clientName ? clientName.value.trim() : '';
       if (!nameVal || nameVal.length < 2) {
-        setFieldError(clientName, 'nameError', 'Please enter your full name (at least 2 letters).');
+        setFieldError(clientName, 'nameError', 'Please enter your full name (at least 2 characters).');
         isValid = false;
         if (!firstErrorField) firstErrorField = clientName;
       } else {
         clearFieldError(clientName, 'nameError');
       }
 
-      // Validate Phone (Indian numbers: 10 digits, optional +91 or 0 prefix)
+      // 2. Validate Phone
       const phoneVal = clientPhone ? clientPhone.value.trim() : '';
-      const digitsOnly = phoneVal.replace(/\D/g, '');
-      // Standard Indian mobile is 10 digits (optionally preceded by 91 or 0, total 10 to 12 digits)
-      const isValidPhone = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91')) || (digitsOnly.length === 11 && digitsOnly.startsWith('0'));
-
-      if (!phoneVal || !isValidPhone) {
-        setFieldError(clientPhone, 'phoneError', 'Please enter a valid 10-digit phone number.');
+      if (!isSensibleIndianPhone(phoneVal)) {
+        setFieldError(clientPhone, 'phoneError', 'Please enter a valid 10-digit Indian phone number (e.g. +91 95913 24243).');
         isValid = false;
         if (!firstErrorField) firstErrorField = clientPhone;
       } else {
         clearFieldError(clientPhone, 'phoneError');
       }
 
-      // Validate Guest Type
-      if (!guestType || !guestType.value) {
-        setFieldError(guestType, 'guestError', 'Please specify who this appointment is for.');
-        isValid = false;
-        if (!firstErrorField) firstErrorField = guestType;
-      } else {
-        clearFieldError(guestType, 'guestError');
-      }
-
-      // Validate Service
+      // 3. Validate Service Category
       if (!serviceSelect || !serviceSelect.value) {
-        setFieldError(serviceSelect, 'serviceError', 'Please select a desired service.');
+        setFieldError(serviceSelect, 'serviceError', 'Please select a service category.');
         isValid = false;
         if (!firstErrorField) firstErrorField = serviceSelect;
       } else {
         clearFieldError(serviceSelect, 'serviceError');
       }
 
-      // Validate Date (including Tuesday check & past date prevention)
+      // 4. Validate Preferred Date (including Tuesday check & past date prevention)
       const dateVal = prefDateInput ? prefDateInput.value : '';
       const isDateValid = validateDateSelection(dateVal);
       if (!isDateValid) {
@@ -468,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!firstErrorField) firstErrorField = prefDateInput;
       }
 
-      // Validate Time
+      // 5. Validate Preferred Time
       if (!prefTime || !prefTime.value) {
         setFieldError(prefTime, 'timeError', 'Please choose a preferred time slot.');
         isValid = false;
@@ -477,44 +490,57 @@ document.addEventListener('DOMContentLoaded', () => {
         clearFieldError(prefTime, 'timeError');
       }
 
-      // If invalid, focus first error field
+      // If validation fails, focus the first invalid field
       if (!isValid) {
         if (firstErrorField) firstErrorField.focus();
         return;
       }
 
-      // If valid, simulate realistic submission with button spinner
-      submitBtn.classList.add('loading');
-      submitBtn.disabled = true;
+      // Set submitting state
+      isSubmitting = true;
+      if (submitBtn) {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+      }
 
+      // Simulate responsive front-end submission without page reload
       setTimeout(() => {
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
+        isSubmitting = false;
+        if (submitBtn) {
+          submitBtn.classList.remove('loading');
+          submitBtn.disabled = false;
+        }
 
-        // Format Date nicely
+        // Format Date nicely for display
         const dateObj = new Date(dateVal + 'T00:00:00');
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = dateObj.toLocaleDateString('en-IN', options);
 
-        // Populate Summary Modal
-        summaryName.textContent = nameVal;
-        summaryPhone.textContent = phoneVal;
-        summaryGuest.textContent = guestType.value;
-        summaryService.textContent = serviceSelect.value;
-        summaryDate.textContent = formattedDate;
-        summaryTime.textContent = prefTime.value;
+        // Populate Confirmation Modal with actual submitted values
+        if (summaryName) summaryName.textContent = nameVal;
+        if (summaryPhone) summaryPhone.textContent = phoneVal;
+        if (summaryService) summaryService.textContent = serviceSelect.value;
+        if (summaryDate) summaryDate.textContent = formattedDate;
+        if (summaryTime) summaryTime.textContent = prefTime.value;
 
         const messageVal = clientMessage ? clientMessage.value.trim() : '';
-        if (messageVal) {
-          summaryNotes.textContent = messageVal;
-          summaryNotesRow.style.display = 'flex';
-        } else {
-          summaryNotesRow.style.display = 'none';
+        if (summaryNotes && summaryNotesRow) {
+          if (messageVal) {
+            summaryNotes.textContent = messageVal;
+            summaryNotesRow.style.display = 'flex';
+          } else {
+            summaryNotesRow.style.display = 'none';
+          }
         }
 
+        // Clear the form after successful demonstration submission as required
+        appointmentForm.reset();
+        initMinDate();
+
         // Open Confirmation Modal
+        lastModalTrigger = submitBtn;
         openConfirmationModal();
-      }, 650);
+      }, 500);
     });
   }
 
@@ -531,30 +557,51 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmationModal.classList.remove('open');
     confirmationModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (lastModalTrigger && typeof lastModalTrigger.focus === 'function') {
+      lastModalTrigger.focus();
+    }
   }
 
   if (confirmClose) confirmClose.addEventListener('click', closeConfirmationModal);
   if (confirmationBackdrop) confirmationBackdrop.addEventListener('click', closeConfirmationModal);
   if (confirmDoneBtn) confirmDoneBtn.addEventListener('click', closeConfirmationModal);
 
-  if (confirmResetBtn) {
-    confirmResetBtn.addEventListener('click', () => {
-      closeConfirmationModal();
-      if (appointmentForm) {
-        appointmentForm.reset();
-        // Restore default min date
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        prefDateInput.min = `${yyyy}-${mm}-${dd}`;
+  // Close modal when clicking outside dialog
+  if (confirmationModal) {
+    confirmationModal.addEventListener('click', (e) => {
+      if (e.target === confirmationModal) {
+        closeConfirmationModal();
       }
-      if (clientName) clientName.focus();
     });
   }
 
   // ==========================================================================
-  // 7. SMOOTH SCROLLING FOR ALL INTERNAL LINKS
+  // 7. KEYBOARD ACCESSIBILITY (ESCAPE KEY & ARROWS)
+  // ==========================================================================
+  document.addEventListener('keydown', (e) => {
+    // Escape key closes open overlay/modal
+    if (e.key === 'Escape') {
+      if (confirmationModal && confirmationModal.classList.contains('open')) {
+        closeConfirmationModal();
+      } else if (lightboxModal && lightboxModal.classList.contains('open')) {
+        closeLightbox();
+      } else if (mobileDrawer && mobileDrawer.classList.contains('open')) {
+        closeMobileMenu();
+      }
+    }
+
+    // Lightbox Arrow Navigation
+    if (lightboxModal && lightboxModal.classList.contains('open')) {
+      if (e.key === 'ArrowLeft') {
+        prevLightboxItem();
+      } else if (e.key === 'ArrowRight') {
+        nextLightboxItem();
+      }
+    }
+  });
+
+  // ==========================================================================
+  // 8. SMOOTH SCROLLING FOR ALL INTERNAL LINKS
   // ==========================================================================
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -571,12 +618,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Console Welcome & Transparency Note
+  // Console Welcome & Transparency Notice
   console.log(
     '%c✨ SALON PERIMETER SHIMOGA — PORTFOLIO DEMO CONCEPT ✨\n' +
     '%cExclusively serving women & children on Sharavathi Nagar Main Road, Shivamogga, Karnataka.\n' +
-    'Note: This website is an independent portfolio demonstration created to showcase web development capabilities. It is NOT an officially commissioned or endorsed website by Salon Perimeter.',
-    'color: #B76E79; font-size: 14px; font-weight: bold;',
-    'color: #594F4A; font-size: 12px;'
+    'Notice: This website is an independent portfolio demonstration. It has not been approved or endorsed by Salon Perimeter.',
+    'color: #A85A65; font-size: 14px; font-weight: bold;',
+    'color: #4E4540; font-size: 12px;'
   );
 });
