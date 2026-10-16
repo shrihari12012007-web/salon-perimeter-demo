@@ -348,6 +348,44 @@ async function runTests() {
       assert.strictEqual(res.body.stats.pending, prePending);
     });
 
+    // 12d. Full Status Transition Matrix: Verify transitions between any status without restrictions
+    await test('PATCH /api/admin/appointments/:id/status allows transitions between any statuses (completed->pending, cancelled->confirmed, etc.)', async () => {
+      assert.ok(testAppointmentId);
+      const testTransitions = [
+        { to: 'completed', expectedCompleted: 1, expectedPending: prePending - 1 },
+        { to: 'pending', expectedCompleted: 0, expectedPending: prePending },
+        { to: 'completed', expectedCompleted: 1, expectedPending: prePending - 1 },
+        { to: 'confirmed', expectedCompleted: 0, expectedConfirmed: preConfirmed + 1 },
+        { to: 'cancelled', expectedConfirmed: preConfirmed, expectedCancelled: 1 },
+        { to: 'confirmed', expectedConfirmed: preConfirmed + 1, expectedCancelled: 0 },
+        { to: 'completed', expectedCompleted: 1, expectedConfirmed: preConfirmed },
+        { to: 'cancelled', expectedCompleted: 0, expectedCancelled: 1 },
+        { to: 'pending', expectedPending: prePending, expectedCancelled: 0 },
+        { to: 'cancelled', expectedCancelled: 1, expectedPending: prePending - 1 },
+        { to: 'pending', expectedPending: prePending, expectedCancelled: 0 }
+      ];
+
+      for (const t of testTransitions) {
+        const patchRes = await request('PATCH', `/api/admin/appointments/${testAppointmentId}/status`, {
+          status: t.to
+        }, {
+          'Authorization': `Bearer ${authToken}`
+        });
+
+        assert.strictEqual(patchRes.status, 200);
+        assert.strictEqual(patchRes.body.success, true);
+        assert.strictEqual(patchRes.body.appointment.status, t.to);
+
+        // Fetch all appointments (simulating page refresh) to ensure persistence
+        const fetchRes = await request('GET', '/api/admin/appointments', null, {
+          'Authorization': `Bearer ${authToken}`
+        });
+        const found = fetchRes.body.appointments.find(a => a.id === testAppointmentId);
+        assert.ok(found);
+        assert.strictEqual(found.status, t.to);
+      }
+    });
+
     // 13. Admin: Delete enquiry
     await test('DELETE /api/admin/appointments/:id deletes enquiry record', async () => {
       assert.ok(testAppointmentId);
