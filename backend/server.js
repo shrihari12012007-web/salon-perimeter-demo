@@ -101,8 +101,13 @@ app.get('/admin/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// Root friendly greeting
+// Root route: Redirects browser visitors to live website; responds with JSON for API clients
 app.get('/', (req, res) => {
+  const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
+  if (acceptsHtml) {
+    return res.redirect(302, 'https://shrihari12012007-web.github.io/salon-perimeter-demo/');
+  }
+
   res.json({
     name: 'Salon Perimeter Shimoga Backend API',
     target: "Women's & Children's Salon",
@@ -111,7 +116,8 @@ app.get('/', (req, res) => {
     demoNotice: 'Unofficial portfolio demonstration website backend',
     status: 'operational',
     adminPanel: '/admin',
-    healthCheck: '/api/health'
+    healthCheck: '/api/health',
+    website: 'https://shrihari12012007-web.github.io/salon-perimeter-demo/'
   });
 });
 
