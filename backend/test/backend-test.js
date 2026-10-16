@@ -174,12 +174,28 @@ async function runTests() {
       assert.ok(res.body.errors.preferred_date.includes('closed on Tuesdays'));
     });
 
-    // 5. Public Appointments: Valid Submission
+    // 4b. Public Appointments Validation: Invalid Email
+    await test('POST /api/appointments rejects invalid email format with HTTP 400', async () => {
+      const validDate = getFutureNonTuesdayDate(4);
+      const res = await request('POST', '/api/appointments', {
+        customer_name: 'Pooja Hegde',
+        phone: '+91 98765 43210',
+        email: 'invalid-email-format',
+        service: "Intensive Hair Spa",
+        preferred_date: validDate,
+        preferred_time: '11:30 AM - 01:00 PM'
+      });
+      assert.strictEqual(res.status, 400);
+      assert.ok(res.body.errors.email);
+    });
+
+    // 5. Public Appointments: Valid Submission (with optional email)
     await test('POST /api/appointments saves valid submission and returns HTTP 201 with exact required notice', async () => {
       const validDate = getFutureNonTuesdayDate(5);
       const res = await request('POST', '/api/appointments', {
         customer_name: 'Kavitha Shetty',
         phone: '+91 95913 24243',
+        email: 'kavitha@example.com',
         service: "Women's Haircut & Styling",
         preferred_date: validDate,
         preferred_time: '10:00 AM - 11:30 AM',
@@ -194,7 +210,9 @@ async function runTests() {
       );
       assert.ok(res.body.data.id);
       assert.strictEqual(res.body.data.customer_name, 'Kavitha Shetty');
+      assert.strictEqual(res.body.data.email, 'kavitha@example.com');
       assert.strictEqual(res.body.data.status, 'pending');
+      assert.ok(res.body.data.message.includes('Email: kavitha@example.com'));
 
       testAppointmentId = res.body.data.id;
     });

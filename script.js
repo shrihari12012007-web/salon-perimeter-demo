@@ -348,9 +348,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const appointmentForm = document.getElementById('appointmentForm');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Input Fields (Exactly the 6 requested fields)
+  // Input Fields
   const clientName = document.getElementById('clientName');
   const clientPhone = document.getElementById('clientPhone');
+  const clientEmail = document.getElementById('clientEmail');
   const clientMessage = document.getElementById('clientMessage');
   const prefTime = document.getElementById('prefTime');
 
@@ -364,6 +365,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Summary Ticket Elements
   const summaryName = document.getElementById('summaryName');
   const summaryPhone = document.getElementById('summaryPhone');
+  const summaryEmail = document.getElementById('summaryEmail');
+  const summaryEmailRow = document.getElementById('summaryEmailRow');
   const summaryService = document.getElementById('summaryService');
   const summaryDate = document.getElementById('summaryDate');
   const summaryTime = document.getElementById('summaryTime');
@@ -420,6 +423,16 @@ document.addEventListener('DOMContentLoaded', () => {
       hideFormError();
       const cleanPhone = clientPhone.value.replace(/[\s\-\(\)\+]/g, '');
       if (cleanPhone.length >= 10) clearFieldError(clientPhone, 'phoneError');
+    });
+  }
+
+  if (clientEmail) {
+    clientEmail.addEventListener('input', () => {
+      hideFormError();
+      const emailVal = clientEmail.value.trim();
+      if (!emailVal || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        clearFieldError(clientEmail, 'emailError');
+      }
     });
   }
 
@@ -488,7 +501,22 @@ document.addEventListener('DOMContentLoaded', () => {
         clearFieldError(clientPhone, 'phoneError');
       }
 
-      // 3. Validate Service Category
+      // 3. Validate Optional Email
+      const emailVal = clientEmail ? clientEmail.value.trim() : '';
+      if (emailVal) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+          setFieldError(clientEmail, 'emailError', 'Please enter a valid email address.');
+          isValid = false;
+          if (!firstErrorField) firstErrorField = clientEmail;
+        } else {
+          clearFieldError(clientEmail, 'emailError');
+        }
+      } else {
+        clearFieldError(clientEmail, 'emailError');
+      }
+
+      // 4. Validate Service Category
       if (!serviceSelect || !serviceSelect.value) {
         setFieldError(serviceSelect, 'serviceError', 'Please select a service category.');
         isValid = false;
@@ -497,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearFieldError(serviceSelect, 'serviceError');
       }
 
-      // 4. Validate Preferred Date (including Tuesday check & past date prevention)
+      // 5. Validate Preferred Date (including Tuesday check & past date prevention)
       const dateVal = prefDateInput ? prefDateInput.value : '';
       const isDateValid = validateDateSelection(dateVal);
       if (!isDateValid) {
@@ -505,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!firstErrorField) firstErrorField = prefDateInput;
       }
 
-      // 5. Validate Preferred Time
+      // 6. Validate Preferred Time
       if (!prefTime || !prefTime.value) {
         setFieldError(prefTime, 'timeError', 'Please choose a preferred time slot.');
         isValid = false;
@@ -532,6 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const payload = {
         customer_name: nameVal,
         phone: phoneVal,
+        email: emailVal,
         service: serviceSelect.value,
         preferred_date: dateVal,
         preferred_time: prefTime.value,
@@ -590,6 +619,16 @@ document.addEventListener('DOMContentLoaded', () => {
           if (summaryDate) summaryDate.textContent = formattedDate;
           if (summaryTime) summaryTime.textContent = savedRecord.preferred_time;
 
+          if (summaryEmailRow && summaryEmail) {
+            const displayEmail = savedRecord.email || emailVal;
+            if (displayEmail) {
+              summaryEmail.textContent = displayEmail;
+              summaryEmailRow.style.display = 'flex';
+            } else {
+              summaryEmailRow.style.display = 'none';
+            }
+          }
+
           const summaryRefRow = document.getElementById('summaryRefRow');
           const summaryRefId = document.getElementById('summaryRefId');
           if (summaryRefRow && summaryRefId) {
@@ -619,7 +658,11 @@ document.addEventListener('DOMContentLoaded', () => {
           openConfirmationModal();
         } else {
           // Server or validation failure — do NOT display fake success modal
-          const errorMsg = data.message || 'Unable to submit your appointment enquiry. Please try again or call +91 95913 24243.';
+          let errorMsg = data.message || 'Unable to submit your appointment enquiry. Please try again or call +91 95913 24243.';
+          if (data.errors && typeof data.errors === 'object') {
+            const firstKey = Object.keys(data.errors)[0];
+            if (data.errors[firstKey]) errorMsg = data.errors[firstKey];
+          }
           showFormError(errorMsg);
         }
       } catch (networkError) {

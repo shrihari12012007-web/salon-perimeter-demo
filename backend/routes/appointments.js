@@ -16,7 +16,7 @@ const { sendNewEnquiryNotification } = require('../services/email');
  */
 router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
   try {
-    const { customer_name, phone, service, preferred_date, preferred_time, message } = req.validatedData;
+    const { customer_name, phone, email, service, preferred_date, preferred_time, message } = req.validatedData;
     const ipHash = req.clientIpHash || null;
 
     // Check for accidental duplicate submission within the last 5 minutes
@@ -35,6 +35,11 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
         message: 'An enquiry for this phone number and date was already received in the last few minutes. Salon Perimeter will call you shortly to confirm your booking.'
       });
     }
+
+    // Preserve optional email in message notes so it is saved within existing database schema
+    const combinedMessage = email 
+      ? `Email: ${email}${message ? `\n${message}` : ''}`
+      : (message || '');
 
     // Insert new appointment enquiry with parameterized query
     const insertQuery = `
@@ -57,7 +62,7 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
       service,
       preferred_date,
       preferred_time,
-      message,
+      combinedMessage,
       'pending',
       ipHash
     ]);
@@ -77,6 +82,7 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
         id: createdAppointment.id,
         customer_name: createdAppointment.customer_name,
         phone: createdAppointment.phone,
+        email: email || undefined,
         service: createdAppointment.service,
         preferred_date: createdAppointment.preferred_date,
         preferred_time: createdAppointment.preferred_time,

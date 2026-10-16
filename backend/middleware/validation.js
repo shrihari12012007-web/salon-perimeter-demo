@@ -38,6 +38,7 @@ function validateAppointment(req, res, next) {
   // Support both canonical names and frontend form field names
   const customer_name = sanitizeString(body.customer_name || body.clientName || body.name || '');
   const rawPhone = String(body.phone || body.clientPhone || '').trim();
+  const rawEmail = String(body.email || body.clientEmail || '').trim();
   const service = sanitizeString(body.service || body.serviceSelect || '');
   const preferred_date = String(body.preferred_date || body.prefDate || '').trim();
   const preferred_time = sanitizeString(body.preferred_time || body.prefTime || '');
@@ -59,6 +60,21 @@ function validateAppointment(req, res, next) {
     errors.phone = 'Phone number is required.';
   } else if (!isValidIndianPhone(rawPhone)) {
     errors.phone = 'Please provide a valid Indian phone number (10 digits starting with 6, 7, 8, or 9).';
+  }
+
+  // 2b. Validate Optional Email
+  let email = '';
+  if (rawEmail) {
+    if (rawEmail.length > 100) {
+      errors.email = 'Email address cannot exceed 100 characters.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(rawEmail)) {
+        errors.email = 'Please provide a valid email address.';
+      } else {
+        email = sanitizeString(rawEmail).toLowerCase();
+      }
+    }
   }
 
   // 3. Validate Service
@@ -124,6 +140,7 @@ function validateAppointment(req, res, next) {
     customer_name,
     phone: normalizePhone(rawPhone),
     formatted_phone: rawPhone,
+    email,
     service,
     preferred_date,
     preferred_time,

@@ -1785,6 +1785,13 @@ h1, h2, h3, h4, h5 {
   color: var(--color-error);
 }
 
+.optional-tag {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {

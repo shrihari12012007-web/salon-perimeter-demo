@@ -35,7 +35,7 @@
       <span class="banner-text">
         Unofficial web design demonstration for <strong>Salon Perimeter Shimoga</strong> &bull; Women &amp; Children &bull; Sharavathi Nagar Main Road
       </span>
-      <a href="#appointment" class="banner-link">Try Demo Booking Form &darr;</a>
+      <a href="#appointment" class="banner-link">Enquire Online &darr;</a>
     </div>
   </aside>
 
@@ -1022,13 +1022,13 @@
           <div class="demo-form-alert" role="note">
             <div class="alert-icon" aria-hidden="true">⚠️</div>
             <div class="alert-text">
-              <strong>DEMO PROTOTYPE NOTICE</strong>
+              <strong>PORTFOLIO DEMONSTRATION NOTICE</strong>
               <p>
-                This form is an interactive front-end portfolio demonstration. 
-                <strong>No appointment will be booked, and this request will not be sent to the salon.</strong>
+                This form connects to an independent portfolio demonstration booking system. 
+                <strong>Submitting an enquiry does not confirm an appointment. The salon must confirm availability separately.</strong>
               </p>
               <p class="alert-sub">
-                To book a genuine appointment with Salon Perimeter, please call directly:
+                To book a direct appointment with Salon Perimeter, please call directly:
                 <a href="tel:+919591324243" class="alert-phone-link"><strong>+91 95913 24243</strong></a>
               </p>
             </div>
@@ -1044,11 +1044,11 @@
           </div>
         </div>
 
-        <!-- Right Side: Interactive Form with Exactly the 6 Requested Fields -->
+        <!-- Right Side: Interactive Form -->
         <div class="appointment-form-card">
           <div class="form-header">
-            <h3>Book an Enquiry (Demo Simulator)</h3>
-            <p>Fill out the fields below to preview the client reservation flow.</p>
+            <h3>Book an Appointment Enquiry</h3>
+            <p>Fill out the fields below. Enquiries are received as pending requests for salon scheduling review.</p>
           </div>
 
           <form id="appointmentForm" novalidate>
@@ -1094,7 +1094,23 @@
               <span class="error-msg" id="phoneError" aria-live="polite"></span>
             </div>
 
-            <!-- 3. Service Category -->
+            <!-- 3. Optional Email Address -->
+            <div class="form-group">
+              <label for="clientEmail">Email Address <span class="optional-tag">(Optional)</span></label>
+              <div class="input-wrapper">
+                <input 
+                  type="email" 
+                  id="clientEmail" 
+                  name="clientEmail" 
+                  placeholder="e.g. ananya@example.com" 
+                  autocomplete="email"
+                  aria-describedby="emailError"
+                >
+              </div>
+              <span class="error-msg" id="emailError" aria-live="polite"></span>
+            </div>
+
+            <!-- 4. Service Category -->
             <div class="form-group">
               <label for="serviceSelect">Service Category <span class="required" aria-hidden="true">*</span></label>
               <select id="serviceSelect" name="serviceSelect" required aria-describedby="serviceError">
@@ -1110,7 +1126,7 @@
               <span class="error-msg" id="serviceError" aria-live="polite"></span>
             </div>
 
-            <!-- 4 & 5. Date and Time Row -->
+            <!-- 5 & 6. Date and Time Row -->
             <div class="form-row-2">
               <div class="form-group">
                 <label for="prefDate">Preferred Date <span class="required" aria-hidden="true">*</span></label>
@@ -1140,7 +1156,7 @@
               </div>
             </div>
 
-            <!-- 6. Optional Message -->
+            <!-- 7. Optional Message -->
             <div class="form-group">
               <label for="clientMessage">Optional Message / Hair Notes</label>
               <textarea 
@@ -1153,13 +1169,13 @@
 
             <!-- Submit Button with Loading State -->
             <button type="submit" class="btn btn-primary btn-submit full-width" id="submitBtn">
-              <span class="btn-text">Submit Demo Enquiry</span>
+              <span class="btn-text">Submit Appointment Enquiry</span>
               <span class="btn-spinner" aria-hidden="true"></span>
             </button>
 
             <div class="form-micro-disclosure">
               <small>
-                🔒 Demonstration only. No personal data is stored on a server or transmitted to third parties.
+                🔒 Unofficial portfolio demonstration. Enquiries are saved securely for salon review. Contact details are never shared publicly.
               </small>
             </div>
           </form>
@@ -1207,6 +1223,10 @@
           <div class="ticket-row">
             <span class="t-label">Phone Number:</span>
             <span class="t-val" id="summaryPhone">—</span>
+          </div>
+          <div class="ticket-row" id="summaryEmailRow" style="display: none;">
+            <span class="t-label">Email:</span>
+            <span class="t-val" id="summaryEmail">—</span>
           </div>
           <div class="ticket-row">
             <span class="t-label">Service Category:</span>
