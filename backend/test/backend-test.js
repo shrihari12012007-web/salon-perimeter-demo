@@ -290,6 +290,8 @@ async function runTests() {
     });
 
     // 11. Admin: Fetch stats
+    let prePending = 0;
+    let preConfirmed = 0;
     await test('GET /api/admin/stats returns count overview for owner dashboard', async () => {
       const res = await request('GET', '/api/admin/stats', null, {
         'Authorization': `Bearer ${authToken}`
@@ -299,6 +301,8 @@ async function runTests() {
       assert.strictEqual(res.body.success, true);
       assert.ok(res.body.stats.total >= 1);
       assert.ok(res.body.stats.pending >= 1);
+      prePending = res.body.stats.pending;
+      preConfirmed = res.body.stats.confirmed;
     });
 
     // 12. Admin: Update enquiry status
@@ -315,6 +319,18 @@ async function runTests() {
       assert.strictEqual(res.body.appointment.status, 'confirmed');
     });
 
+    // 12b. Dashboard Counters: Verify counter values update after status change
+    await test('GET /api/admin/stats verifies counter updates after status change', async () => {
+      const res = await request('GET', '/api/admin/stats', null, {
+        'Authorization': `Bearer ${authToken}`
+      });
+
+      assert.strictEqual(res.status, 200);
+      assert.strictEqual(res.body.success, true);
+      assert.strictEqual(res.body.stats.pending, prePending - 1, 'Pending count must decrease by 1');
+      assert.strictEqual(res.body.stats.confirmed, preConfirmed + 1, 'Confirmed count must increase by 1');
+    });
+
     // 13. Admin: Delete enquiry
     await test('DELETE /api/admin/appointments/:id deletes enquiry record', async () => {
       assert.ok(testAppointmentId);
@@ -324,6 +340,46 @@ async function runTests() {
 
       assert.strictEqual(res.status, 200);
       assert.strictEqual(res.body.success, true);
+    });
+
+    // 13b. Dashboard Counters: Verify total counter decrements after deletion
+    await test('GET /api/admin/stats verifies counter updates after deletion', async () => {
+      const res = await request('GET', '/api/admin/stats', null, {
+        'Authorization': `Bearer ${authToken}`
+      });
+
+      assert.strictEqual(res.status, 200);
+      assert.strictEqual(res.body.success, true);
+      assert.strictEqual(res.body.stats.confirmed, preConfirmed, 'Confirmed count must return to pre-confirmation level');
+    });
+
+    // 14. Database Failure Handling
+    await test('POST /api/appointments handles unexpected database failure with safe HTTP 500', async () => {
+      const originalQuery = db.query;
+      try {
+        db.query = async () => {
+          throw new Error('Simulated PostgreSQL connection failure');
+        };
+
+        const validDate = getFutureNonTuesdayDate(8);
+        const res = await request('POST', '/api/appointments', {
+          customer_name: 'Simulated Fail User',
+          phone: '+91 91234 56789',
+          service: "Women's Haircut & Styling",
+          preferred_date: validDate,
+          preferred_time: '10:00 AM - 11:30 AM'
+        });
+
+        assert.strictEqual(res.status, 500);
+        assert.strictEqual(res.body.success, false);
+        assert.strictEqual(res.body.error, 'SERVER_ERROR');
+        assert.ok(res.body.message.includes('unable to process your appointment'));
+        // Verify no stack trace or DB connection string is leaked in the response
+        assert.strictEqual(res.body.stack, undefined);
+        assert.strictEqual(res.body.connectionString, undefined);
+      } finally {
+        db.query = originalQuery;
+      }
     });
 
   console.log('\n============================================================');

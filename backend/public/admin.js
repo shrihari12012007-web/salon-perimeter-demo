@@ -14,6 +14,8 @@
   let currentFilter = 'all';
   let currentPage = 1;
   let totalPages = 1;
+  let currentAppointments = [];
+  let pendingDeleteId = null;
 
   // DOM Elements
   const loginScreen = document.getElementById('loginScreen');
@@ -44,6 +46,14 @@
   const nextPageBtn = document.getElementById('nextPageBtn');
   const toastPopup = document.getElementById('toastPopup');
 
+  // Delete Modal Elements
+  const deleteModal = document.getElementById('deleteModal');
+  const deleteModalBackdrop = document.getElementById('deleteModalBackdrop');
+  const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
+  const cancelDeleteModalBtn = document.getElementById('cancelDeleteModalBtn');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const deletePreviewCard = document.getElementById('deletePreviewCard');
+
   // Helper: Toast Message
   let toastTimer = null;
   function showToast(message) {
@@ -56,11 +66,25 @@
     }, 3500);
   }
 
-  // Helper: Format Date
-  function formatDate(isoStr) {
-    if (!isoStr) return '—';
-    const d = new Date(isoStr);
-    if (isNaN(d.getTime())) return isoStr;
+  // Helper: Format Date consistently without timezone-shift bugs
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    // Match date-only strings (YYYY-MM-DD) to prevent timezone rollback
+    const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      const monthIndex = parseInt(match[2], 10) - 1;
+      const day = parseInt(match[3], 10);
+      const d = new Date(year, monthIndex, day);
+      return d.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -235,6 +259,8 @@
 
   // Render Appointments Table
   function renderAppointments(appointments, total, page) {
+    currentAppointments = appointments || [];
+
     if (!appointments || appointments.length === 0) {
       tableEmpty.style.display = 'block';
       tableWrap.style.display = 'none';
@@ -257,33 +283,37 @@
     enquiriesBody.innerHTML = appointments.map((item) => {
       const createdStr = formatDateTime(item.created_at);
       const prefDateStr = formatDate(item.preferred_date);
-      const notes = item.message ? escapeHtml(item.message) : '<em style="color:#A09890">None</em>';
+      const hasNotes = Boolean(item.message && item.message.trim());
+      const notes = hasNotes 
+        ? escapeHtml(item.message.trim()) 
+        : '<span class="notes-empty">No additional notes</span>';
+      const notesTitle = hasNotes ? escapeHtml(item.message.trim()) : 'No additional notes provided';
 
       return `
         <tr data-id="${item.id}">
-          <td class="cell-time">${createdStr}</td>
-          <td class="cell-name">${escapeHtml(item.customer_name)}</td>
-          <td class="cell-phone">
+          <td class="cell-time" data-label="Received">${createdStr}</td>
+          <td class="cell-name" data-label="Client Name">${escapeHtml(item.customer_name)}</td>
+          <td class="cell-phone" data-label="Phone Number">
             <a href="tel:${escapeHtml(item.phone)}" title="Call client at ${escapeHtml(item.phone)}">
               📞 ${escapeHtml(item.phone)}
             </a>
           </td>
-          <td class="cell-service">${escapeHtml(item.service)}</td>
-          <td class="cell-date-time">
+          <td class="cell-service" data-label="Requested Service">${escapeHtml(item.service)}</td>
+          <td class="cell-date-time" data-label="Date &amp; Time">
             <strong>${prefDateStr}</strong><br>
             <small style="color:var(--text-secondary)">${escapeHtml(item.preferred_time)}</small>
           </td>
-          <td class="cell-notes" title="${notes}">${notes}</td>
-          <td>
-            <select class="status-select ${item.status}" data-id="${item.id}">
+          <td class="cell-notes" data-label="Notes / Requirements" title="${notesTitle}">${notes}</td>
+          <td data-label="Status">
+            <select class="status-select ${item.status}" data-id="${item.id}" aria-label="Update enquiry status">
               <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
               <option value="confirmed" ${item.status === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
               <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>🌸 Completed</option>
               <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
             </select>
           </td>
-          <td>
-            <button class="btn-delete" data-id="${item.id}" title="Remove enquiry record" aria-label="Delete enquiry">
+          <td data-label="Actions">
+            <button class="btn-delete" data-id="${item.id}" title="Delete enquiry record" aria-label="Delete enquiry for ${escapeHtml(item.customer_name)}">
               🗑️
             </button>
           </td>
@@ -293,21 +323,78 @@
 
     // Attach status update event listeners
     document.querySelectorAll('.status-select').forEach((select) => {
-      select.addEventListener('change', async (e) => {
+      select.addEventListener('change', async () => {
         const id = select.getAttribute('data-id');
         const newStatus = select.value;
         await updateStatus(id, newStatus, select);
       });
     });
 
-    // Attach delete listeners
+    // Attach delete confirmation listeners
     document.querySelectorAll('.btn-delete').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
+      btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
-        if (confirm('Are you sure you want to delete this appointment enquiry record?')) {
-          await deleteEnquiry(id);
-        }
+        openDeleteModal(id);
       });
+    });
+  }
+
+  // Delete Confirmation Modal Workflow
+  function openDeleteModal(id) {
+    const item = currentAppointments.find(a => a.id === id);
+    if (!item || !deleteModal) return;
+    pendingDeleteId = id;
+
+    if (deletePreviewCard) {
+      deletePreviewCard.innerHTML = `
+        <div class="delete-preview-row">
+          <span class="delete-preview-label">Client Name</span>
+          <span class="delete-preview-value">${escapeHtml(item.customer_name)}</span>
+        </div>
+        <div class="delete-preview-row">
+          <span class="delete-preview-label">Phone</span>
+          <span class="delete-preview-value">${escapeHtml(item.phone)}</span>
+        </div>
+        <div class="delete-preview-row">
+          <span class="delete-preview-label">Service</span>
+          <span class="delete-preview-value">${escapeHtml(item.service)}</span>
+        </div>
+        <div class="delete-preview-row">
+          <span class="delete-preview-label">Preferred</span>
+          <span class="delete-preview-value">${formatDate(item.preferred_date)} &bull; ${escapeHtml(item.preferred_time)}</span>
+        </div>
+      `;
+    }
+
+    deleteModal.style.display = 'flex';
+    if (cancelDeleteModalBtn) cancelDeleteModalBtn.focus();
+  }
+
+  function closeDeleteModal() {
+    if (!deleteModal) return;
+    deleteModal.style.display = 'none';
+    pendingDeleteId = null;
+  }
+
+  if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+  if (cancelDeleteModalBtn) cancelDeleteModalBtn.addEventListener('click', closeDeleteModal);
+  if (deleteModalBackdrop) deleteModalBackdrop.addEventListener('click', closeDeleteModal);
+
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', async () => {
+      if (!pendingDeleteId) return;
+
+      confirmDeleteBtn.disabled = true;
+      const sp = confirmDeleteBtn.querySelector('.spinner');
+      if (sp) sp.style.display = 'inline-block';
+
+      try {
+        await deleteEnquiry(pendingDeleteId);
+        closeDeleteModal();
+      } finally {
+        confirmDeleteBtn.disabled = false;
+        if (sp) sp.style.display = 'none';
+      }
     });
   }
 
@@ -329,7 +416,10 @@
       if (res.ok) {
         selectElement.className = `status-select ${newStatus}`;
         showToast(`Status updated to "${newStatus}".`);
-        loadStats(); // Refresh count metrics
+        await loadStats(); // Refresh count metrics immediately
+        if (currentFilter !== 'all') {
+          loadAppointments(); // Refresh current filter view if item moved out of filter
+        }
       } else {
         showToast(data.message || 'Failed to update status.');
         loadAppointments();
@@ -340,7 +430,7 @@
     }
   }
 
-  // Delete Enquiry API call
+  // Delete Enquiry API call (Manual owner action only — never automatic)
   async function deleteEnquiry(id) {
     try {
       const res = await fetch(`/api/admin/appointments/${id}`, {
@@ -355,7 +445,7 @@
       const data = await res.json();
       if (res.ok) {
         showToast('Enquiry record deleted.');
-        loadDashboardData();
+        await loadDashboardData();
       } else {
         showToast(data.message || 'Failed to delete record.');
       }
@@ -500,6 +590,17 @@
       }
     });
   }
+
+  // Global Keyboard Navigation (ESC closes active modals)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (deleteModal && deleteModal.style.display !== 'none') {
+        closeDeleteModal();
+      } else if (passwordModal && passwordModal.style.display !== 'none') {
+        closePasswordModal();
+      }
+    }
+  });
 
   // Startup: verify session
   checkSession();

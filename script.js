@@ -557,12 +557,31 @@ document.addEventListener('DOMContentLoaded', () => {
           // Success confirmed by backend database
           const savedRecord = data.data || payload;
 
-          // Format Date nicely for display
-          const dateObj = new Date(savedRecord.preferred_date + 'T00:00:00');
-          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-          const formattedDate = !isNaN(dateObj.getTime()) 
-            ? dateObj.toLocaleDateString('en-IN', options) 
-            : savedRecord.preferred_date;
+          // Format Date nicely for display without timezone shifting
+          let formattedDate = savedRecord.preferred_date;
+          const dateMatch = String(savedRecord.preferred_date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if (dateMatch) {
+            const year = parseInt(dateMatch[1], 10);
+            const monthIndex = parseInt(dateMatch[2], 10) - 1;
+            const day = parseInt(dateMatch[3], 10);
+            const d = new Date(year, monthIndex, day);
+            formattedDate = d.toLocaleDateString('en-IN', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          } else {
+            const d = new Date(savedRecord.preferred_date);
+            if (!isNaN(d.getTime())) {
+              formattedDate = d.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              });
+            }
+          }
 
           // Populate Confirmation Modal with actual confirmed values from database
           if (summaryName) summaryName.textContent = savedRecord.customer_name;
