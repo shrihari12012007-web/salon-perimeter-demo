@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Srinidhi Eye Care &amp; Opticals | Clinic Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=5">
+</head>
+<body>
+
+  <!-- ============================================== -->
+  <!-- 1. LOGIN SCREEN OVERLAY                        -->
+  <!-- ============================================== -->
+  <div class="login-container" id="loginScreen">
+    <div class="login-card">
+      <div class="brand-badge">SRINIDHI EYE CARE &bull; OPTICALS</div>
+      <h1 class="login-title">Clinic Administration</h1>
+      <p class="login-subtitle">Eye Examination &amp; Eyewear Consultations &bull; Gangavathi</p>
+
+      <div class="login-alert" id="loginAlert" role="alert" style="display: none;"></div>
+
+      <form id="loginForm">
+        <div class="form-field">
+          <label for="usernameInput">Username</label>
+          <input type="text" id="usernameInput" name="username" placeholder="admin" required autocomplete="username" value="admin">
+        </div>
+        <div class="form-field">
+          <label for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" name="password" placeholder="••••••••••••" required autocomplete="current-password" value="Srinidhi@2026">
+        </div>
+        <button type="submit" class="btn btn-primary full-width" id="loginBtn">
+          <span>Sign In to Clinic Portal</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <div class="login-hint-box">
+        <strong>Default Admin Credentials:</strong><br>
+        Username: <code>admin</code><br>
+        Password: <code>Srinidhi@2026</code>
+      </div>
+
+      <div class="login-footer" style="margin-top: 20px;">
+        <p><a href="index.html" style="color: #FFFFFF; text-decoration: underline;">&larr; Return to Public Website</a></p>
+        <p style="margin-top: 8px; font-size: 11px; color: #888;">Peerzad Street, Vidya Nagar, Gangavathi &bull; +91 87628 88866</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- 2. MAIN ADMIN DASHBOARD SHELL                  -->
+  <!-- ============================================== -->
+  <div class="dashboard-shell" id="dashboardScreen" style="display: none;">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="12" r="4"></circle>
+            <circle cx="18" cy="12" r="4"></circle>
+            <line x1="10" y1="12" x2="14" y2="12"></line>
+            <line x1="2" y1="10" x2="4" y2="10"></line>
+            <line x1="20" y1="10" x2="22" y2="10"></line>
+          </svg>
+        </div>
+        <div>
+          <h2 class="hospital-name">SRINIDHI EYE CARE &amp; OPTICALS</h2>
+          <span class="hospital-sub">Peerzad St, Vidya Nagar, Gangavathi &bull; +91 87628 88866</span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <a href="index.html" class="btn-back-site" target="_blank">&larr; Live Website</a>
+        <button type="button" class="btn-add" id="openAddModalBtn">+ Add Walk-In</button>
+        <button type="button" class="btn-export" id="exportCsvBtn" title="Download appointments as CSV">Export CSV</button>
+        <button type="button" class="btn btn-outline btn-sm" id="refreshBtn" title="Refresh records">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+          </svg>
+          <span>Refresh</span>
+        </button>
+        <button type="button" class="btn btn-danger btn-sm" id="logoutBtn">
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="dashboard-body">
+
+      <!-- STATS METRIC CARDS -->
+      <section class="stats-row" aria-label="Appointment Statistics">
+        <div class="stat-card active" data-status="all">
+          <div class="stat-icon icon-total">📋</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Consultations</span>
+            <span class="stat-value" id="statTotal">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-status="pending">
+          <div class="stat-icon icon-pending">⏳</div>
+          <div class="stat-info">
+            <span class="stat-label">Pending Review</span>
+            <span class="stat-value" id="statPending">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-status="confirmed">
+          <div class="stat-icon icon-confirmed">✅</div>
+          <div class="stat-info">
+            <span class="stat-label">Confirmed Slots</span>
+            <span class="stat-value" id="statConfirmed">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-status="completed">
+          <div class="stat-icon icon-completed">👓</div>
+          <div class="stat-info">
+            <span class="stat-label">Completed Visits</span>
+            <span class="stat-value" id="statCompleted">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-status="cancelled">
+          <div class="stat-icon icon-cancelled">❌</div>
+          <div class="stat-info">
+            <span class="stat-label">Cancelled</span>
+            <span class="stat-value" id="statCancelled">0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTER CONTROLS BAR -->
+      <section class="controls-bar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search by patient name, mobile phone or ref code...">
+        </div>
+
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="enquiry-counter">
+          Showing <strong id="showingCount">0</strong> consultations
+        </div>
+      </section>
+
+      <!-- TOAST NOTIFICATIONS -->
+      <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+      <!-- APPOINTMENTS TABLE CARD -->
+      <section class="table-card">
+        <div class="table-responsive">
+          <table class="appointments-table" id="appointmentsTable">
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Contact Phone</th>
+                <th>Clinical Service</th>
+                <th>Date &amp; Time Slot</th>
+                <th>Prescription / Notes</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentsBody">
+              <tr>
+                <td colspan="7" class="loading-cell">
+                  <div class="table-spinner"></div>
+                  <span>Loading patient records...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon">👓</div>
+          <h3>No Records Found</h3>
+          <p id="emptyMessage">There are no consultations matching your current search or filter.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay" id="detailModal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-badge" id="modalRefId">SNE-REF</span>
+          <h2 class="modal-title" id="modalCustomerName">Patient Name</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Mobile Phone</span>
+            <span class="detail-val" id="modalPhone">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-val" id="modalEmail">Not provided</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Clinical Service</span>
+            <span class="detail-val highlight" id="modalService">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Preferred Slot</span>
+            <span class="detail-val" id="modalSchedule">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Current Status</span>
+            <span class="detail-val" id="modalStatusBadge">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Registered At</span>
+            <span class="detail-val" id="modalSubmitted">-</span>
+          </div>
+
+          <div class="detail-item full-span">
+            <span class="detail-label">Prescription / Vision Notes</span>
+            <div class="notes-box" id="modalNotes">No additional notes provided.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" id="modalCallBtn">Call Patient</a>
+        <a href="#" class="btn-wa" id="modalWaBtn" target="_blank">WhatsApp Message</a>
+        <button type="button" class="btn btn-outline" id="modalDismissBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD WALK-IN MODAL -->
+  <div class="modal-overlay" id="addWalkInModal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-badge">NEW PATIENT</span>
+          <h2 class="modal-title">Register Walk-In Consultation</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeAddModalBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="addWalkInForm">
+        <div class="modal-body">
+          <div class="detail-grid">
+            <div class="detail-item full-span">
+              <label class="detail-label" for="walkinName">Patient Full Name *</label>
+              <input type="text" id="walkinName" class="form-control" placeholder="e.g. Anand Kumar" required style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;">
+            </div>
+
+            <div class="detail-item">
+              <label class="detail-label" for="walkinPhone">Mobile Number *</label>
+              <input type="tel" id="walkinPhone" class="form-control" placeholder="e.g. 9845123456" required style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;">
+            </div>
+
+            <div class="detail-item">
+              <label class="detail-label" for="walkinEmail">Email (Optional)</label>
+              <input type="email" id="walkinEmail" class="form-control" placeholder="name@email.com" style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;">
+            </div>
+
+            <div class="detail-item full-span">
+              <label class="detail-label" for="walkinService">Clinical Service *</label>
+              <select id="walkinService" style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;">
+                <option value="Computerised Vision Testing">Computerised Automated Vision Testing</option>
+                <option value="Designer Frame Selection & Fitting">Designer Frame Selection &amp; Fitting</option>
+                <option value="Progressive & Bifocal Clinic">Progressive &amp; Bifocal Clinic</option>
+                <option value="Anti-Glare & Blue-Cut Lenses">Anti-Glare &amp; Blue-Cut Lenses</option>
+                <option value="Contact Lens Fitting">Contact Lens Examination &amp; Fitting</option>
+                <option value="Pediatric Vision Checkup">Pediatric Eye Assessment (Children)</option>
+              </select>
+            </div>
+
+            <div class="detail-item">
+              <label class="detail-label" for="walkinDate">Date *</label>
+              <input type="date" id="walkinDate" required style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;">
+            </div>
+
+            <div class="detail-item">
+              <label class="detail-label" for="walkinTime">Preferred Slot *</label>
+              <select id="walkinTime" style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;">
+                <option value="10:00 AM - 11:30 AM">Morning (10:00 AM - 11:30 AM)</option>
+                <option value="11:30 AM - 01:00 PM">Noon (11:30 AM - 01:00 PM)</option>
+                <option value="04:30 PM - 06:00 PM">Evening (04:30 PM - 06:00 PM)</option>
+                <option value="06:00 PM - 08:00 PM">Night (06:00 PM - 08:00 PM)</option>
+              </select>
+            </div>
+
+            <div class="detail-item full-span">
+              <label class="detail-label" for="walkinNotes">Prescription / Notes</label>
+              <textarea id="walkinNotes" rows="2" placeholder="e.g. Current power -2.00 D, experiencing screen glare" style="width:100%;padding:8px 12px;background:#222;border:1px solid #444;color:#FFF;border-radius:4px;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save to Registry</button>
+          <button type="button" class="btn btn-outline" id="dismissAddModalBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="config.js?v=4.0"></script>
+  <script src="admin.js?v=5.0"></script>
+</body>
+</html>
