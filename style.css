@@ -284,6 +284,42 @@ ul {
   display: flex;
   align-items: center;
   gap: 14px;
+  text-decoration: none;
+}
+
+.brand-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 10px rgba(255, 255, 255, 0.2));
+  transition: transform 0.25s ease;
+}
+
+.brand-logo:hover .brand-logo-img {
+  transform: scale(1.05);
+}
+
+.brand-motto {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  display: block;
+  text-transform: uppercase;
+}
+
+.drawer-logo-img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.drawer-tagline {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
 }
 
 .logo-mark {
@@ -692,55 +728,39 @@ ul {
   transition: opacity 0.3s ease;
 }
 
-.lens-info-overlay {
-  opacity: 0;
-  transform: translateY(10px);
+/* Pure Optical Lens Sheen & Glare (No text overlays inside lens) */
+.lens-glare-arc {
+  position: absolute;
+  top: 15%;
+  right: 15%;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+.lens-coating-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 45% 45% / 40% 40% 60% 60%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 80%);
+  pointer-events: none;
   transition: all 0.4s ease;
-  z-index: 2;
 }
 
-.spectacle-interactive-stage.unfolded .lens-info-overlay {
-  opacity: 1;
-  transform: translateY(0);
+.spectacle-rim.filter-bluecut .lens-coating-sheen {
+  background: radial-gradient(circle at 35% 35%, rgba(56, 189, 248, 0.25) 0%, rgba(245, 158, 11, 0.08) 60%, transparent 85%);
 }
 
-.overlay-badge {
-  display: inline-block;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: #000000;
-  background: #FFFFFF;
-  padding: 2px 6px;
-  border-radius: 2px;
-  margin-bottom: 6px;
+.spectacle-rim.filter-antiglare .lens-coating-sheen {
+  background: radial-gradient(circle at 35% 35%, rgba(16, 185, 129, 0.22) 0%, rgba(139, 92, 246, 0.12) 60%, transparent 85%);
 }
 
-.lens-info-overlay h5 {
-  font-size: 0.9375rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin-bottom: 4px;
-}
-
-.lens-info-overlay p {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  margin-bottom: 8px;
-}
-
-.mini-spec-list {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-.mini-spec-list li {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 2px 6px;
-  border-radius: 2px;
+.spectacle-rim.filter-progressive .lens-coating-sheen {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(245, 158, 11, 0.15) 100%);
 }
 
 /* Bridge & Nose Pads */

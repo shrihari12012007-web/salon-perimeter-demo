@@ -14,15 +14,15 @@
   <meta property="og:description" content="Classic monochrome eye examination clinic and precision eyewear atelier in Gangavathi.">
   <meta property="og:type" content="website">
 
-  <!-- Favicon: Classic Spectacles Icon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='6' cy='12' r='4'/><circle cx='18' cy='12' r='4'/><line x1='10' y1='12' x2='14' y2='12'/><line x1='2' y1='10' x2='4' y2='10'/><line x1='20' y1='10' x2='22' y2='10'/></svg>">
+  <!-- Favicon: Official Srinidhi Eye Care Emblem -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
 
   <!-- Google Fonts: Playfair Display for Classic Black & White Luxury Editorial + Plus Jakarta Sans for Swiss Precision -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=4.0">
+  <link rel="stylesheet" href="style.css?v=5.0">
 </head>
 <body class="classic-theme">
 
@@ -65,18 +65,10 @@
   <header class="header" id="navbar">
     <div class="container header-container">
       <a href="#home" class="brand-logo" aria-label="Srinidhi Eye Care Home">
-        <div class="logo-mark">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="6" cy="12" r="4.2"></circle>
-            <circle cx="18" cy="12" r="4.2"></circle>
-            <line x1="10.2" y1="12" x2="13.8" y2="12"></line>
-            <path d="M1.8 11.5 L3.8 11.5"></path>
-            <path d="M20.2 11.5 L22.2 11.5"></path>
-          </svg>
-        </div>
+        <img src="images/srinidhi-logo-white.png" alt="Srinidhi Eye Care Official Logo" class="brand-logo-img">
         <div class="brand-text">
           <span class="brand-title">SRINIDHI</span>
-          <span class="brand-subtitle">EYE CARE &amp; OPTICALS &bull; GANGAVATHI</span>
+          <span class="brand-motto">&ldquo;We Share, Eye Care&rdquo; &bull; GANGAVATHI</span>
         </div>
       </a>
 
@@ -106,6 +98,10 @@
 
     <!-- Mobile Drawer -->
     <div class="mobile-drawer" id="mobileDrawer">
+      <div style="padding: 24px 20px 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px;">
+        <img src="images/srinidhi-logo-white.png" alt="Srinidhi Eye Care Official Logo" class="drawer-logo-img">
+        <div class="drawer-tagline">&ldquo;We Share, Eye Care&rdquo;</div>
+      </div>
       <ul class="mobile-nav-links">
         <li><a href="#home" class="mobile-link">Home</a></li>
         <li><a href="#spectacle-experience" class="mobile-link">Interactive Spectacles</a></li>
@@ -182,13 +178,13 @@
         <div class="hero-art-col">
           <div class="art-frame">
             <img 
-              src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?auto=format&fit=crop&w=1000&q=80" 
-              alt="Classic hand-crafted spectacle frames at Srinidhi Eye Care Gangavathi" 
+              src="images/clinic-hero-polished.jpg" 
+              alt="Srinidhi Eye Care Gangavathi - Polished Clinic &amp; Optical Studio" 
               class="hero-monochrome-img"
             >
             <div class="art-caption">
-              <span>Model: Classic Tortoise &amp; Matte Obsidian</span>
-              <span>Vidya Nagar Atelier</span>
+              <span>Srinidhi Eye Care &bull; Peerzad Street, Vidya Nagar</span>
+              <span>Gangavathi &bull; &ldquo;We Share, Eye Care&rdquo;</span>
             </div>
           </div>
         </div>
@@ -232,55 +228,31 @@
               </div>
             </div>
 
-            <!-- Central Frame Front & Both Lenses -->
+            <!-- Central Frame Front & Both Lenses (Pure Optical Glass — No Text) -->
             <div class="spectacle-front" id="spectFront">
               
               <!-- Left Rim & Lens -->
               <div class="spectacle-rim rim-left" id="rimLeft">
                 <div class="lens-glass glass-left" id="glassLeft">
                   <div class="lens-reflection"></div>
-                  <div class="lens-focus-ring"></div>
-                  <div class="lens-info-overlay" id="lensOverlayLeft">
-                    <span class="overlay-badge">OPTICAL CORE</span>
-                    <h5>Blue-Cut &amp; Anti-Glare</h5>
-                    <p>Filters 420nm high-energy blue rays from mobile &amp; laptop screens.</p>
-                    <ul class="mini-spec-list">
-                      <li>99.8% light clarity</li>
-                      <li>Zero night glare</li>
-                      <li>Scratch-resistant</li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="callout-point point-left-lens" data-tooltip="Anti-Reflective Hydrophobic Surface">
-                  <div class="pulse-dot"></div>
+                  <div class="lens-glare-arc"></div>
+                  <div class="lens-coating-sheen"></div>
                 </div>
               </div>
 
               <!-- Bridge & Nose Pads -->
               <div class="spectacle-bridge">
                 <div class="bridge-arch"></div>
-                <div class="nose-pad pad-left" data-tooltip="Hypoallergenic Medical Silicone"></div>
-                <div class="nose-pad pad-right" data-tooltip="Self-Adjusting Contoured Fit"></div>
+                <div class="nose-pad pad-left" title="Hypoallergenic Medical Silicone"></div>
+                <div class="nose-pad pad-right" title="Self-Adjusting Contoured Fit"></div>
               </div>
 
               <!-- Right Rim & Lens -->
               <div class="spectacle-rim rim-right" id="rimRight">
                 <div class="lens-glass glass-right" id="glassRight">
                   <div class="lens-reflection"></div>
-                  <div class="lens-focus-ring"></div>
-                  <div class="lens-info-overlay" id="lensOverlayRight">
-                    <span class="overlay-badge">LENS CRAFT</span>
-                    <h5>Progressive Corridor</h5>
-                    <p>Seamless 3-in-1 focal zones for distance driving, desk computer &amp; near book reading.</p>
-                    <ul class="mini-spec-list">
-                      <li>No dividing lines</li>
-                      <li>Ultra-thin 1.67 index</li>
-                      <li>Zero edge distortion</li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="callout-point point-right-lens" data-tooltip="Custom Progressive Wavefront Curve">
-                  <div class="pulse-dot"></div>
+                  <div class="lens-glare-arc"></div>
+                  <div class="lens-coating-sheen"></div>
                 </div>
               </div>
 
@@ -936,16 +908,10 @@
       
       <div class="footer-brand-col">
         <div class="brand-logo">
-          <div class="logo-mark">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="6" cy="12" r="4"></circle>
-              <circle cx="18" cy="12" r="4"></circle>
-              <line x1="10" y1="12" x2="14" y2="12"></line>
-            </svg>
-          </div>
+          <img src="images/srinidhi-logo-white.png" alt="Srinidhi Eye Care Logo" class="brand-logo-img">
           <div class="brand-text">
             <span class="brand-title">SRINIDHI</span>
-            <span class="brand-subtitle">EYE CARE &amp; OPTICALS</span>
+            <span class="brand-motto">&ldquo;We Share, Eye Care&rdquo;</span>
           </div>
         </div>
         <p class="footer-about">
