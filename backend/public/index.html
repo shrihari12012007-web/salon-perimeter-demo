@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Srinidhi Eye Care Hospital | OPD Administration Portal</title>
+  <title>Srinidhi Eye Care &amp; Opticals | Clinic Administration Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=3">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=4">
 </head>
 <body>
 
@@ -16,9 +16,9 @@
   <!-- ============================================== -->
   <div class="login-container" id="loginScreen">
     <div class="login-card">
-      <div class="brand-badge">SRINIDHI EYE CARE HOSPITAL</div>
-      <h1 class="login-title">Hospital Administration</h1>
-      <p class="login-subtitle">OPD &amp; Inpatient Enquiries Portal &bull; Gangavathi, Karnataka</p>
+      <div class="brand-badge">SRINIDHI EYE CARE &bull; OPTICALS</div>
+      <h1 class="login-title">Clinic Administration</h1>
+      <p class="login-subtitle">Eye Examination &amp; Eyewear Consultations &bull; Gangavathi</p>
 
       <div class="login-alert" id="loginAlert" role="alert" style="display: none;"></div>
 
@@ -32,13 +32,13 @@
           <input type="password" id="passwordInput" name="password" placeholder="••••••••••••" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary full-width" id="loginBtn">
-          <span>Sign In to Hospital Portal</span>
+          <span>Sign In to Clinic Portal</span>
           <span class="spinner" aria-hidden="true"></span>
         </button>
       </form>
 
       <div class="login-footer">
-        <p>Protected Medical Administration &bull; Srinidhi Eye Care Gangavathi</p>
+        <p>Srinidhi Eye Care &bull; Peerzad Street, Vidya Nagar, Gangavathi</p>
       </div>
     </div>
   </div>
@@ -52,20 +52,23 @@
     <header class="topbar">
       <div class="topbar-brand">
         <div class="logo-mark">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="12" r="4"></circle>
+            <circle cx="18" cy="12" r="4"></circle>
+            <line x1="10" y1="12" x2="14" y2="12"></line>
+            <line x1="2" y1="10" x2="4" y2="10"></line>
+            <line x1="20" y1="10" x2="22" y2="10"></line>
           </svg>
         </div>
         <div>
-          <h2 class="hospital-name">SRINIDHI EYE CARE HOSPITAL</h2>
-          <span class="hospital-sub">Super Speciality Eye &amp; Laser Center &bull; Gangavathi, Karnataka</span>
+          <h2 class="hospital-name">SRINIDHI EYE CARE &amp; OPTICALS</h2>
+          <span class="hospital-sub">Peerzad St, Vidya Nagar, Gangavathi &bull; +91 87628 88866</span>
         </div>
       </div>
 
       <div class="topbar-actions">
         <span class="user-greeting" id="userGreeting">Logged in as Administrator</span>
-        <button type="button" class="btn btn-outline btn-sm" id="refreshBtn" title="Refresh consultation list">
+        <button type="button" class="btn btn-outline btn-sm" id="refreshBtn" title="Refresh appointment list">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
           </svg>
@@ -90,7 +93,7 @@
         <div class="stat-card" data-status="all">
           <div class="stat-icon icon-total">📋</div>
           <div class="stat-info">
-            <span class="stat-label">Total OPD Bookings</span>
+            <span class="stat-label">Total Appointments</span>
             <span class="stat-value" id="statTotal">0</span>
           </div>
         </div>
@@ -112,9 +115,9 @@
         </div>
 
         <div class="stat-card" data-status="completed">
-          <div class="stat-icon icon-completed">🩺</div>
+          <div class="stat-icon icon-completed">👓</div>
           <div class="stat-info">
-            <span class="stat-label">Completed OPDs</span>
+            <span class="stat-label">Completed Visits</span>
             <span class="stat-value" id="statCompleted">0</span>
           </div>
         </div>
@@ -135,7 +138,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="searchInput" placeholder="Search by patient name, phone number or ID...">
+          <input type="text" id="searchInput" placeholder="Search by customer name, phone or ID...">
         </div>
 
         <div class="filter-group">
@@ -150,7 +153,7 @@
         </div>
 
         <div class="enquiry-counter">
-          Showing <strong id="showingCount">0</strong> patients
+          Showing <strong id="showingCount">0</strong> appointments
         </div>
       </section>
 
@@ -163,46 +166,42 @@
           <table class="appointments-table" id="appointmentsTable">
             <thead>
               <tr>
-                <th>Patient Details</th>
+                <th>Customer / Patient</th>
                 <th>Contact</th>
-                <th>Department / Service</th>
-                <th>OPD Date &amp; Slot</th>
-                <th>Symptoms / Notes</th>
+                <th>Service Required</th>
+                <th>Date &amp; Time Slot</th>
+                <th>Notes / Prescription Details</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="appointmentsBody">
-              <!-- Dynamically populated rows -->
               <tr>
                 <td colspan="7" class="loading-cell">
                   <div class="table-spinner"></div>
-                  <span>Loading OPD appointment records...</span>
+                  <span>Loading clinic records...</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- EMPTY STATE -->
         <div id="emptyState" class="empty-state" style="display: none;">
-          <div class="empty-icon">👁️</div>
-          <h3>No Consultation Records Found</h3>
-          <p id="emptyMessage">There are no patient appointments matching your current search or status filter.</p>
+          <div class="empty-icon">👓</div>
+          <h3>No Records Found</h3>
+          <p id="emptyMessage">There are no appointments matching your current search or filter.</p>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- ============================================== -->
-  <!-- 3. VIEW APPOINTMENT MODAL                      -->
-  <!-- ============================================== -->
+  <!-- DETAIL MODAL -->
   <div class="modal-overlay" id="detailModal" style="display: none;" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-header">
         <div>
           <span class="modal-badge" id="modalRefId">SNE-REF</span>
-          <h2 class="modal-title" id="modalCustomerName">Patient Name</h2>
+          <h2 class="modal-title" id="modalCustomerName">Customer Name</h2>
         </div>
         <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Close modal">&times;</button>
       </div>
@@ -220,12 +219,12 @@
           </div>
 
           <div class="detail-item">
-            <span class="detail-label">Clinical Department</span>
+            <span class="detail-label">Service Required</span>
             <span class="detail-val highlight" id="modalService">-</span>
           </div>
 
           <div class="detail-item">
-            <span class="detail-label">Appointment Schedule</span>
+            <span class="detail-label">Schedule</span>
             <span class="detail-val" id="modalSchedule">-</span>
           </div>
 
@@ -240,7 +239,7 @@
           </div>
 
           <div class="detail-item full-span">
-            <span class="detail-label">Patient Notes &amp; Symptoms</span>
+            <span class="detail-label">Client Notes &amp; Symptoms</span>
             <div class="notes-box" id="modalNotes">No additional notes provided.</div>
           </div>
         </div>
@@ -251,13 +250,13 @@
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
           </svg>
-          <span>Call Patient</span>
+          <span>Call Client</span>
         </a>
         <button type="button" class="btn btn-outline" id="modalDismissBtn">Close</button>
       </div>
     </div>
   </div>
 
-  <script src="admin.js?v=3"></script>
+  <script src="admin.js?v=4"></script>
 </body>
 </html>

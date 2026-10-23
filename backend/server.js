@@ -1,9 +1,9 @@
 /**
  * ============================================================================
- * SRINIDHI EYE CARE HOSPITAL — BACKEND API SERVER
- * Super Speciality Eye Hospital & Micro-Surgery Laser Center
- * Hospital Road, Near CBS Circle, Gangavathi, Koppal District, Karnataka - 583227
- * Production-ready Express API with PostgreSQL on Render & Hospital Admin Portal
+ * SRINIDHI EYE CARE & OPTICALS — BACKEND API SERVER
+ * Peerzad Street, Vidya Nagar, Gangavathi, Koppal District, Karnataka - 583227
+ * Phone: +91 87628 88866
+ * Production-ready Express API with PostgreSQL on Render & Clinic Admin Portal
  * ============================================================================
  */
 
@@ -21,18 +21,15 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Trust reverse proxy (Render, Cloudflare, etc.)
 app.set('trust proxy', 1);
 
-// Security Headers via Helmet (with permissive CSP for admin dashboard fonts & styles)
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Allows fonts, SVGs, and inline modals in admin dashboard
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false
   })
 );
 
-// CORS Configuration
 const defaultAllowedOrigins = [
   'https://shrihari12012007-web.github.io',
   'https://salon-perimeter-backend.onrender.com',
@@ -52,19 +49,13 @@ const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...envOrigi
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, or local file:// testing)
     if (!origin) return callback(null, true);
-    
-    // Check exact match
     if (allowedOrigins.indexOf(origin) !== -1) {
       return callback(null, true);
     }
-
-    // Allow GitHub Pages preview and subdomains
     if (origin.endsWith('.github.io') || origin.endsWith('.onrender.com')) {
       return callback(null, true);
     }
-
     return callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
   },
   credentials: true,
@@ -72,7 +63,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Body Parsing Middleware
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
@@ -89,11 +79,10 @@ app.get('/admin/', (req, res) => {
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'online',
-    institution: 'Srinidhi Eye Care Hospital',
-    facility: 'Super Speciality Eye Hospital & Micro-Surgery Laser Center',
-    location: 'Gangavathi, Koppal District, Karnataka - 583227',
-    contact: '+91 94481 23456 / 08533-270123',
-    version: '2.0.0',
+    clinic: 'Srinidhi Eye Care & Opticals',
+    facility: 'Premier Eye Examination Clinic & Precision Optical Studio',
+    location: 'Peerzad Street, Vidya Nagar, Gangavathi, Koppal District, Karnataka - 583227',
+    contact: '+91 87628 88866',
     admin_portal: '/admin',
     endpoints: {
       health: '/api/health',
@@ -109,7 +98,6 @@ app.get('/api/health', async (req, res) => {
     let dbStatus = 'healthy';
     let dbType = db.isInMemory() ? 'in-memory (dev)' : 'postgresql';
     
-    // Quick probe to verify database query execution
     const testResult = await db.query('SELECT 1 AS check');
     if (!testResult || !testResult.rows || testResult.rows.length === 0) {
       dbStatus = 'degraded';
@@ -137,7 +125,7 @@ app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// 404 Handler for undefined API routes
+// 404 Handler
 app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -149,7 +137,6 @@ app.use('/api/*', (req, res) => {
 // Fallback error handler
 app.use((err, req, res, next) => {
   console.error('[SERVER ERROR]', err);
-  
   if (err.message && err.message.includes('CORS')) {
     return res.status(403).json({
       success: false,
@@ -157,7 +144,6 @@ app.use((err, req, res, next) => {
       message: err.message
     });
   }
-
   res.status(500).json({
     success: false,
     error: 'INTERNAL_SERVER_ERROR',
@@ -165,10 +151,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Server Initialization
 async function startServer() {
   try {
-    console.log('[SRINIDHI SERVER] Initializing database connection & tables...');
+    console.log('[SRINIDHI SERVER] Initializing database...');
     await db.initDatabase();
 
     app.listen(PORT, () => {
@@ -181,7 +166,6 @@ async function startServer() {
   }
 }
 
-// Start the server only if run directly
 if (require.main === module) {
   startServer();
 }

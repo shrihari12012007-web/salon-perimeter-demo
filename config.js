@@ -1,21 +1,20 @@
 /**
  * ============================================================================
- * SRINIDHI EYE CARE HOSPITAL ?" FRONTEND API CONFIGURATION
- * Super Speciality Eye Hospital & Micro-Surgery Laser Center
- * Hospital Road, Near CBS Circle, Gangavathi, Koppal District, Karnataka - 583227
+ * SRINIDHI EYE CARE — CLINIC & OPTICAL STUDIO CONFIGURATION
+ * Peerzad Street, Vidya Nagar (Near Chandrappa Hospital / Beside Yagna Olka Temple)
+ * Gangavathi, Koppal District, Karnataka - 583227
+ * Phone: +91 87628 88866
  * ============================================================================
- * 
- * Configures the backend API endpoint for GitHub Pages and local development.
  */
 
 window.SRINIDHI_CONFIG = {
-  HOSPITAL_NAME: 'Srinidhi Eye Care Hospital',
-  LOCATION: 'Gangavathi, Karnataka',
+  CLINIC_NAME: 'Srinidhi Eye Care & Opticals',
+  LOCATION: 'Peerzad Street, Vidya Nagar, Gangavathi, Karnataka',
   PINCODE: '583227',
-  OPD_PHONE: '+91 94481 23456',
-  EMERGENCY_PHONE: '+91 8533 270123',
+  PHONE: '+91 87628 88866',
   EMAIL: 'care@srinidhieye.com',
-  // Automatically detects local environment vs live Render backend deployment
+  TIMINGS: 'Mon–Sat: 9:30 AM – 8:30 PM | Sun: 10:00 AM – 2:00 PM',
+  // API URL for local dev vs live Render backend
   API_BASE_URL: (
     window.location.hostname === 'localhost' || 
     window.location.hostname === '127.0.0.1' ||
@@ -25,5 +24,6 @@ window.SRINIDHI_CONFIG = {
     : 'https://salon-perimeter-backend.onrender.com'
 };
 
-// Backward-compatible alias for existing service scripts
+// Aliases for compatibility
+window.APP_CONFIG = window.SRINIDHI_CONFIG;
 window.SALON_CONFIG = window.SRINIDHI_CONFIG;

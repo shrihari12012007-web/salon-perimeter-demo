@@ -1,5 +1,5 @@
 /**
- * Srinidhi Eye Care Hospital — Public Appointment & OPD Enquiry API
+ * Srinidhi Eye Care & Opticals — Public Appointment Enquiry API
  * Endpoint: POST /api/appointments
  * Gangavathi, Koppal District, Karnataka
  */
@@ -13,14 +13,14 @@ const { sendNewEnquiryNotification } = require('../services/email');
 
 /**
  * POST /api/appointments
- * Submits a new OPD appointment enquiry from the website form.
+ * Submits a new appointment request from the website form.
  */
 router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
   try {
     const { customer_name, phone, email, service, preferred_date, preferred_time, message } = req.validatedData;
     const ipHash = req.clientIpHash || null;
 
-    // Check for accidental duplicate submission within the last 5 minutes
+    // Duplicate check within 5 mins
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const duplicateCheck = await db.query(
       `SELECT id, created_at FROM appointments 
@@ -33,16 +33,14 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
       return res.status(409).json({
         success: false,
         error: 'DUPLICATE_ENQUIRY',
-        message: 'A consultation request for this phone number and date was already received in the last few minutes. Srinidhi Eye Care Hospital will call you shortly to confirm your slot.'
+        message: 'An appointment request for this phone number and date was already received in the last few minutes. Srinidhi Eye Care will call you shortly to confirm your slot.'
       });
     }
 
-    // Preserve optional email in message notes so it is saved within existing database schema
     const combinedMessage = email 
       ? `Email: ${email}${message ? `\n${message}` : ''}`
       : (message || '');
 
-    // Insert new appointment enquiry with parameterized query
     const insertQuery = `
       INSERT INTO appointments (
         customer_name,
@@ -70,15 +68,13 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
 
     const createdAppointment = result.rows[0];
 
-    // Asynchronously dispatch notification email without blocking client response
     sendNewEnquiryNotification(createdAppointment).catch(err => {
       console.error('[APPOINTMENTS] Background email error:', err.message);
     });
 
-    // Return HTTP 201 Created with exact required confirmation phrasing
     return res.status(201).json({
       success: true,
-      message: 'Your consultation request has been received. Srinidhi Eye Care Hospital will confirm availability before your OPD slot is finalized.',
+      message: 'Your eye checkup request has been received. Srinidhi Eye Care will confirm availability before your slot is finalized.',
       data: {
         id: createdAppointment.id,
         customer_name: createdAppointment.customer_name,
@@ -101,7 +97,7 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'SERVER_ERROR',
-      message: 'We were unable to process your consultation request due to an internal server error. Please call our hospital desk directly at +91 94481 23456 or 08533-270123.'
+      message: 'We were unable to process your appointment request due to an internal server error. Please call our clinic directly at +91 87628 88866.'
     });
   }
 });

@@ -181,25 +181,25 @@ async function runTests() {
   });
 
   // 5. Public Appointments: Valid Submission
-  await test('POST /api/appointments saves valid submission and returns HTTP 201 with hospital notice', async () => {
+  await test('POST /api/appointments saves valid submission and returns HTTP 201 with clinic notice', async () => {
     const validDate = getFutureDate(5);
     const res = await request('POST', '/api/appointments', {
       customer_name: 'Ramesh Kulkarni',
-      phone: '+91 94481 23456',
+      phone: '+91 87628 88866',
       email: 'ramesh.k@example.com',
-      service: 'Micro-Incision Cataract Surgery (MICS / Phaco)',
+      service: 'Computerized Vision Examination',
       preferred_date: validDate,
-      preferred_time: 'Morning OPD (09:30 AM - 11:30 AM)',
-      message: 'Experiencing blurry vision in right eye and glare while driving.'
+      preferred_time: 'Morning (10:00 AM - 01:00 PM)',
+      message: 'Experiencing eye strain and headache when reading.'
     });
 
     assert.strictEqual(res.status, 201);
     assert.strictEqual(res.body.success, true);
-    assert.ok(res.body.message.includes('Srinidhi Eye Care Hospital'));
+    assert.ok(res.body.message.includes('Srinidhi Eye Care'));
     assert.strictEqual(res.body.data.customer_name, 'Ramesh Kulkarni');
-    assert.strictEqual(res.body.data.phone, '9448123456');
+    assert.strictEqual(res.body.data.phone, '8762888866');
     assert.strictEqual(res.body.data.email, 'ramesh.k@example.com');
-    assert.strictEqual(res.body.data.notes, 'Experiencing blurry vision in right eye and glare while driving.');
+    assert.strictEqual(res.body.data.notes, 'Experiencing eye strain and headache when reading.');
 
     testAppointmentId = res.body.data.id;
     assert.ok(testAppointmentId);
@@ -228,10 +228,10 @@ async function runTests() {
     const validDate = getFutureDate(5);
     const res = await request('POST', '/api/appointments', {
       customer_name: 'Ramesh Kulkarni',
-      phone: '+91 94481 23456',
-      service: 'Micro-Incision Cataract Surgery (MICS / Phaco)',
+      phone: '+91 87628 88866',
+      service: 'Computerized Vision Examination',
       preferred_date: validDate,
-      preferred_time: 'Morning OPD (09:30 AM - 11:30 AM)'
+      preferred_time: 'Morning (10:00 AM - 01:00 PM)'
     });
 
     assert.strictEqual(res.status, 409);
@@ -356,16 +356,16 @@ async function runTests() {
       const validDate = getFutureDate(8);
       const res = await request('POST', '/api/appointments', {
         customer_name: 'Simulated Fail User',
-        phone: '+91 94481 23456',
-        service: 'Micro-Incision Cataract Surgery (MICS / Phaco)',
+        phone: '+91 87628 88866',
+        service: 'Computerized Vision Examination',
         preferred_date: validDate,
-        preferred_time: 'Morning OPD (09:30 AM - 11:30 AM)'
+        preferred_time: 'Morning (10:00 AM - 01:00 PM)'
       });
 
       assert.strictEqual(res.status, 500);
       assert.strictEqual(res.body.success, false);
       assert.strictEqual(res.body.error, 'SERVER_ERROR');
-      assert.ok(res.body.message.includes('unable to process your consultation'));
+      assert.ok(res.body.message.includes('unable to process your appointment'));
       assert.strictEqual(res.body.stack, undefined);
     } finally {
       db.query = originalQuery;

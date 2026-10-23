@@ -1,16 +1,15 @@
 /**
  * ============================================================================
- * SRINIDHI EYE CARE HOSPITAL — CLIENT SCRIPT & APPLICATION LOGIC
- * Super Speciality Eye Hospital & Micro-Surgery Laser Center
- * Hospital Road, Near CBS Circle, Gangavathi, Koppal District, Karnataka - 583227
+ * SRINIDHI EYE CARE & OPTICALS — CLIENT APPLICATION LOGIC
+ * Peerzad Street, Vidya Nagar, Gangavathi, Karnataka - 583227
+ * Phone: +91 87628 88866
  * ============================================================================
  */
 
 (function () {
   'use strict';
 
-  // Config fallback
-  const config = window.SRINIDHI_CONFIG || window.SALON_CONFIG || {
+  const config = window.SRINIDHI_CONFIG || {
     API_BASE_URL: 'http://localhost:5000'
   };
 
@@ -38,216 +37,122 @@
   }
 
   // ==========================================================================
-  // 2. INTERACTIVE VISION SYMPTOM CHECKER
+  // 2. THE INTERACTIVE SCROLL-TO-OPEN SPECTACLES ENGINE
   // ==========================================================================
-  const symptomData = {
-    cataract: {
-      icon: '🌫️',
-      category: 'Lens Opacity Analysis',
-      title: 'Possible Cataract (Lens Clouding)',
-      description: 'Progressive clouding of the eye’s natural crystalline lens, leading to faded colors, halos around oncoming headlights during night driving, and blurred vision.',
-      investigation: 'Digital Slit Lamp Biomicroscopy + Biometry IOL Master',
-      department: 'Micro-Incision Cataract Surgery (MICS / Phaco)',
-      treatment: 'Blade-free 1.8mm MICS Phacoemulsification with Foldable Toric or Multifocal IOL (Day Care)'
-    },
-    lasik: {
-      icon: '👓',
-      category: 'Refractive Assessment',
-      title: 'High Myopia, Hyperopia or Astigmatism (Glasses Dependency)',
-      description: 'Corneal curvature error preventing light rays from focusing sharply on the retina. Ideal candidates are between 18 and 35 years old with stable refractive power for at least 1 year.',
-      investigation: 'Corneal Topography Pentacam + Pachymetry Corneal Thickness Scan',
-      department: 'Contoura Vision & Blade-Free LASIK',
-      treatment: 'Contoura Vision / Femto Blade-Free LASIK (15-Minute Permanent Specs Removal)'
-    },
-    retina: {
-      icon: '⚡',
-      category: 'Posterior Segment & Vitreo-Retina',
-      title: 'Vitreo-Retinal Changes / Diabetic Retinopathy',
-      description: 'Sudden onset of dark floating spots (floaters), flashes of light, or distorted vision. In diabetic patients, this may indicate microvascular bleeding or macular edema.',
-      investigation: 'Topcon 3D Optical Coherence Tomography (OCT) + Dilated Fundoscopy',
-      department: 'Vitreo-Retina & Diabetic Eye Care',
-      treatment: 'Targeted Green Laser Photocoagulation / Intravitreal Anti-VEGF Injections'
-    },
-    glaucoma: {
-      icon: '👁️',
-      category: 'Optic Nerve & Intraocular Pressure',
-      title: 'Suspected Glaucoma / Ocular Hypertension',
-      description: 'Known as the "silent thief of sight", high intraocular fluid pressure causes gradual peripheral vision tunneling often without initial pain.',
-      investigation: 'Zeiss Humphrey Visual Field (HFA3) + Applanation Tonometry + RNFL OCT',
-      department: 'Glaucoma Early Detection & Treatment',
-      treatment: 'Pressure-lowering eye drops / Selective Laser Trabeculoplasty (SLT) / Trabeculectomy'
-    },
-    dryeye: {
-      icon: '🔥',
-      category: 'Ocular Surface & Tear Film',
-      title: 'Chronic Dry Eye Syndrome / Digital Eye Strain',
-      description: 'Evaporative tear film deficiency caused by prolonged computer/mobile screen usage, AC environment, or Meibomian gland dysfunction (MGD).',
-      investigation: 'Schirmer’s Tear Test + Slit Lamp Tear Break-Up Time (TBUT)',
-      department: 'Cornea, Dry Eye & Ocular Surface Clinic',
-      treatment: 'Ocular Surface Spa, Preservative-Free Lubricants & Blue-Cut Computer Lenses'
-    },
-    pediatric: {
-      icon: '👶',
-      category: 'Pediatric Strabismus & Refraction',
-      title: 'Childhood Strabismus (Squint) / Amblyopia (Lazy Eye)',
-      description: 'Misaligned visual axes where one or both eyes turn inward or outward. Early treatment before age 8 prevents permanent amblyopia (lazy eye).',
-      investigation: 'Cycloplegic Pediatric Refraction + Synoptophore Binocular Vision Test',
-      department: 'Pediatric Ophthalmology & Squint Clinic',
-      treatment: 'Corrective refractive glasses, patch occlusion therapy, or precision micro-squint surgery'
+  const spectStage = document.getElementById('spectStage');
+  const spectStatusText = document.getElementById('spectStatusText');
+  const spectProgressFill = document.getElementById('spectProgressFill');
+  const spectPctText = document.getElementById('spectPctText');
+  const templeLeft = document.getElementById('templeLeft');
+  const templeRight = document.getElementById('templeRight');
+  const spectFront = document.getElementById('spectFront');
+
+  function updateSpectacleScroll() {
+    if (!spectStage) return;
+
+    const rect = spectStage.getBoundingClientRect();
+    const windowH = window.innerHeight;
+
+    // Calculate normalized progress (0.0 to 1.0) while scrolling past the stage
+    const totalDistance = rect.height + windowH * 0.4;
+    const currentPassed = windowH - rect.top;
+    let progress = Math.min(Math.max(currentPassed / totalDistance, 0), 1);
+
+    const pct = Math.round(progress * 100);
+    if (spectProgressFill) spectProgressFill.style.width = `${pct}%`;
+    if (spectPctText) spectPctText.textContent = `${pct}%`;
+
+    // Progressive unhinging of spectacle temples based on exact scroll position
+    if (progress > 0.22) {
+      spectStage.classList.add('unfolded');
+      if (spectStatusText) {
+        spectStatusText.textContent = 'State: Unfolded Precision Spectacles (Ready)';
+      }
+
+      // Calculate dynamic hinge angle: from 82deg closed down to 14deg fully open
+      const unfoldRatio = Math.min((progress - 0.22) / 0.45, 1);
+      const angle = 82 - (unfoldRatio * 66); // 82 -> 16 deg
+
+      if (templeLeft) templeLeft.style.transform = `rotateY(${angle}deg) rotateZ(0deg)`;
+      if (templeRight) templeRight.style.transform = `rotateY(-${angle}deg) rotateZ(0deg)`;
+
+      // Gentle scale up for focus
+      const scale = 1 + (unfoldRatio * 0.05);
+      if (spectFront) spectFront.style.transform = `scale(${scale})`;
+    } else {
+      spectStage.classList.remove('unfolded');
+      if (spectStatusText) {
+        spectStatusText.textContent = 'State: Folded Eyewear Frame (Scroll to Open)';
+      }
+      if (templeLeft) templeLeft.style.transform = 'rotateY(82deg) rotateZ(-6deg)';
+      if (templeRight) templeRight.style.transform = 'rotateY(-82deg) rotateZ(6deg)';
+      if (spectFront) spectFront.style.transform = 'scale(1)';
     }
-  };
-
-  const symptomCards = document.querySelectorAll('.symptom-card');
-  const recommendationPanel = document.getElementById('recommendationPanel');
-  const recIcon = document.getElementById('recIcon');
-  const recCategory = document.getElementById('recCategory');
-  const recTitle = document.getElementById('recTitle');
-  const recDescription = document.getElementById('recDescription');
-  const recInvestigation = document.getElementById('recInvestigation');
-  const recDept = document.getElementById('recDept');
-  const recTreatment = document.getElementById('recTreatment');
-  const recBookBtn = document.getElementById('recBookBtn');
-  const serviceSelect = document.getElementById('serviceSelect');
-
-  let activeSymptomDept = '';
-
-  symptomCards.forEach(card => {
-    card.addEventListener('click', () => {
-      symptomCards.forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-
-      const symptomKey = card.getAttribute('data-symptom');
-      const data = symptomData[symptomKey];
-
-      if (data && recommendationPanel) {
-        recIcon.textContent = data.icon;
-        recCategory.textContent = data.category;
-        recTitle.textContent = data.title;
-        recDescription.textContent = data.description;
-        recInvestigation.textContent = data.investigation;
-        recDept.textContent = data.department;
-        recTreatment.textContent = data.treatment;
-        activeSymptomDept = data.department;
-
-        recommendationPanel.style.display = 'block';
-        recommendationPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-  });
-
-  if (recBookBtn) {
-    recBookBtn.addEventListener('click', () => {
-      if (activeSymptomDept && serviceSelect) {
-        serviceSelect.value = activeSymptomDept;
-      }
-      scrollToBooking();
-    });
   }
 
+  window.addEventListener('scroll', updateSpectacleScroll, { passive: true });
+  window.addEventListener('resize', updateSpectacleScroll, { passive: true });
+  updateSpectacleScroll(); // Initial check
+
   // ==========================================================================
-  // 3. SPECIALTY CATEGORY FILTER TABS
+  // 3. INTERACTIVE LENS COATING SIMULATOR
   // ==========================================================================
-  const specTabs = document.querySelectorAll('.spec-tab');
-  const specialtyCards = document.querySelectorAll('.specialty-card');
+  const ctrlBtns = document.querySelectorAll('.ctrl-btn');
+  const rims = document.querySelectorAll('.spectacle-rim');
 
-  specTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      specTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+  ctrlBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      ctrlBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-      const filter = tab.getAttribute('data-filter');
+      const filterType = btn.getAttribute('data-filter');
 
-      specialtyCards.forEach(card => {
-        const cat = card.getAttribute('data-category');
-        if (filter === 'all' || cat === filter) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
+      rims.forEach(rim => {
+        rim.classList.remove('filter-bluecut', 'filter-antiglare', 'filter-progressive');
+        if (filterType !== 'clear') {
+          rim.classList.add(`filter-${filterType}`);
         }
       });
     });
   });
 
-  // Department quick booking buttons
-  const bookDeptBtns = document.querySelectorAll('.book-dept-btn');
-  bookDeptBtns.forEach(btn => {
+  // ==========================================================================
+  // 4. SERVICE QUICK BOOKING BUTTONS
+  // ==========================================================================
+  const serviceSelect = document.getElementById('serviceSelect');
+  const bookServiceBtns = document.querySelectorAll('.book-service-btn');
+
+  bookServiceBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const deptName = btn.getAttribute('data-department');
-      if (serviceSelect && deptName) {
-        // Try exact match or select first match
-        let found = false;
+      const targetService = btn.getAttribute('data-service');
+      if (serviceSelect && targetService) {
+        let matched = false;
         for (let i = 0; i < serviceSelect.options.length; i++) {
-          if (serviceSelect.options[i].value === deptName || deptName.includes(serviceSelect.options[i].value)) {
+          if (serviceSelect.options[i].value === targetService) {
             serviceSelect.selectedIndex = i;
-            found = true;
+            matched = true;
             break;
           }
         }
-        if (!found) {
-          // Add temporary option if doctor specific
-          const newOpt = new Option(deptName, deptName, true, true);
+        if (!matched) {
+          const newOpt = new Option(targetService, targetService, true, true);
           serviceSelect.add(newOpt);
         }
       }
-      scrollToBooking();
+
+      const bookingSec = document.getElementById('booking');
+      if (bookingSec) {
+        bookingSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+          const nameInput = document.getElementById('clientName');
+          if (nameInput) nameInput.focus();
+        }, 600);
+      }
     });
   });
 
-  function scrollToBooking() {
-    const bookingSec = document.getElementById('booking');
-    if (bookingSec) {
-      bookingSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        const nameInput = document.getElementById('clientName');
-        if (nameInput) nameInput.focus();
-      }, 600);
-    }
-  }
-
   // ==========================================================================
-  // 4. ANIMATED STATISTICS COUNTER ON SCROLL
-  // ==========================================================================
-  let countersAnimated = false;
-  const metricNums = document.querySelectorAll('.metric-num');
-
-  function animateCounters() {
-    if (countersAnimated) return;
-    const strip = document.querySelector('.metrics-strip');
-    if (!strip) return;
-
-    const rect = strip.getBoundingClientRect();
-    if (rect.top <= window.innerHeight && rect.bottom >= 0) {
-      countersAnimated = true;
-      metricNums.forEach(counter => {
-        const target = parseInt(counter.getAttribute('data-target'), 10);
-        if (isNaN(target)) return;
-        const duration = 1800;
-        const startTime = performance.now();
-
-        function updateCount(currentTime) {
-          const elapsed = currentTime - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          // Ease out expo
-          const currentVal = Math.floor(target * (progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)));
-          counter.textContent = `${currentVal.toLocaleString('en-IN')}+`;
-
-          if (progress < 1) {
-            requestAnimationFrame(updateCount);
-          } else {
-            counter.textContent = `${target.toLocaleString('en-IN')}+`;
-          }
-        }
-
-        requestAnimationFrame(updateCount);
-      });
-    }
-  }
-
-  window.addEventListener('scroll', animateCounters, { passive: true });
-  animateCounters(); // Check on init
-
-  // ==========================================================================
-  // 5. DATE PICKER SETUP (PREVENT PAST DATES)
+  // 5. DATE PICKER SETUP (SET MIN DATE TO TODAY)
   // ==========================================================================
   const prefDateInput = document.getElementById('prefDate');
   if (prefDateInput) {
@@ -257,25 +162,24 @@
     const dd = String(today.getDate()).padStart(2, '0');
     prefDateInput.min = `${yyyy}-${mm}-${dd}`;
 
-    // Default to tomorrow if current time is late evening
+    // Default to tomorrow if late evening
     const tomorrow = new Date(today);
-    if (today.getHours() >= 17) {
+    if (today.getHours() >= 18) {
       tomorrow.setDate(today.getDate() + 1);
     }
-    const tYyyy = tomorrow.getFullYear();
-    const tMm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const tDd = String(tomorrow.getDate()).padStart(2, '0');
-    prefDateInput.value = `${tYyyy}-${tMm}-${tDd}`;
+    const tY = tomorrow.getFullYear();
+    const tM = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const tD = String(tomorrow.getDate()).padStart(2, '0');
+    prefDateInput.value = `${tY}-${tM}-${tD}`;
   }
 
   // ==========================================================================
-  // 6. FORM VALIDATION & REAL BACKEND SUBMISSION
+  // 6. FORM VALIDATION & BACKEND SUBMISSION
   // ==========================================================================
   const form = document.getElementById('appointmentForm');
   const formAlert = document.getElementById('formAlert');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Input fields
   const clientName = document.getElementById('clientName');
   const clientPhone = document.getElementById('clientPhone');
   const clientEmail = document.getElementById('clientEmail');
@@ -283,7 +187,6 @@
   const prefTime = document.getElementById('prefTime');
   const clientMessage = document.getElementById('clientMessage');
 
-  // Error spans
   const nameError = document.getElementById('nameError');
   const phoneError = document.getElementById('phoneError');
   const emailError = document.getElementById('emailError');
@@ -291,7 +194,7 @@
   const dateError = document.getElementById('dateError');
   const timeError = document.getElementById('timeError');
 
-  // Modal elements
+  // Confirmation Modal Elements
   const confirmationModal = document.getElementById('confirmationModal');
   const modalCloseBtn = document.getElementById('modalCloseBtn');
   const modalAcknowledgeBtn = document.getElementById('modalAcknowledgeBtn');
@@ -321,7 +224,7 @@
     // 1. Name
     const nameVal = clientName.value.trim();
     if (!nameVal) {
-      nameError.textContent = 'Please enter patient full name.';
+      nameError.textContent = 'Please enter your full name.';
       isValid = false;
     } else if (nameVal.length < 2) {
       nameError.textContent = 'Name must be at least 2 characters.';
@@ -333,10 +236,10 @@
     const cleanPhone = phoneVal.replace(/[\s\-\(\)\+]/g, '');
     const isIndianPhone = /^(?:91|0)?[6-9]\d{9}$/.test(cleanPhone);
     if (!phoneVal) {
-      phoneError.textContent = 'Mobile phone number is required.';
+      phoneError.textContent = 'Mobile number is required.';
       isValid = false;
     } else if (!isIndianPhone) {
-      phoneError.textContent = 'Enter a valid 10-digit Indian mobile number (e.g. 9448123456).';
+      phoneError.textContent = 'Enter a valid 10-digit Indian mobile number (e.g. 8762888866).';
       isValid = false;
     }
 
@@ -350,9 +253,9 @@
       }
     }
 
-    // 4. Speciality
+    // 4. Service
     if (!serviceSelect.value) {
-      serviceError.textContent = 'Please select a clinical department.';
+      serviceError.textContent = 'Please select a consultation type.';
       isValid = false;
     }
 
@@ -373,7 +276,7 @@
 
     // 6. Time Slot
     if (!prefTime.value) {
-      timeError.textContent = 'Please select a preferred OPD slot.';
+      timeError.textContent = 'Please select a preferred time slot.';
       isValid = false;
     }
 
@@ -385,18 +288,17 @@
       e.preventDefault();
 
       if (!validateForm()) {
-        const firstError = form.querySelector('.field-error:not(:empty)');
+        const firstError = form.querySelector('.err-text:not(:empty)');
         if (firstError) {
           firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         return;
       }
 
-      // Lock UI & show spinner
       submitBtn.disabled = true;
       const btnText = submitBtn.querySelector('.btn-text');
       const spinner = submitBtn.querySelector('.spinner');
-      if (btnText) btnText.textContent = 'Securing OPD Slot...';
+      if (btnText) btnText.textContent = 'Reserving Slot...';
       if (spinner) spinner.style.display = 'inline-block';
 
       const payload = {
@@ -427,7 +329,6 @@
             ? `SNE-${appointmentData.id.substring(0, 8).toUpperCase()}`
             : `SNE-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-          // Populate Confirmation Modal
           modalRefCode.textContent = refId;
           modalPatientName.textContent = payload.customer_name;
           modalDepartment.textContent = payload.service;
@@ -442,35 +343,31 @@
             modalEmailRow.style.display = 'none';
           }
 
-          // Open Modal
           confirmationModal.style.display = 'flex';
           form.reset();
 
-          // Reset date to tomorrow
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
           prefDate.value = tomorrow.toISOString().split('T')[0];
         } else {
-          // Display error banner
-          formAlert.textContent = result.message || 'We were unable to process your appointment. Please call our hospital reception directly at +91 94481 23456.';
+          formAlert.textContent = result.message || 'We could not process your request. Please call our clinic at +91 87628 88866.';
           formAlert.className = 'form-alert alert-error';
           formAlert.style.display = 'block';
           formAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       } catch (err) {
-        console.error('[BOOKING] Submission network error:', err);
+        console.error('[BOOKING] Error:', err);
         formAlert.innerHTML = `
-          <strong>Connection Timeout / Server Notice:</strong> 
-          We could not reach the server right now. Please call our hospital front desk directly at 
-          <a href="tel:+919448123456" style="color: #00E5FF; text-decoration: underline; font-weight: bold;">+91 94481 23456</a> 
-          or <strong>08533-270123</strong> to book your OPD slot immediately.
+          <strong>Connection Notice:</strong> Unable to reach server right now. 
+          Please call or WhatsApp us directly at <a href="tel:+918762888866" style="color:#FFFFFF;text-decoration:underline;font-weight:bold;">+91 87628 88866</a> 
+          to reserve your eye checkup immediately.
         `;
         formAlert.className = 'form-alert alert-error';
         formAlert.style.display = 'block';
         formAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } finally {
         submitBtn.disabled = false;
-        if (btnText) btnText.textContent = 'Confirm OPD Appointment Request';
+        if (btnText) btnText.textContent = 'Confirm Appointment Request';
         if (spinner) spinner.style.display = 'none';
       }
     });
@@ -492,12 +389,10 @@
   }
 
   // ==========================================================================
-  // 7. CONFIRMATION MODAL CONTROLS
+  // 7. MODAL CONTROLS
   // ==========================================================================
   function closeModal() {
-    if (confirmationModal) {
-      confirmationModal.style.display = 'none';
-    }
+    if (confirmationModal) confirmationModal.style.display = 'none';
   }
 
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
