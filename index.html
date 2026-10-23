@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=9.0">
+  <link rel="stylesheet" href="style.css?v=10.0">
 </head>
 <body class="classic-theme">
 
@@ -225,53 +225,199 @@
 
           <!-- The Spectacle Vector Showcase -->
           <div class="spectacle-visual-viewport" id="spectViewport">
-            
-            <!-- Left Temple (Arm) - Hinges open upon scroll -->
-            <div class="spectacle-temple temple-left" id="templeLeft">
-              <div class="temple-stem">
-                <span class="temple-engraving">SRINIDHI &bull; HANDCRAFTED TITANIUM</span>
-                <div class="temple-hinge-pin"></div>
+            <div class="spectacle-model-wrapper" id="spectWrapper">
+              <!-- Ambient Studio Floor Shadow -->
+              <div class="spectacle-shadow" id="spectShadow"></div>
+
+              <!-- Left Temple (Arm) - Hinges open upon scroll -->
+              <div class="spectacle-temple temple-left" id="templeLeft">
+                <svg viewBox="0 0 220 80" width="220" height="80">
+                  <defs>
+                    <linearGradient id="acetateTL" x1="100%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#4A4A4A" />
+                      <stop offset="16%" stop-color="#282828" />
+                      <stop offset="60%" stop-color="#141414" />
+                      <stop offset="100%" stop-color="#080808" />
+                    </linearGradient>
+                    <linearGradient id="chromeTL" x1="100%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#FFFFFF" />
+                      <stop offset="30%" stop-color="#B8B8B8" />
+                      <stop offset="70%" stop-color="#ECECEC" />
+                      <stop offset="100%" stop-color="#777777" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Handcrafted Acetate Temple Arm -->
+                  <path d="M 212,8 L 60,12 C 40,13 25,24 16,42 C 8,60 10,74 16,74 C 22,74 24,62 30,50 C 38,36 48,27 65,24 L 212,20 Z" 
+                        fill="url(#acetateTL)" stroke="#444" stroke-width="0.8" />
+                  <!-- Embedded Titanium Wire Core -->
+                  <path d="M 206,14 L 62,18 C 45,20 32,30 24,46 C 18,58 20,68 22,70" 
+                        fill="none" stroke="url(#chromeTL)" stroke-width="1.8" stroke-dasharray="8 3" opacity="0.65" />
+                  <!-- 5-Barrel Chrome Hinge Block with Screw Joint -->
+                  <rect x="204" y="7" width="10" height="15" rx="2" fill="url(#chromeTL)" stroke="#1A1A1A" stroke-width="0.8" />
+                  <circle cx="209" cy="14" r="2.5" fill="#1A1A1A" stroke="#888" stroke-width="0.6" />
+                  <line x1="207.5" y1="14" x2="210.5" y2="14" stroke="#FFF" stroke-width="0.6" />
+                </svg>
+              </div>
+
+              <!-- Central Spectacle Front (Rims + Lenses + Bridge + Silicone Pads) -->
+              <div class="spectacle-front-svg" id="spectFront">
+                <svg viewBox="0 0 530 220" width="530" height="220">
+                  <defs>
+                    <!-- Acetate Body Linear Gradient -->
+                    <linearGradient id="acetateF" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#4C4C4C" />
+                      <stop offset="14%" stop-color="#282828" />
+                      <stop offset="50%" stop-color="#141414" />
+                      <stop offset="86%" stop-color="#222222" />
+                      <stop offset="100%" stop-color="#080808" />
+                    </linearGradient>
+                    <!-- Bevel Specular Top Highlight -->
+                    <linearGradient id="bevelF" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(255,255,255,0.75)" />
+                      <stop offset="50%" stop-color="rgba(255,255,255,0.2)" />
+                      <stop offset="100%" stop-color="rgba(255,255,255,0.75)" />
+                    </linearGradient>
+                    <!-- Chrome Titanium Metal -->
+                    <linearGradient id="chromeF2" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#FFFFFF" />
+                      <stop offset="35%" stop-color="#B8B8B8" />
+                      <stop offset="70%" stop-color="#ECECEC" />
+                      <stop offset="100%" stop-color="#777777" />
+                    </linearGradient>
+                    <!-- Optical Glass Gradient -->
+                    <radialGradient id="lensGlassG" cx="45%" cy="38%" r="65%">
+                      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.08)" />
+                      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.02)" />
+                      <stop offset="85%" stop-color="rgba(10, 10, 10, 0.5)" />
+                      <stop offset="100%" stop-color="rgba(0, 0, 0, 0.85)" />
+                    </radialGradient>
+                    <!-- Diagonal Studio Glare Bar -->
+                    <linearGradient id="studioGlareG" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.45)" />
+                      <stop offset="20%" stop-color="rgba(255, 255, 255, 0.15)" />
+                      <stop offset="40%" stop-color="rgba(255, 255, 255, 0.02)" />
+                      <stop offset="100%" stop-color="transparent" />
+                    </linearGradient>
+                    
+                    <!-- Coating Simulation Gradients -->
+                    <linearGradient id="arDefault" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(16, 185, 129, 0.12)" />
+                      <stop offset="50%" stop-color="rgba(56, 189, 248, 0.09)" />
+                      <stop offset="100%" stop-color="rgba(168, 85, 247, 0.07)" />
+                    </linearGradient>
+                    <linearGradient id="arBlueCut" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(56, 189, 248, 0.35)" />
+                      <stop offset="50%" stop-color="rgba(99, 102, 241, 0.28)" />
+                      <stop offset="100%" stop-color="rgba(217, 70, 239, 0.2)" />
+                    </linearGradient>
+                    <linearGradient id="arCrizalGreen" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(16, 185, 129, 0.38)" />
+                      <stop offset="60%" stop-color="rgba(20, 184, 166, 0.25)" />
+                      <stop offset="100%" stop-color="rgba(59, 130, 246, 0.15)" />
+                    </linearGradient>
+                    <linearGradient id="arProgressive" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="rgba(56, 189, 248, 0.18)" />
+                      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.08)" />
+                      <stop offset="100%" stop-color="rgba(245, 158, 11, 0.3)" />
+                    </linearGradient>
+
+                    <!-- Lens Cutout Clips -->
+                    <clipPath id="lClip2">
+                      <path d="M 57,24 C 93,19 183,19 211,28 C 226,34 230,50 228,70 C 224,108 202,144 148,152 C 94,160 54,126 44,82 C 40,56 42,34 57,24 Z" />
+                    </clipPath>
+                    <clipPath id="rClip2">
+                      <path d="M 473,24 C 437,19 347,19 319,28 C 304,34 300,50 302,70 C 306,108 328,144 382,152 C 436,160 476,126 486,82 C 490,56 488,34 473,24 Z" />
+                    </clipPath>
+                  </defs>
+
+                  <!-- Outer Endpiece Lugs -->
+                  <!-- Left Lug with Dual Chrome Rivet Pins -->
+                  <path d="M 47,14 L 7,20 C 4,21 2,24 2,28 L 2,38 C 2,42 5,45 9,44 L 43,40 Z" fill="url(#acetateF)" stroke="#444" stroke-width="0.8" />
+                  <circle cx="10" cy="29" r="1.8" fill="url(#chromeF2)" stroke="#111" stroke-width="0.5" />
+                  <circle cx="16" cy="28" r="1.8" fill="url(#chromeF2)" stroke="#111" stroke-width="0.5" />
+
+                  <!-- Right Lug with Dual Chrome Rivet Pins -->
+                  <path d="M 483,14 L 523,20 C 526,21 528,24 528,28 L 528,38 C 528,42 525,45 521,44 L 487,40 Z" fill="url(#acetateF)" stroke="#444" stroke-width="0.8" />
+                  <circle cx="520" cy="29" r="1.8" fill="url(#chromeF2)" stroke="#111" stroke-width="0.5" />
+                  <circle cx="514" cy="28" r="1.8" fill="url(#chromeF2)" stroke="#111" stroke-width="0.5" />
+
+                  <!-- LEFT RIM - Sculpted Acetate Profile -->
+                  <path d="M 49,12 C 94,7 194,7 224,18 C 244,25 247,47 244,72 C 239,117 214,157 149,166 C 84,174 39,137 29,87 C 24,57 27,27 49,12 Z" 
+                        fill="url(#acetateF)" stroke="#444" stroke-width="1.2" />
+                  <path d="M 51,14 C 94,9 192,9 222,20 C 234,25 239,37 240,52" 
+                        fill="none" stroke="url(#bevelF)" stroke-width="1.6" stroke-linecap="round" />
+
+                  <!-- LEFT LENS (Pure Optical Glass — No Text) -->
+                  <path d="M 57,24 C 93,19 183,19 211,28 C 226,34 230,50 228,70 C 224,108 202,144 148,152 C 94,160 54,126 44,82 C 40,56 42,34 57,24 Z" 
+                        fill="url(#lensGlassG)" stroke="rgba(255,255,255,0.45)" stroke-width="1.2" />
+                  <g clip-path="url(#lClip2)">
+                    <polygon points="10, -10 170, -10 60, 180 -30, 180" fill="url(#studioGlareG)" />
+                    <path d="M 59,32 Q 129,37 204,57 Q 139,52 69,40 Z" fill="rgba(255, 255, 255, 0.3)" />
+                    <rect class="lens-coating-layer" x="29" y="12" width="220" height="160" fill="url(#arDefault)" />
+                  </g>
+
+                  <!-- KEYHOLE SADDLE BRIDGE -->
+                  <path d="M 224,38 C 234,30 247,26 259,26 C 271,26 284,30 294,38 C 289,48 277,54 259,54 C 241,54 229,48 224,38 Z" 
+                        fill="url(#acetateF)" stroke="#444" stroke-width="1" />
+                  <path d="M 225,30 C 239,24 251,22 259,22 C 267,22 279,24 293,30" 
+                        fill="none" stroke="url(#bevelF)" stroke-width="1.5" />
+
+                  <!-- Swan Neck Pad Arms & Medical Silicone Pads -->
+                  <path d="M 237,60 Q 241,76 243,88" fill="none" stroke="url(#chromeF2)" stroke-width="1.5" />
+                  <ellipse cx="244" cy="94" rx="4.5" ry="9" transform="rotate(-15 244 94)" fill="rgba(255,255,255,0.65)" stroke="#FFF" stroke-width="0.8" />
+                  <circle cx="244" cy="94" r="1.5" fill="url(#chromeF2)" />
+
+                  <path d="M 281,60 Q 277,76 275,88" fill="none" stroke="url(#chromeF2)" stroke-width="1.5" />
+                  <ellipse cx="274" cy="94" rx="4.5" ry="9" transform="rotate(15 274 94)" fill="rgba(255,255,255,0.65)" stroke="#FFF" stroke-width="0.8" />
+                  <circle cx="274" cy="94" r="1.5" fill="url(#chromeF2)" />
+
+                  <!-- RIGHT RIM - Sculpted Acetate Profile -->
+                  <path d="M 481,12 C 436,7 336,7 306,18 C 286,25 283,47 286,72 C 291,117 316,157 381,166 C 446,174 491,137 501,87 C 506,57 503,27 481,12 Z" 
+                        fill="url(#acetateF)" stroke="#444" stroke-width="1.2" />
+                  <path d="M 479,14 C 436,9 338,9 308,20 C 296,25 291,37 290,52" 
+                        fill="none" stroke="url(#bevelF)" stroke-width="1.6" stroke-linecap="round" />
+
+                  <!-- RIGHT LENS (Pure Optical Glass — No Text) -->
+                  <path d="M 473,24 C 437,19 347,19 319,28 C 304,34 300,50 302,70 C 306,108 328,144 382,152 C 436,160 476,126 486,82 C 490,56 488,34 473,24 Z" 
+                        fill="url(#lensGlassG)" stroke="rgba(255,255,255,0.45)" stroke-width="1.2" />
+                  <g clip-path="url(#rClip2)">
+                    <polygon points="360, -10 520, -10 410, 180 320, 180" fill="url(#studioGlareG)" />
+                    <path d="M 471,32 Q 401,37 326,57 Q 391,52 461,40 Z" fill="rgba(255, 255, 255, 0.3)" />
+                    <rect class="lens-coating-layer" x="281" y="12" width="220" height="160" fill="url(#arDefault)" />
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Right Temple (Arm) - Hinges open upon scroll -->
+              <div class="spectacle-temple temple-right" id="templeRight">
+                <svg viewBox="0 0 220 80" width="220" height="80">
+                  <defs>
+                    <linearGradient id="acetateTR" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#4A4A4A" />
+                      <stop offset="16%" stop-color="#282828" />
+                      <stop offset="60%" stop-color="#141414" />
+                      <stop offset="100%" stop-color="#080808" />
+                    </linearGradient>
+                    <linearGradient id="chromeTR" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#FFFFFF" />
+                      <stop offset="30%" stop-color="#B8B8B8" />
+                      <stop offset="70%" stop-color="#ECECEC" />
+                      <stop offset="100%" stop-color="#777777" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Handcrafted Acetate Temple Arm -->
+                  <path d="M 8,8 L 160,12 C 180,13 195,24 204,42 C 212,60 210,74 204,74 C 198,74 196,62 190,50 C 182,36 172,27 155,24 L 8,20 Z" 
+                        fill="url(#acetateTR)" stroke="#444" stroke-width="0.8" />
+                  <!-- Embedded Titanium Wire Core -->
+                  <path d="M 14,14 L 158,18 C 175,20 188,30 196,46 C 202,58 200,68 198,70" 
+                        fill="none" stroke="url(#chromeTR)" stroke-width="1.8" stroke-dasharray="8 3" opacity="0.65" />
+                  <!-- 5-Barrel Chrome Hinge Block with Screw Joint -->
+                  <rect x="6" y="7" width="10" height="15" rx="2" fill="url(#chromeTR)" stroke="#1A1A1A" stroke-width="0.8" />
+                  <circle cx="11" cy="14" r="2.5" fill="#1A1A1A" stroke="#888" stroke-width="0.6" />
+                  <line x1="9.5" y1="14" x2="12.5" y2="14" stroke="#FFF" stroke-width="0.6" />
+                </svg>
               </div>
             </div>
-
-            <!-- Central Frame Front & Both Lenses (Pure Optical Glass — No Text) -->
-            <div class="spectacle-front" id="spectFront">
-              
-              <!-- Left Rim & Lens -->
-              <div class="spectacle-rim rim-left" id="rimLeft">
-                <div class="lens-glass glass-left" id="glassLeft">
-                  <div class="lens-reflection"></div>
-                  <div class="lens-glare-arc"></div>
-                  <div class="lens-coating-sheen"></div>
-                </div>
-              </div>
-
-              <!-- Bridge & Nose Pads -->
-              <div class="spectacle-bridge">
-                <div class="bridge-arch"></div>
-                <div class="nose-pad pad-left" title="Hypoallergenic Medical Silicone"></div>
-                <div class="nose-pad pad-right" title="Self-Adjusting Contoured Fit"></div>
-              </div>
-
-              <!-- Right Rim & Lens -->
-              <div class="spectacle-rim rim-right" id="rimRight">
-                <div class="lens-glass glass-right" id="glassRight">
-                  <div class="lens-reflection"></div>
-                  <div class="lens-glare-arc"></div>
-                  <div class="lens-coating-sheen"></div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Right Temple (Arm) - Hinges open upon scroll -->
-            <div class="spectacle-temple temple-right" id="templeRight">
-              <div class="temple-stem">
-                <span class="temple-engraving">52□18 - 142 &bull; GANGAVATHI</span>
-                <div class="temple-hinge-pin"></div>
-              </div>
-            </div>
-
           </div>
 
           <!-- Spectacle Feature Breakdown Cards (Synchronized with scroll) -->
@@ -972,6 +1118,6 @@
   </footer>
 
   <script src="config.js?v=4.0"></script>
-  <script src="script.js?v=4.0"></script>
+  <script src="script.js?v=5.0"></script>
 </body>
 </html>

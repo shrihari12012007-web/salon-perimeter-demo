@@ -673,198 +673,113 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 360px;
-  perspective: 1200px;
+  height: 380px;
+  perspective: 1400px;
   margin-bottom: 48px;
   overflow: visible;
+}
+
+.spectacle-model-wrapper {
+  position: relative;
+  width: 900px;
+  height: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+/* Ambient Studio Shadow */
+.spectacle-shadow {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 480px;
+  height: 38px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.75) 45%, transparent 75%);
+  filter: blur(14px);
+  z-index: 0;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+/* Spectacle Front Frame (Rims, Bridge, Lenses, Nose Pads) */
+.spectacle-front-svg {
+  position: relative;
+  width: 530px;
+  height: 220px;
+  z-index: 2;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 18px 30px rgba(0,0,0,0.9));
 }
 
 /* Spectacle Temples (Left & Right Arms) */
 .spectacle-temple {
   position: absolute;
+  top: 56px;
   width: 220px;
-  height: 12px;
+  height: 80px;
   z-index: 1;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .temple-left {
-  left: calc(50% - 370px);
-  transform-origin: right center;
-  transform: rotateY(82deg) rotateZ(-6deg);
+  left: calc(50% - 265px - 209px + 7px);
+  transform-origin: 209px 14px;
+  transform: rotateY(78deg) rotateZ(-3deg);
+  opacity: 0.85;
 }
 
 .temple-right {
-  right: calc(50% - 370px);
-  transform-origin: left center;
-  transform: rotateY(-82deg) rotateZ(6deg);
+  left: calc(50% + 265px - 11px - 7px);
+  transform-origin: 11px 14px;
+  transform: rotateY(-78deg) rotateZ(3deg);
+  opacity: 0.85;
 }
 
-/* When unfolded via scroll (classes toggled by script.js) */
+/* When Unfolded via scroll */
 .spectacle-interactive-stage.unfolded .temple-left {
-  transform: rotateY(18deg) rotateZ(0deg);
+  transform: rotateY(16deg) rotateZ(0deg);
+  opacity: 1;
 }
+
 .spectacle-interactive-stage.unfolded .temple-right {
-  transform: rotateY(-18deg) rotateZ(0deg);
+  transform: rotateY(-16deg) rotateZ(0deg);
+  opacity: 1;
 }
 
-.temple-stem {
-  width: 100%;
-  height: 10px;
-  background: linear-gradient(90deg, #1C1C1C 0%, #444444 50%, #1C1C1C 100%);
-  border: 1px solid #555555;
-  border-radius: 3px 0 0 3px;
-  position: relative;
-  display: flex;
-  align-items: center;
+.spectacle-interactive-stage.unfolded .spectacle-shadow {
+  width: 760px;
+  opacity: 1;
 }
 
-.temple-engraving {
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.35);
-  padding: 0 14px;
-  white-space: nowrap;
+.spectacle-interactive-stage.unfolded .spectacle-front-svg {
+  transform: scale(1.03);
 }
 
-.temple-hinge-pin {
-  width: 8px;
-  height: 8px;
-  background: #FFFFFF;
-  border-radius: 50%;
-  position: absolute;
-  right: 2px;
-}
-.temple-right .temple-hinge-pin {
-  left: 2px;
-  right: auto;
+/* Lens Coating Sheen Simulator (Reactive AR Coating Layers) */
+.lens-coating-layer {
+  transition: opacity 0.4s ease, fill 0.4s ease;
+  opacity: 0.35;
+  fill: url(#arDefault);
 }
 
-/* Spectacle Front (Rims + Lenses + Bridge) */
-.spectacle-front {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  position: relative;
-  z-index: 2;
-  transition: transform 0.4s ease;
+.spectacle-visual-viewport.filter-bluecut .lens-coating-layer {
+  opacity: 0.95;
+  fill: url(#arBlueCut);
 }
 
-.spectacle-rim {
-  width: 220px;
-  height: 160px;
-  border: 5px solid #E5E5E5;
-  border-radius: 50% 50% 45% 45% / 40% 40% 60% 60%;
-  background: rgba(255, 255, 255, 0.02);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 0 16px rgba(255, 255, 255, 0.08);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
+.spectacle-visual-viewport.filter-antiglare .lens-coating-layer {
+  opacity: 0.95;
+  fill: url(#arCrizalGreen);
 }
 
-.lens-glass {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 16px;
-}
-
-.lens-reflection {
-  position: absolute;
-  top: -60%;
-  left: -20%;
-  width: 140%;
-  height: 140%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 45%);
-  transform: rotate(25deg);
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-/* Pure Optical Lens Sheen & Glare (No text overlays inside lens) */
-.lens-glare-arc {
-  position: absolute;
-  top: 15%;
-  right: 15%;
-  width: 50%;
-  height: 50%;
-  border-radius: 50%;
-  border-top: 2px solid rgba(255, 255, 255, 0.4);
-  border-right: 2px solid rgba(255, 255, 255, 0.2);
-  filter: blur(1px);
-  pointer-events: none;
-}
-
-.lens-coating-sheen {
-  position: absolute;
-  inset: 0;
-  border-radius: 50% 50% 45% 45% / 40% 40% 60% 60%;
-  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 60%, transparent 80%);
-  pointer-events: none;
-  transition: all 0.4s ease;
-}
-
-.spectacle-rim.filter-bluecut .lens-coating-sheen {
-  background: radial-gradient(circle at 35% 35%, rgba(56, 189, 248, 0.25) 0%, rgba(245, 158, 11, 0.08) 60%, transparent 85%);
-}
-
-.spectacle-rim.filter-antiglare .lens-coating-sheen {
-  background: radial-gradient(circle at 35% 35%, rgba(16, 185, 129, 0.22) 0%, rgba(139, 92, 246, 0.12) 60%, transparent 85%);
-}
-
-.spectacle-rim.filter-progressive .lens-coating-sheen {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(245, 158, 11, 0.15) 100%);
-}
-
-/* Bridge & Nose Pads */
-.spectacle-bridge {
-  position: relative;
-  width: 44px;
-  height: 20px;
-}
-
-.bridge-arch {
-  width: 100%;
-  height: 12px;
-  border: 4px solid #E5E5E5;
-  border-bottom: none;
-  border-radius: 12px 12px 0 0;
-}
-
-.nose-pad {
-  position: absolute;
-  width: 7px;
-  height: 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid #FFFFFF;
-  border-radius: 4px;
-  top: 14px;
-}
-.pad-left { left: 4px; transform: rotate(15deg); }
-.pad-right { right: 4px; transform: rotate(-15deg); }
-
-/* Interactive Simulation Modes */
-.spectacle-rim.filter-bluecut {
-  background: rgba(245, 158, 11, 0.08);
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
-}
-.spectacle-rim.filter-bluecut .lens-reflection {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.4) 0%, transparent 40%);
-}
-
-.spectacle-rim.filter-antiglare {
-  background: rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
-}
-
-.spectacle-rim.filter-progressive {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.12) 100%);
+.spectacle-visual-viewport.filter-progressive .lens-coating-layer {
+  opacity: 0.95;
+  fill: url(#arProgressive);
 }
 
 /* Callout Points */
@@ -1665,25 +1580,24 @@ ul {
     gap: 14px;
   }
   .spectacle-visual-viewport {
-    height: 300px;
+    height: 280px;
   }
-  .spectacle-rim {
-    width: 140px;
-    height: 110px;
-  }
-  .spectacle-temple {
-    width: 130px;
-  }
-  .temple-left {
-    left: calc(50% - 210px);
-  }
-  .temple-right {
-    right: calc(50% - 210px);
+  .spectacle-model-wrapper {
+    transform: scale(0.68);
   }
   .form-grid-2 {
     grid-template-columns: 1fr;
   }
   .footer-container {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .spectacle-visual-viewport {
+    height: 220px;
+  }
+  .spectacle-model-wrapper {
+    transform: scale(0.48);
   }
 }

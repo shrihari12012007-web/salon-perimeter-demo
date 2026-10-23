@@ -46,6 +46,8 @@
   const templeLeft = document.getElementById('templeLeft');
   const templeRight = document.getElementById('templeRight');
   const spectFront = document.getElementById('spectFront');
+  const spectShadow = document.getElementById('spectShadow');
+  const spectViewport = document.getElementById('spectViewport');
 
   function updateSpectacleScroll() {
     if (!spectStage) return;
@@ -63,30 +65,38 @@
     if (spectPctText) spectPctText.textContent = `${pct}%`;
 
     // Progressive unhinging of spectacle temples based on exact scroll position
-    if (progress > 0.22) {
+    if (progress > 0.18) {
       spectStage.classList.add('unfolded');
       if (spectStatusText) {
         spectStatusText.textContent = 'State: Unfolded Precision Spectacles (Ready)';
       }
 
-      // Calculate dynamic hinge angle: from 82deg closed down to 14deg fully open
-      const unfoldRatio = Math.min((progress - 0.22) / 0.45, 1);
-      const angle = 82 - (unfoldRatio * 66); // 82 -> 16 deg
+      // Calculate dynamic hinge angle: from 78deg closed down to 14deg fully open
+      const unfoldRatio = Math.min((progress - 0.18) / 0.48, 1);
+      const angle = 78 - (unfoldRatio * 62); // 78 -> 16 deg
 
       if (templeLeft) templeLeft.style.transform = `rotateY(${angle}deg) rotateZ(0deg)`;
       if (templeRight) templeRight.style.transform = `rotateY(-${angle}deg) rotateZ(0deg)`;
 
-      // Gentle scale up for focus
-      const scale = 1 + (unfoldRatio * 0.05);
+      // Gentle scale up for focus & shadow expansion
+      const scale = 1 + (unfoldRatio * 0.03);
       if (spectFront) spectFront.style.transform = `scale(${scale})`;
+      if (spectShadow) {
+        spectShadow.style.width = `${480 + (unfoldRatio * 280)}px`;
+        spectShadow.style.opacity = `${0.75 + (unfoldRatio * 0.25)}`;
+      }
     } else {
       spectStage.classList.remove('unfolded');
       if (spectStatusText) {
         spectStatusText.textContent = 'State: Folded Eyewear Frame (Scroll to Open)';
       }
-      if (templeLeft) templeLeft.style.transform = 'rotateY(82deg) rotateZ(-6deg)';
-      if (templeRight) templeRight.style.transform = 'rotateY(-82deg) rotateZ(6deg)';
+      if (templeLeft) templeLeft.style.transform = 'rotateY(78deg) rotateZ(-3deg)';
+      if (templeRight) templeRight.style.transform = 'rotateY(-78deg) rotateZ(3deg)';
       if (spectFront) spectFront.style.transform = 'scale(1)';
+      if (spectShadow) {
+        spectShadow.style.width = '480px';
+        spectShadow.style.opacity = '0.75';
+      }
     }
   }
 
@@ -98,7 +108,6 @@
   // 3. INTERACTIVE LENS COATING SIMULATOR
   // ==========================================================================
   const ctrlBtns = document.querySelectorAll('.ctrl-btn');
-  const rims = document.querySelectorAll('.spectacle-rim');
 
   ctrlBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -107,12 +116,12 @@
 
       const filterType = btn.getAttribute('data-filter');
 
-      rims.forEach(rim => {
-        rim.classList.remove('filter-bluecut', 'filter-antiglare', 'filter-progressive');
+      if (spectViewport) {
+        spectViewport.classList.remove('filter-bluecut', 'filter-antiglare', 'filter-progressive');
         if (filterType !== 'clear') {
-          rim.classList.add(`filter-${filterType}`);
+          spectViewport.classList.add(`filter-${filterType}`);
         }
-      });
+      }
     });
   });
 
