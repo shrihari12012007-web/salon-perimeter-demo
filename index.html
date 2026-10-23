@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=11.0">
+  <link rel="stylesheet" href="style.css?v=12.0">
 </head>
 <body class="classic-theme">
 
@@ -205,30 +205,20 @@
         
         <div class="section-header text-center">
           <span class="section-tag">Interactive Optical Engineering</span>
-          <h2 class="section-title">The Anatomy of Precision Spectacles &bull; 360&deg; View</h2>
+          <h2 class="section-title">The Anatomy of Precision Spectacles &bull; 3D Showcase</h2>
           <p class="section-subtitle">
-            Explore our handcrafted luxury eyewear in full 360&deg; 3D perspective. Click and drag to spin freely, use the scrub slider to inspect any angle, and test our prescription lens coatings in real time.
+            Explore our handcrafted luxury eyewear in continuous 3D rotation. Drag freely with mouse or touch, select perspectives, and test our prescription lens coatings in real time.
           </p>
         </div>
 
         <!-- Sticky Stage Wrapper -->
         <div class="spectacle-interactive-stage" id="spectStage">
           
-          <!-- Scroll Progress Tracker -->
-          <div class="scroll-tracker-bar">
-            <span class="scroll-status-text" id="spectStatusText">State: 360&deg; Interactive Turntable Active</span>
-            <div class="scroll-progress-line">
-              <div class="scroll-progress-fill" id="spectProgressFill"></div>
-            </div>
-            <span class="scroll-pct" id="spectPctText">0%</span>
-          </div>
-
           <!-- The Spectacle 360 Turntable Viewport -->
           <div class="spectacle-360-viewport" id="spectViewport">
             <!-- 360 Header Overlay -->
             <div class="spect-360-header">
-              <span class="spect-tag">Handcrafted Precision Eyewear &bull; 360&deg; Studio View</span>
-              <div class="spect-angle-badge" id="angleBadge">0&deg; &bull; Front Atelier View</div>
+              <span class="spect-tag">Handcrafted Precision Eyewear &bull; 3D Studio Showcase</span>
             </div>
 
             <!-- WebGL 3D Canvas -->
@@ -238,19 +228,17 @@
             <div class="spect-360-bar">
               <div class="spect-angle-row">
                 <div class="spect-btn-group">
-                  <span class="spect-bar-label">Angles:</span>
-                  <button type="button" class="spect-angle-btn active" data-angle="0">Front (0&deg;)</button>
-                  <button type="button" class="spect-angle-btn" data-angle="45">Angle (45&deg;)</button>
-                  <button type="button" class="spect-angle-btn" data-angle="90">Profile (90&deg;)</button>
-                  <button type="button" class="spect-angle-btn" data-angle="180">Interior (180&deg;)</button>
-                  <button type="button" class="spect-angle-btn" data-angle="315">Hinge (315&deg;)</button>
+                  <span class="spect-bar-label">Perspectives:</span>
+                  <button type="button" class="spect-angle-btn active" data-angle="0">Front View</button>
+                  <button type="button" class="spect-angle-btn" data-angle="45">3/4 View</button>
+                  <button type="button" class="spect-angle-btn" data-angle="90">Side Profile</button>
+                  <button type="button" class="spect-angle-btn" data-angle="180">Interior View</button>
+                  <button type="button" class="spect-angle-btn" data-angle="315">Hinge Detail</button>
                 </div>
 
                 <div class="spect-slider-box">
-                  <span class="slider-lbl">0&deg;</span>
-                  <input type="range" id="degSlider" min="0" max="360" value="0" step="1" aria-label="360 Degree Turntable Angle">
-                  <span class="slider-lbl">360&deg;</span>
-                  <button type="button" class="spect-spin-btn" id="autoSpinBtn" title="Auto-Rotate 360°">Auto-Spin &#9654;</button>
+                  <input type="range" id="degSlider" min="0" max="360" value="0" step="1" aria-label="Turntable Scrubber" title="Scrub Rotation">
+                  <button type="button" class="spect-spin-btn active" id="autoSpinBtn" title="Toggle Auto-Rotation">Pause &#10074;&#10074;</button>
                 </div>
               </div>
             </div>
@@ -956,6 +944,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="config.js?v=4.0"></script>
-  <script src="script.js?v=6.0"></script>
+  <script src="script.js?v=7.0"></script>
 </body>
 </html>

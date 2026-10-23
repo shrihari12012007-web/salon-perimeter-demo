@@ -622,49 +622,9 @@ ul {
   background: #0A0A0A;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 44px;
+  padding: 36px 36px 42px;
   box-shadow: var(--shadow-lg);
   position: relative;
-}
-
-/* Scroll Tracker Bar */
-.scroll-tracker-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 40px;
-}
-
-.scroll-status-text {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #FFFFFF;
-}
-
-.scroll-progress-line {
-  flex: 1;
-  height: 3px;
-  background: #222222;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.scroll-progress-fill {
-  height: 100%;
-  width: 0%;
-  background: #FFFFFF;
-  transition: width 0.15s ease-out;
-}
-
-.scroll-pct {
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: var(--text-muted);
 }
 
 /* ==========================================================================
@@ -714,18 +674,6 @@ ul {
   text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 700;
-}
-
-.spect-angle-badge {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  letter-spacing: 1px;
-  font-family: monospace;
-  color: #FFFFFF;
-  backdrop-filter: blur(8px);
 }
 
 .spect-360-bar {
@@ -794,20 +742,15 @@ ul {
 .spect-slider-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 250px;
+  gap: 12px;
+  width: 240px;
 }
 
 .spect-slider-box input[type="range"] {
   flex: 1;
   accent-color: #FFFFFF;
   cursor: pointer;
-}
-
-.slider-lbl {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-family: monospace;
+  height: 4px;
 }
 
 .spect-spin-btn {

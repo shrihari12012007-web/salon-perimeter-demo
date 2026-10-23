@@ -41,16 +41,25 @@
   // ==========================================================================
   const spectCanvas = document.getElementById('spect360Canvas');
   const spectStage = document.getElementById('spectStage');
-  const spectStatusText = document.getElementById('spectStatusText');
-  const spectProgressFill = document.getElementById('spectProgressFill');
-  const spectPctText = document.getElementById('spectPctText');
-  const angleBadge = document.getElementById('angleBadge');
   const degSlider = document.getElementById('degSlider');
   const autoSpinBtn = document.getElementById('autoSpinBtn');
   const angleBtns = document.querySelectorAll('.spect-angle-btn');
   const ctrlBtns = document.querySelectorAll('.ctrl-btn');
 
-  // Exact Panto Geometry Coordinates (Evaluated from Bespoke Eyewear Splines)
+  let spect3D = {
+    renderer: null,
+    scene: null,
+    camera: null,
+    controls: null,
+    glassesGroup: null,
+    leftLens: null,
+    rightLens: null,
+    isAutoSpin: true,        // Smoothly rotates automatically by default
+    userWantsAutoSpin: true, // Resume auto-spinning after user interaction
+    materials: {}
+  };
+
+  let autoSpinResumeTimer = null;
   const outerPantoPts = [
     [-0.7955,0.6818],[-0.7132,0.6898],[-0.6208,0.6966],[-0.5201,0.7022],[-0.4126,0.7065],
     [-0.3001,0.7095],[-0.1842,0.7109],[-0.0666,0.7108],[0.0511,0.7091],[0.1672,0.7057],
@@ -89,18 +98,6 @@
     [-0.8179,0.4578],[-0.8038,0.4852],[-0.7874,0.5106],[-0.7684,0.5337],[-0.7469,0.5544]
   ];
 
-  let spect3D = {
-    renderer: null,
-    scene: null,
-    camera: null,
-    controls: null,
-    glassesGroup: null,
-    leftLens: null,
-    rightLens: null,
-    isAutoSpin: false,
-    materials: {}
-  };
-
   function initSpectacle3D() {
     if (!spectCanvas || typeof THREE === 'undefined') return;
 
@@ -127,13 +124,32 @@
       spect3D.controls.maxPolarAngle = Math.PI / 2 + 0.15;
       spect3D.controls.minPolarAngle = Math.PI / 4;
 
+      // Pause auto-rotation while user is actively dragging
+      spect3D.controls.addEventListener('start', () => {
+        spect3D.isAutoSpin = false;
+        if (autoSpinResumeTimer) clearTimeout(autoSpinResumeTimer);
+      });
+
+      // Resume auto-rotation after 2 seconds of inactivity
+      spect3D.controls.addEventListener('end', () => {
+        if (spect3D.userWantsAutoSpin) {
+          if (autoSpinResumeTimer) clearTimeout(autoSpinResumeTimer);
+          autoSpinResumeTimer = setTimeout(() => {
+            spect3D.isAutoSpin = true;
+            if (autoSpinBtn) {
+              autoSpinBtn.innerHTML = 'Pause &#10074;&#10074;';
+              autoSpinBtn.classList.add('active');
+            }
+          }, 2000);
+        }
+      });
+
       spect3D.controls.addEventListener('change', () => {
         if (!spect3D.isAutoSpin && spect3D.glassesGroup) {
           let angleRad = Math.atan2(spect3D.camera.position.x, spect3D.camera.position.z) - spect3D.glassesGroup.rotation.y;
           let deg = Math.round((angleRad * 180 / Math.PI)) % 360;
           if (deg < 0) deg += 360;
           if (degSlider) degSlider.value = deg;
-          updateAngleBadge(deg);
         }
       });
     }
@@ -399,11 +415,10 @@
       requestAnimationFrame(animate);
 
       if (spect3D.isAutoSpin && spect3D.glassesGroup) {
-        spect3D.glassesGroup.rotation.y += 0.012;
+        spect3D.glassesGroup.rotation.y += 0.0075; // Smooth automatic 360 rotation
         let deg = Math.round((spect3D.glassesGroup.rotation.y * 180 / Math.PI)) % 360;
         if (deg < 0) deg += 360;
         if (degSlider) degSlider.value = deg;
-        updateAngleBadge(deg);
       }
 
       if (spect3D.controls) spect3D.controls.update();
@@ -422,29 +437,27 @@
     });
   }
 
-  function updateAngleBadge(deg) {
-    if (!angleBadge) return;
-    let desc = '360° Rotation View';
-    if (deg >= 345 || deg <= 15) desc = 'Front Atelier View';
-    else if (deg >= 30 && deg <= 60) desc = 'Dynamic 3/4 Perspective';
-    else if (deg >= 75 && deg <= 105) desc = 'Temple Side Profile';
-    else if (deg >= 165 && deg <= 195) desc = 'Interior Wearer View';
-    else if (deg >= 255 && deg <= 285) desc = 'Opposite Temple Profile';
-    else if (deg >= 300 && deg <= 330) desc = 'Precision Hinge Detail';
-    angleBadge.innerHTML = `${deg}&deg; &bull; ${desc}`;
-  }
-
   window.setSpectacleAngle = function(deg) {
     if (!spect3D.glassesGroup) return;
     spect3D.isAutoSpin = false;
-    if (autoSpinBtn) autoSpinBtn.innerHTML = 'Auto-Spin &#9654;';
     spect3D.glassesGroup.rotation.y = deg * Math.PI / 180;
     if (degSlider) degSlider.value = deg;
-    updateAngleBadge(deg);
 
     angleBtns.forEach(btn => {
       btn.classList.toggle('active', parseInt(btn.getAttribute('data-angle')) === deg);
     });
+
+    // Pause on this perspective for 2.5 seconds, then resume auto-rotation
+    if (spect3D.userWantsAutoSpin) {
+      if (autoSpinResumeTimer) clearTimeout(autoSpinResumeTimer);
+      autoSpinResumeTimer = setTimeout(() => {
+        spect3D.isAutoSpin = true;
+        if (autoSpinBtn) {
+          autoSpinBtn.innerHTML = 'Pause &#10074;&#10074;';
+          autoSpinBtn.classList.add('active');
+        }
+      }, 2500);
+    }
   };
 
   window.setSpectacleCoating = function(type) {
@@ -457,17 +470,43 @@
   // Connect Slider
   if (degSlider) {
     degSlider.addEventListener('input', (e) => {
+      spect3D.isAutoSpin = false;
+      if (autoSpinResumeTimer) clearTimeout(autoSpinResumeTimer);
       const deg = parseInt(e.target.value);
-      window.setSpectacleAngle(deg);
+      if (spect3D.glassesGroup) {
+        spect3D.glassesGroup.rotation.y = deg * Math.PI / 180;
+      }
+    });
+
+    degSlider.addEventListener('change', () => {
+      if (spect3D.userWantsAutoSpin) {
+        if (autoSpinResumeTimer) clearTimeout(autoSpinResumeTimer);
+        autoSpinResumeTimer = setTimeout(() => {
+          spect3D.isAutoSpin = true;
+          if (autoSpinBtn) {
+            autoSpinBtn.innerHTML = 'Pause &#10074;&#10074;';
+            autoSpinBtn.classList.add('active');
+          }
+        }, 2000);
+      }
     });
   }
 
   // Connect Auto-Spin Button
   if (autoSpinBtn) {
     autoSpinBtn.addEventListener('click', () => {
-      spect3D.isAutoSpin = !spect3D.isAutoSpin;
-      autoSpinBtn.innerHTML = spect3D.isAutoSpin ? 'Pause &#10074;&#10074;' : 'Auto-Spin &#9654;';
-      autoSpinBtn.classList.toggle('active', spect3D.isAutoSpin);
+      if (spect3D.isAutoSpin) {
+        spect3D.isAutoSpin = false;
+        spect3D.userWantsAutoSpin = false;
+        if (autoSpinResumeTimer) clearTimeout(autoSpinResumeTimer);
+        autoSpinBtn.innerHTML = 'Auto-Spin &#9654;';
+        autoSpinBtn.classList.remove('active');
+      } else {
+        spect3D.isAutoSpin = true;
+        spect3D.userWantsAutoSpin = true;
+        autoSpinBtn.innerHTML = 'Pause &#10074;&#10074;';
+        autoSpinBtn.classList.add('active');
+      }
     });
   }
 
@@ -488,27 +527,6 @@
       window.setSpectacleCoating(filterType);
     });
   });
-
-  // Scroll Synchronization: Update progress bar
-  function updateSpectacleScroll() {
-    if (!spectStage) return;
-    const rect = spectStage.getBoundingClientRect();
-    const windowH = window.innerHeight;
-    const totalDistance = rect.height + windowH * 0.4;
-    const currentPassed = windowH - rect.top;
-    let progress = Math.min(Math.max(currentPassed / totalDistance, 0), 1);
-
-    const pct = Math.round(progress * 100);
-    if (spectProgressFill) spectProgressFill.style.width = `${pct}%`;
-    if (spectPctText) spectPctText.textContent = `${pct}%`;
-
-    if (progress > 0.15 && spectStatusText) {
-      spectStatusText.textContent = 'State: 360° Interactive Turntable Active';
-    }
-  }
-
-  window.addEventListener('scroll', updateSpectacleScroll, { passive: true });
-  updateSpectacleScroll();
 
   // Initialize Three.js
   if (document.readyState === 'loading') {
