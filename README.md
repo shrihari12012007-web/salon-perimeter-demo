@@ -1,76 +1,78 @@
-# SRINIDHI EYE CARE HOSPITAL — GANGAVATHI, KARNATAKA
-### Super Speciality Eye Hospital & Advanced Micro-Surgery Laser Center
-**Hospital Road, Near CBS Circle / KSRTC Bus Stand Road, Gangavathi - 583227, Koppal District, Karnataka**
+# SRINIDHI EYE CARE & OPTICALS — GANGAVATHI, KARNATAKA
+### Classic Precision Optometry Clinic & Bespoke Eyewear Atelier
+**Peerzad Street, Vidya Nagar (Near Chandrappa Hospital / Beside Yagna Olka Temple), Gangavathi - 583227, Koppal District, Karnataka**  
+**Direct Line / WhatsApp**: `+91 87628 88866`
 
-[![Live Website](https://img.shields.io/badge/Live%20Website-GitHub%20Pages-00E5FF?style=for-the-badge&logo=github)](https://shrihari12012007-web.github.io/salon-perimeter-demo/)
-[![Admin Portal](https://img.shields.io/badge/Hospital%20Admin-Render%20Live-0284C7?style=for-the-badge&logo=render)](https://salon-perimeter-backend.onrender.com/admin)
-[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%20Active-336791?style=for-the-badge&logo=postgresql)](https://render.com)
-
----
-
-## 👁️ Overview & Clinical Capabilities
-
-**Srinidhi Eye Care Hospital** is a premier super-speciality ophthalmic institute situated in Gangavathi, serving patients across Koppal, Hospet, Ballari, Sindhanoor, and the Kalyan Karnataka region.
-
-Equipped with **Carl Zeiss OPMI Lumera i** German surgical microscopes, **Alcon Centurion** sutureless active-fluidics phacoemulsification, and **Topcon 3D Optical Coherence Tomography (OCT)**, the hospital delivers international-standard eye care with compassionate patient service.
+[![Live Website](https://img.shields.io/badge/Live%20Website-GitHub%20Pages-000000?style=for-the-badge&logo=github)](https://shrihari12012007-web.github.io/srinidhi-eye-care/)
+[![Admin Portal](https://img.shields.io/badge/Staff%20Portal-Live-333333?style=for-the-badge&logo=render)](https://salon-perimeter-backend.onrender.com/admin)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL-000000?style=for-the-badge&logo=postgresql)](https://render.com)
+[![Build Status](https://img.shields.io/badge/Tests-17%2F17%20Passed-success?style=for-the-badge)](backend/test/backend-test.js)
 
 ---
 
-## 🌟 Clinical Specialties
+## 👓 Overview & Clinic Reality
 
-1. **Micro-Incision Cataract Surgery (MICS / Phacoemulsification)**:
-   - Sutureless, stitch-free, injection-free 1.8mm incision.
-   - Foldable Monofocal, Toric (astigmatism correction), EDOF, and PanOptix Trifocal IOLs.
-2. **Contoura Vision & Blade-Free LASIK**:
-   - Permanent spectacles removal with topography-guided customized wavefront technology.
-3. **Vitreo-Retina & Diabetic Eye Care**:
-   - Advanced management of diabetic retinopathy, retinal detachment, intravitreal Anti-VEGF injections, and painless Green Laser photocoagulation.
-4. **Glaucoma Early Detection & Trabeculectomy**:
-   - Zeiss Humphrey Visual Field (HFA3) automated perimetry, pachymetry, OCT RNFL analysis, and laser iridotomy.
-5. **Pediatric Ophthalmology & Strabismus (Squint)**:
-   - Early intervention for childhood squint, lazy eye (amblyopia) therapy, and pediatric refractions.
-6. **Cornea, Dry Eye Spa & Ocular Surface Clinic**:
-   - Specialized tear-film diagnostics and dry eye therapy.
-7. **Precision Optical Lounge**:
-   - Zeiss & Essilor progressive lenses, blue-cut computer protection, and designer frames.
-8. **24/7 Emergency Eye Casualty**:
-   - Immediate foreign body removal, chemical splash wash, and ocular trauma management.
+**Srinidhi Eye Care & Opticals** is an intimate, high-precision optometry clinic and curated optical atelier located on Peerzad Street in Vidya Nagar, Gangavathi. 
+
+Focused on unhurried, personalized optical care, the clinic provides computerized eye refraction, prescription accuracy tuning, blue-cut computer screen protection, progressive lens adaptation, and handcrafted spectacle frame styling.
 
 ---
 
-## 🛡️ Cashless Insurance & Government Schemes Empanelment
+## 🌟 Key Features
 
-- **Ayushman Bharat – Arogya Karnataka (AB-ArK)**
-- **Yeshasvini Health Insurance Scheme**
-- **ESI / CGHS / Govt Employees Reimbursement**
-- **Empaneled Private TPAs**: Star Health, HDFC ERGO, ICICI Lombard, MediAssist, Vidal Health, Heritage Health, Care Health, Bajaj Allianz, Paramount TPA.
+1. **Scroll-Driven 3D Unfolding Spectacles**:
+   - An interactive vector spectacle frame physically unfolds its temple arms (from closed 82° hinge to fully open 16° wear angle) as the user scrolls down the page.
+   - Reveals internal lens science overlays:
+     - **Blue-Cut & Anti-Glare Core**: 420nm high-energy blue light absorption.
+     - **Progressive Corridor**: Seamless 3-in-1 focal zones for driving, computer work, and reading.
+     - **Coating Simulator**: Interactive toggles for *Normal Vision*, *Blue-Cut Computer Filter*, *Anti-Glare Night Mode*, and *Progressive 3-Zone View*.
+
+2. **Classic Black & White Luxury Editorial Aesthetic**:
+   - Built with a pure monochrome luxury palette (`#000000` pitch black, `#FFFFFF` crisp white, and subtle dark stone accents).
+   - High-end typography: **Playfair Display** (classic serif) paired with **Plus Jakarta Sans** (Swiss precision sans-serif).
+
+3. **Focused Optometry Clinical Services**:
+   - Computerized Vision Examination (objective auto-refraction + trial frame tuning).
+   - Designer Frame Selection & Facial Fitting.
+   - Progressive & Bifocal Consultation (corridor-free progressive optics).
+   - Blue-Cut Screen Protection for digital workers & students.
+   - Contact Lens Fitting & Hygienic Solution Counseling.
+   - Preliminary Eye Health & Pressure Screening.
+
+4. **Lens Science & Material Matrix**:
+   - Comprehensive comparison matrix covering standard CR-39, Blue-Cut, High-Index 1.67/1.74 Ultra-Thin, and Digital Progressive lenses.
+
+5. **Live Appointment Booking & Staff Admin Dashboard**:
+   - Real-time booking form with Indian phone validation (`+91`), future date checking, duplicate prevention, and automated reference codes (`SNE-XXXX`).
+   - Secure staff management portal at `/admin` with status management (Pending, Confirmed, Completed, Cancelled).
+
+---
+
+## 📍 Clinic Location & OPD Timings
+
+- **Address**: Peerzad Street, Vidya Nagar (Near Chandrappa Hospital / Beside Yagna Olka Temple), Gangavathi - 583227, Koppal District, Karnataka.
+- **Clinic OPD Timings**:
+  - **Monday – Saturday**: 9:30 AM – 8:30 PM
+  - **Sunday**: 10:00 AM – 2:00 PM (Afternoon Closed)
+- **Direct Phone / WhatsApp**: `+91 87628 88866`
+- **Email**: `care@srinidhieye.com`
 
 ---
 
 ## 💻 Tech Architecture
 
-- **Frontend**:
-  - Modern luxury medical design system in Deep Sapphire Navy, Luminous Cyan, and Emerald/Gold.
-  - Interactive **Vision Symptom & Health Checker** with direct booking integration.
-  - Interactive **Cataract IOL Lens Comparison Guide**.
-  - Dynamic **Specialty Category Filtering**.
-  - Live **OPD Appointment Booking Engine** with instant client-side validation and confirmation modal.
-- **Backend**:
-  - Node.js & Express REST API with security middleware (Helmet, CORS, Rate Limiting, Input Sanitization).
-  - PostgreSQL integration on Render with parameterized queries.
-  - Hospital Administration & OPD Portal at `/admin`.
+- **Frontend**: Vanilla HTML5, Modern CSS3 with 3D perspective transforms, Vanilla JavaScript ES6+.
+- **Backend**: Node.js & Express REST API with security middleware (Helmet, CORS, Rate Limiting, Input Sanitization).
+- **Database**: PostgreSQL on Render with fallback in-memory store for local development.
+- **Admin Portal**: Fully responsive staff management interface at `/admin`.
 
 ---
 
-## 🏥 Hospital Schedule & Contact
+## 🧪 Automated Verification Tests
 
-- **Address**: Hospital Road, Near CBS Circle, Gangavathi - 583227, Koppal District, Karnataka.
-- **OPD Timings**:
-  - Monday – Saturday: 9:00 AM – 1:30 PM & 4:30 PM – 8:00 PM
-  - Sunday Special OPD: 10:00 AM – 1:00 PM
-  - Emergency Casualty: 24 Hours / 7 Days Open
-- **Helpline Numbers**:
-  - OPD Appointments: `+91 94481 23456`
-  - Hospital Landline: `08533-270123`
-  - Casualty 24/7: `+91 8533 270123`
-- **Email**: `care@srinidhieye.com`
+To run the automated backend test suite (17 tests):
+
+```bash
+cd backend
+node test/backend-test.js
+```
