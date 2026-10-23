@@ -78,6 +78,12 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Serve static frontend assets for the Admin Dashboard
 app.use('/admin', express.static(path.join(__dirname, 'public')));
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+app.get('/admin/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
 // Root & Health Check Endpoints
 app.get('/', (req, res) => {
