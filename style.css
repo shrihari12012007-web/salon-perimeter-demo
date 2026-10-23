@@ -283,25 +283,29 @@ ul {
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   text-decoration: none;
 }
 
 .brand-logo-img {
-  height: 48px;
+  /* Show the full eye logo with its tagline — natural proportions */
+  height: 52px;
   width: auto;
+  max-width: 160px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 10px rgba(255, 255, 255, 0.2));
-  transition: transform 0.25s ease;
+  /* Keep original colors (blue/teal eye logo) — no white filter */
+  filter: brightness(1.05) drop-shadow(0 1px 8px rgba(0,0,0,0.6));
+  transition: transform 0.25s ease, filter 0.25s ease;
 }
 
 .brand-logo:hover .brand-logo-img {
-  transform: scale(1.05);
+  transform: scale(1.06);
+  filter: brightness(1.15) drop-shadow(0 2px 14px rgba(27, 167, 179, 0.5));
 }
 
 .brand-motto {
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: 0.6rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
   color: var(--text-muted);
   display: block;
@@ -309,14 +313,16 @@ ul {
 }
 
 .drawer-logo-img {
-  height: 44px;
+  height: 56px;
   width: auto;
+  max-width: 180px;
   object-fit: contain;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  filter: brightness(1.05);
 }
 
 .drawer-tagline {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
