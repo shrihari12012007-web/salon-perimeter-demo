@@ -37,25 +37,463 @@
   }
 
   // ==========================================================================
-  // 2. THE INTERACTIVE SCROLL-TO-OPEN SPECTACLES ENGINE
+  // 2. THE 360-DEGREE INTERACTIVE SPECTACLES 3D ENGINE (THREE.JS)
   // ==========================================================================
+  const spectCanvas = document.getElementById('spect360Canvas');
   const spectStage = document.getElementById('spectStage');
   const spectStatusText = document.getElementById('spectStatusText');
   const spectProgressFill = document.getElementById('spectProgressFill');
   const spectPctText = document.getElementById('spectPctText');
-  const templeLeft = document.getElementById('templeLeft');
-  const templeRight = document.getElementById('templeRight');
-  const spectFront = document.getElementById('spectFront');
-  const spectShadow = document.getElementById('spectShadow');
-  const spectViewport = document.getElementById('spectViewport');
+  const angleBadge = document.getElementById('angleBadge');
+  const degSlider = document.getElementById('degSlider');
+  const autoSpinBtn = document.getElementById('autoSpinBtn');
+  const angleBtns = document.querySelectorAll('.spect-angle-btn');
+  const ctrlBtns = document.querySelectorAll('.ctrl-btn');
 
+  // Exact Panto Geometry Coordinates (Evaluated from Bespoke Eyewear Splines)
+  const outerPantoPts = [
+    [-0.7955,0.6818],[-0.7132,0.6898],[-0.6208,0.6966],[-0.5201,0.7022],[-0.4126,0.7065],
+    [-0.3001,0.7095],[-0.1842,0.7109],[-0.0666,0.7108],[0.0511,0.7091],[0.1672,0.7057],
+    [0.2801,0.7005],[0.388,0.6934],[0.4893,0.6844],[0.5824,0.6733],[0.6656,0.6602],
+    [0.7371,0.6449],[0.7955,0.6273],[0.8278,0.6138],[0.8566,0.5972],[0.8821,0.5778],
+    [0.9044,0.5557],[0.9237,0.531],[0.9401,0.5039],[0.9537,0.4746],[0.9648,0.4432],
+    [0.9734,0.4099],[0.9797,0.3748],[0.9838,0.3381],[0.9859,0.3],[0.9862,0.2606],
+    [0.9847,0.2201],[0.9817,0.1786],[0.9773,0.1364],[0.9666,0.0602],[0.9513,-0.0145],
+    [0.9313,-0.0874],[0.9062,-0.1582],[0.8758,-0.2266],[0.8398,-0.2922],[0.798,-0.3547],
+    [0.75,-0.4136],[0.6956,-0.4688],[0.6346,-0.5197],[0.5666,-0.5661],[0.4915,-0.6077],
+    [0.4089,-0.644],[0.3185,-0.6748],[0.2202,-0.6996],[0.1136,-0.7182],[0.005,-0.7271],
+    [-0.0992,-0.7268],[-0.1987,-0.7179],[-0.2933,-0.7006],[-0.3829,-0.6754],[-0.4672,-0.6428],
+    [-0.5461,-0.6031],[-0.6193,-0.5568],[-0.6867,-0.5044],[-0.748,-0.4462],[-0.803,-0.3826],
+    [-0.8516,-0.3142],[-0.8935,-0.2413],[-0.9285,-0.1643],[-0.9565,-0.0838],[-0.9773,-0.0],
+    [-0.9849,0.0511],[-0.9907,0.102],[-0.9945,0.1525],[-0.9962,0.2024],[-0.9955,0.2515],
+    [-0.9925,0.2996],[-0.9868,0.3465],[-0.9784,0.392],[-0.9671,0.436],[-0.9529,0.4781],
+    [-0.9354,0.5182],[-0.9146,0.5561],[-0.8904,0.5916],[-0.8626,0.6246],[-0.831,0.6547]
+  ];
+
+  const innerPantoPts = [
+    [-0.7227,0.5727],[-0.6559,0.5807],[-0.579,0.5876],[-0.4938,0.5933],[-0.4017,0.5977],
+    [-0.3043,0.6009],[-0.2031,0.6028],[-0.0996,0.6032],[0.0045,0.6023],[0.1078,0.5998],
+    [0.2087,0.5958],[0.3057,0.5902],[0.3972,0.583],[0.4816,0.574],[0.5575,0.5633],
+    [0.6232,0.5508],[0.6773,0.5364],[0.7017,0.5251],[0.7238,0.5118],[0.7437,0.4965],
+    [0.7615,0.4793],[0.7772,0.4603],[0.7909,0.4395],[0.8026,0.4171],[0.8125,0.3932],
+    [0.8206,0.3677],[0.8269,0.3409],[0.8315,0.3127],[0.8345,0.2832],[0.836,0.2526],
+    [0.836,0.2209],[0.8346,0.1882],[0.8318,0.1545],[0.8231,0.09],[0.8103,0.0263],
+    [0.7933,-0.0363],[0.7719,-0.0974],[0.7459,-0.1568],[0.7152,-0.214],[0.6795,-0.2686],
+    [0.6386,-0.3205],[0.5925,-0.3691],[0.5408,-0.4142],[0.4834,-0.4554],[0.4202,-0.4923],
+    [0.3508,-0.5247],[0.2752,-0.5522],[0.1932,-0.5743],[0.1045,-0.5909],[0.014,-0.6001],
+    [-0.0733,-0.6009],[-0.1572,-0.5935],[-0.2375,-0.5784],[-0.314,-0.5561],[-0.3864,-0.527],
+    [-0.4545,-0.4915],[-0.5182,-0.45],[-0.5772,-0.403],[-0.6312,-0.3509],[-0.6802,-0.294],
+    [-0.7239,-0.233],[-0.762,-0.168],[-0.7943,-0.0997],[-0.8207,-0.0284],[-0.8409,0.0455],
+    [-0.8471,0.0893],[-0.8519,0.1322],[-0.8552,0.1741],[-0.857,0.2148],[-0.8571,0.2542],
+    [-0.8555,0.2922],[-0.852,0.3287],[-0.8466,0.3636],[-0.8392,0.3969],[-0.8296,0.4283],
+    [-0.8179,0.4578],[-0.8038,0.4852],[-0.7874,0.5106],[-0.7684,0.5337],[-0.7469,0.5544]
+  ];
+
+  let spect3D = {
+    renderer: null,
+    scene: null,
+    camera: null,
+    controls: null,
+    glassesGroup: null,
+    leftLens: null,
+    rightLens: null,
+    isAutoSpin: false,
+    materials: {}
+  };
+
+  function initSpectacle3D() {
+    if (!spectCanvas || typeof THREE === 'undefined') return;
+
+    const width = spectCanvas.clientWidth || 960;
+    const height = spectCanvas.clientHeight || 520;
+
+    spect3D.renderer = new THREE.WebGLRenderer({ canvas: spectCanvas, antialias: true, alpha: true });
+    spect3D.renderer.setSize(width, height);
+    spect3D.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    spect3D.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    spect3D.renderer.toneMappingExposure = 1.15;
+
+    spect3D.scene = new THREE.Scene();
+    spect3D.camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+    spect3D.camera.position.set(0, 0.25, 5.8);
+
+    if (typeof THREE.OrbitControls !== 'undefined') {
+      spect3D.controls = new THREE.OrbitControls(spect3D.camera, spectCanvas);
+      spect3D.controls.enableDamping = true;
+      spect3D.controls.dampingFactor = 0.08;
+      spect3D.controls.enableZoom = true;
+      spect3D.controls.minDistance = 3.2;
+      spect3D.controls.maxDistance = 8.0;
+      spect3D.controls.maxPolarAngle = Math.PI / 2 + 0.15;
+      spect3D.controls.minPolarAngle = Math.PI / 4;
+
+      spect3D.controls.addEventListener('change', () => {
+        if (!spect3D.isAutoSpin && spect3D.glassesGroup) {
+          let angleRad = Math.atan2(spect3D.camera.position.x, spect3D.camera.position.z) - spect3D.glassesGroup.rotation.y;
+          let deg = Math.round((angleRad * 180 / Math.PI)) % 360;
+          if (deg < 0) deg += 360;
+          if (degSlider) degSlider.value = deg;
+          updateAngleBadge(deg);
+        }
+      });
+    }
+
+    // Studio Triple Softbox Lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.85);
+    spect3D.scene.add(ambient);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(6, 8, 8);
+    spect3D.scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0xcceeff, 1.0);
+    fillLight.position.set(-7, 4, 6);
+    spect3D.scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    rimLight.position.set(0, 9, -5);
+    spect3D.scene.add(rimLight);
+
+    // High-End Materials
+    const acetateMat = new THREE.MeshPhysicalMaterial({
+      color: 0x121212,
+      roughness: 0.1,
+      metalness: 0.05,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.06,
+      reflectivity: 0.95
+    });
+
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xf2f2f2,
+      roughness: 0.15,
+      metalness: 0.95
+    });
+
+    const siliconeMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.7,
+      roughness: 0.35
+    });
+
+    // Pure Optical Glass Materials (Zero text inside lenses)
+    spect3D.materials.clear = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.35,
+      roughness: 0.02,
+      transmission: 0.94,
+      ior: 1.52,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03
+    });
+
+    spect3D.materials.bluecut = new THREE.MeshPhysicalMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.02,
+      transmission: 0.86,
+      ior: 1.54,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.02,
+      attenuationColor: new THREE.Color(0x38bdf8),
+      attenuationDistance: 1.5
+    });
+
+    spect3D.materials.antiglare = new THREE.MeshPhysicalMaterial({
+      color: 0x10b981,
+      transparent: true,
+      opacity: 0.40,
+      roughness: 0.02,
+      transmission: 0.88,
+      ior: 1.53,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.02,
+      attenuationColor: new THREE.Color(0x10b981),
+      attenuationDistance: 1.8
+    });
+
+    spect3D.materials.progressive = new THREE.MeshPhysicalMaterial({
+      color: 0xfbbf24,
+      transparent: true,
+      opacity: 0.42,
+      roughness: 0.02,
+      transmission: 0.86,
+      ior: 1.52,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      attenuationColor: new THREE.Color(0xf59e0b),
+      attenuationDistance: 1.2
+    });
+
+    spect3D.glassesGroup = new THREE.Group();
+
+    // 1. PANTO RIM GEOMETRY
+    const pShape = new THREE.Shape();
+    pShape.moveTo(outerPantoPts[0][0], outerPantoPts[0][1]);
+    for (let i = 1; i < outerPantoPts.length; i++) {
+      pShape.lineTo(outerPantoPts[i][0], outerPantoPts[i][1]);
+    }
+    pShape.closePath();
+
+    const pHole = new THREE.Path();
+    pHole.moveTo(innerPantoPts[0][0], innerPantoPts[0][1]);
+    for (let i = 1; i < innerPantoPts.length; i++) {
+      pHole.lineTo(innerPantoPts[i][0], innerPantoPts[i][1]);
+    }
+    pHole.closePath();
+    pShape.holes.push(pHole);
+
+    const rimGeom = new THREE.ExtrudeGeometry(pShape, {
+      steps: 1,
+      depth: 0.12,
+      bevelEnabled: true,
+      bevelThickness: 0.025,
+      bevelSize: 0.02,
+      bevelSegments: 4
+    });
+    rimGeom.center();
+
+    // Left Rim
+    const leftRim = new THREE.Mesh(rimGeom, acetateMat);
+    leftRim.position.set(-1.18, 0, 0);
+    spect3D.glassesGroup.add(leftRim);
+
+    // Right Rim
+    const rightRim = new THREE.Mesh(rimGeom, acetateMat);
+    rightRim.position.set(1.18, 0, 0);
+    rightRim.scale.set(-1, 1, 1);
+    spect3D.glassesGroup.add(rightRim);
+
+    // 2. LENSES (Prescription Glass with Meniscus Curve & Zero Text)
+    const lShape = new THREE.Shape();
+    lShape.moveTo(innerPantoPts[0][0], innerPantoPts[0][1]);
+    for (let i = 1; i < innerPantoPts.length; i++) {
+      lShape.lineTo(innerPantoPts[i][0], innerPantoPts[i][1]);
+    }
+    lShape.closePath();
+
+    const lensGeom = new THREE.ShapeGeometry(lShape);
+    lensGeom.center();
+
+    spect3D.leftLens = new THREE.Mesh(lensGeom, spect3D.materials.clear);
+    spect3D.leftLens.position.set(-1.18, 0, 0.035);
+    spect3D.glassesGroup.add(spect3D.leftLens);
+
+    spect3D.rightLens = new THREE.Mesh(lensGeom, spect3D.materials.clear);
+    spect3D.rightLens.position.set(1.18, 0, 0.035);
+    spect3D.rightLens.scale.set(-1, 1, 1);
+    spect3D.glassesGroup.add(spect3D.rightLens);
+
+    // 3. KEYHOLE BRIDGE
+    const bridgeCurve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-0.35, 0.12, 0.03),
+      new THREE.Vector3(0, 0.30, 0.03),
+      new THREE.Vector3(0.35, 0.12, 0.03)
+    );
+    const bridgeGeom = new THREE.TubeGeometry(bridgeCurve, 24, 0.045, 12, false);
+    const bridge = new THREE.Mesh(bridgeGeom, acetateMat);
+    spect3D.glassesGroup.add(bridge);
+
+    // 4. PAD ARMS & MEDICAL SILICONE PADS
+    function createPad(isLeft) {
+      const sign = isLeft ? -1 : 1;
+      const armCurve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(sign * 0.30, 0.08, -0.04),
+        new THREE.Vector3(sign * 0.26, -0.06, -0.12),
+        new THREE.Vector3(sign * 0.27, -0.16, -0.14)
+      );
+      const armGeom = new THREE.TubeGeometry(armCurve, 16, 0.012, 8, false);
+      const arm = new THREE.Mesh(armGeom, chromeMat);
+      spect3D.glassesGroup.add(arm);
+
+      const padGeom = new THREE.CylinderGeometry(0.035, 0.045, 0.16, 16);
+      const pad = new THREE.Mesh(padGeom, siliconeMat);
+      pad.position.set(sign * 0.27, -0.16, -0.14);
+      pad.rotation.z = sign * -0.25;
+      pad.rotation.y = sign * 0.15;
+      spect3D.glassesGroup.add(pad);
+    }
+    createPad(true);
+    createPad(false);
+
+    // 5. OUTER ENDPIECE LUGS WITH DUAL CHROME RIVETS
+    function createLug(isLeft) {
+      const sign = isLeft ? -1 : 1;
+      const lugGeom = new THREE.BoxGeometry(0.24, 0.14, 0.14);
+      const lug = new THREE.Mesh(lugGeom, acetateMat);
+      lug.position.set(sign * 2.14, 0.38, 0);
+      spect3D.glassesGroup.add(lug);
+
+      // Dual Rivet Pins
+      const rivetGeom = new THREE.CylinderGeometry(0.016, 0.016, 0.02, 12);
+      const r1 = new THREE.Mesh(rivetGeom, chromeMat);
+      r1.rotation.x = Math.PI / 2;
+      r1.position.set(sign * 2.18, 0.40, 0.075);
+      spect3D.glassesGroup.add(r1);
+
+      const r2 = new THREE.Mesh(rivetGeom, chromeMat);
+      r2.rotation.x = Math.PI / 2;
+      r2.position.set(sign * 2.10, 0.40, 0.075);
+      spect3D.glassesGroup.add(r2);
+
+      // 5-Barrel Chrome Hinge Block
+      const hingeGeom = new THREE.CylinderGeometry(0.03, 0.03, 0.12, 16);
+      const hinge = new THREE.Mesh(hingeGeom, chromeMat);
+      hinge.position.set(sign * 2.24, 0.38, -0.06);
+      spect3D.glassesGroup.add(hinge);
+    }
+    createLug(true);
+    createLug(false);
+
+    // 6. TEMPLES EXTENDING IN Z WITH ERGONOMIC EAR HOOKS
+    function createTemple(isLeft) {
+      const sign = isLeft ? -1 : 1;
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(sign * 2.24, 0.38, -0.06),
+        new THREE.Vector3(sign * 2.26, 0.38, -0.6),
+        new THREE.Vector3(sign * 2.22, 0.36, -1.8),
+        new THREE.Vector3(sign * 2.14, 0.34, -2.5),
+        new THREE.Vector3(sign * 2.10, 0.18, -3.0),
+        new THREE.Vector3(sign * 2.11, -0.10, -3.2)
+      ]);
+
+      const templeGeom = new THREE.TubeGeometry(curve, 48, 0.038, 10, false);
+      const temple = new THREE.Mesh(templeGeom, acetateMat);
+      spect3D.glassesGroup.add(temple);
+
+      const wireGeom = new THREE.TubeGeometry(curve, 48, 0.016, 8, false);
+      const wire = new THREE.Mesh(wireGeom, chromeMat);
+      spect3D.glassesGroup.add(wire);
+    }
+    createTemple(true);
+    createTemple(false);
+
+    // 7. STUDIO FLOOR SHADOW
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = 256;
+    shadowCanvas.height = 256;
+    const sCtx = shadowCanvas.getContext('2d');
+    const sGrad = sCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    sGrad.addColorStop(0, 'rgba(0,0,0,0.95)');
+    sGrad.addColorStop(0.35, 'rgba(0,0,0,0.55)');
+    sGrad.addColorStop(0.7, 'rgba(0,0,0,0.12)');
+    sGrad.addColorStop(1, 'transparent');
+    sCtx.fillStyle = sGrad;
+    sCtx.fillRect(0, 0, 256, 256);
+
+    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+    const shadowPlaneGeom = new THREE.PlaneGeometry(6.5, 6.5);
+    const shadowPlaneMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, opacity: 0.95 });
+    const floorShadow = new THREE.Mesh(shadowPlaneGeom, shadowPlaneMat);
+    floorShadow.rotation.x = -Math.PI / 2;
+    floorShadow.position.set(0, -0.9, -1.2);
+    spect3D.glassesGroup.add(floorShadow);
+
+    spect3D.scene.add(spect3D.glassesGroup);
+
+    // 60 FPS Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (spect3D.isAutoSpin && spect3D.glassesGroup) {
+        spect3D.glassesGroup.rotation.y += 0.012;
+        let deg = Math.round((spect3D.glassesGroup.rotation.y * 180 / Math.PI)) % 360;
+        if (deg < 0) deg += 360;
+        if (degSlider) degSlider.value = deg;
+        updateAngleBadge(deg);
+      }
+
+      if (spect3D.controls) spect3D.controls.update();
+      spect3D.renderer.render(spect3D.scene, spect3D.camera);
+    }
+    animate();
+
+    // Resize Handler
+    window.addEventListener('resize', () => {
+      if (!spectCanvas || !spect3D.renderer || !spect3D.camera) return;
+      const w = spectCanvas.clientWidth;
+      const h = spectCanvas.clientHeight;
+      spect3D.camera.aspect = w / h;
+      spect3D.camera.updateProjectionMatrix();
+      spect3D.renderer.setSize(w, h);
+    });
+  }
+
+  function updateAngleBadge(deg) {
+    if (!angleBadge) return;
+    let desc = '360° Rotation View';
+    if (deg >= 345 || deg <= 15) desc = 'Front Atelier View';
+    else if (deg >= 30 && deg <= 60) desc = 'Dynamic 3/4 Perspective';
+    else if (deg >= 75 && deg <= 105) desc = 'Temple Side Profile';
+    else if (deg >= 165 && deg <= 195) desc = 'Interior Wearer View';
+    else if (deg >= 255 && deg <= 285) desc = 'Opposite Temple Profile';
+    else if (deg >= 300 && deg <= 330) desc = 'Precision Hinge Detail';
+    angleBadge.innerHTML = `${deg}&deg; &bull; ${desc}`;
+  }
+
+  window.setSpectacleAngle = function(deg) {
+    if (!spect3D.glassesGroup) return;
+    spect3D.isAutoSpin = false;
+    if (autoSpinBtn) autoSpinBtn.innerHTML = 'Auto-Spin &#9654;';
+    spect3D.glassesGroup.rotation.y = deg * Math.PI / 180;
+    if (degSlider) degSlider.value = deg;
+    updateAngleBadge(deg);
+
+    angleBtns.forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.getAttribute('data-angle')) === deg);
+    });
+  };
+
+  window.setSpectacleCoating = function(type) {
+    if (!spect3D.leftLens || !spect3D.rightLens) return;
+    const mat = spect3D.materials[type] || spect3D.materials.clear;
+    spect3D.leftLens.material = mat;
+    spect3D.rightLens.material = mat;
+  };
+
+  // Connect Slider
+  if (degSlider) {
+    degSlider.addEventListener('input', (e) => {
+      const deg = parseInt(e.target.value);
+      window.setSpectacleAngle(deg);
+    });
+  }
+
+  // Connect Auto-Spin Button
+  if (autoSpinBtn) {
+    autoSpinBtn.addEventListener('click', () => {
+      spect3D.isAutoSpin = !spect3D.isAutoSpin;
+      autoSpinBtn.innerHTML = spect3D.isAutoSpin ? 'Pause &#10074;&#10074;' : 'Auto-Spin &#9654;';
+      autoSpinBtn.classList.toggle('active', spect3D.isAutoSpin);
+    });
+  }
+
+  // Connect Preset Angle Buttons
+  angleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const deg = parseInt(btn.getAttribute('data-angle'));
+      window.setSpectacleAngle(deg);
+    });
+  });
+
+  // Connect Coating Filter Buttons
+  ctrlBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      ctrlBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filterType = btn.getAttribute('data-filter') || 'clear';
+      window.setSpectacleCoating(filterType);
+    });
+  });
+
+  // Scroll Synchronization: Update progress bar
   function updateSpectacleScroll() {
     if (!spectStage) return;
-
     const rect = spectStage.getBoundingClientRect();
     const windowH = window.innerHeight;
-
-    // Calculate normalized progress (0.0 to 1.0) while scrolling past the stage
     const totalDistance = rect.height + windowH * 0.4;
     const currentPassed = windowH - rect.top;
     let progress = Math.min(Math.max(currentPassed / totalDistance, 0), 1);
@@ -64,66 +502,20 @@
     if (spectProgressFill) spectProgressFill.style.width = `${pct}%`;
     if (spectPctText) spectPctText.textContent = `${pct}%`;
 
-    // Progressive unhinging of spectacle temples based on exact scroll position
-    if (progress > 0.18) {
-      spectStage.classList.add('unfolded');
-      if (spectStatusText) {
-        spectStatusText.textContent = 'State: Unfolded Precision Spectacles (Ready)';
-      }
-
-      // Calculate dynamic hinge angle: from 78deg closed down to 14deg fully open
-      const unfoldRatio = Math.min((progress - 0.18) / 0.48, 1);
-      const angle = 78 - (unfoldRatio * 62); // 78 -> 16 deg
-
-      if (templeLeft) templeLeft.style.transform = `rotateY(${angle}deg) rotateZ(0deg)`;
-      if (templeRight) templeRight.style.transform = `rotateY(-${angle}deg) rotateZ(0deg)`;
-
-      // Gentle scale up for focus & shadow expansion
-      const scale = 1 + (unfoldRatio * 0.03);
-      if (spectFront) spectFront.style.transform = `scale(${scale})`;
-      if (spectShadow) {
-        spectShadow.style.width = `${480 + (unfoldRatio * 280)}px`;
-        spectShadow.style.opacity = `${0.75 + (unfoldRatio * 0.25)}`;
-      }
-    } else {
-      spectStage.classList.remove('unfolded');
-      if (spectStatusText) {
-        spectStatusText.textContent = 'State: Folded Eyewear Frame (Scroll to Open)';
-      }
-      if (templeLeft) templeLeft.style.transform = 'rotateY(78deg) rotateZ(-3deg)';
-      if (templeRight) templeRight.style.transform = 'rotateY(-78deg) rotateZ(3deg)';
-      if (spectFront) spectFront.style.transform = 'scale(1)';
-      if (spectShadow) {
-        spectShadow.style.width = '480px';
-        spectShadow.style.opacity = '0.75';
-      }
+    if (progress > 0.15 && spectStatusText) {
+      spectStatusText.textContent = 'State: 360° Interactive Turntable Active';
     }
   }
 
   window.addEventListener('scroll', updateSpectacleScroll, { passive: true });
-  window.addEventListener('resize', updateSpectacleScroll, { passive: true });
-  updateSpectacleScroll(); // Initial check
+  updateSpectacleScroll();
 
-  // ==========================================================================
-  // 3. INTERACTIVE LENS COATING SIMULATOR
-  // ==========================================================================
-  const ctrlBtns = document.querySelectorAll('.ctrl-btn');
-
-  ctrlBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      ctrlBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const filterType = btn.getAttribute('data-filter');
-
-      if (spectViewport) {
-        spectViewport.classList.remove('filter-bluecut', 'filter-antiglare', 'filter-progressive');
-        if (filterType !== 'clear') {
-          spectViewport.classList.add(`filter-${filterType}`);
-        }
-      }
-    });
-  });
+  // Initialize Three.js
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initSpectacle3D);
+  } else {
+    initSpectacle3D();
+  }
 
   // ==========================================================================
   // 4. SERVICE QUICK BOOKING BUTTONS

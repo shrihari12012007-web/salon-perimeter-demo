@@ -667,119 +667,166 @@ ul {
   color: var(--text-muted);
 }
 
-/* Spectacle Viewport: 3D Stage */
-.spectacle-visual-viewport {
+/* ==========================================================================
+   4. THE 360-DEGREE INTERACTIVE SPECTACLES TURNTABLE
+   ========================================================================== */
+.spectacle-360-viewport {
   position: relative;
+  width: 100%;
+  max-width: 980px;
+  height: 540px;
+  margin: 0 auto 36px auto;
+  background: radial-gradient(circle at 50% 28%, #161616 0%, #0A0A0A 75%, #040404 100%);
+  border: 1px solid #262626;
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#spect360Canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+#spect360Canvas:active {
+  cursor: grabbing;
+}
+
+.spect-360-header {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.spect-tag {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.spect-angle-badge {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-family: monospace;
+  color: #FFFFFF;
+  backdrop-filter: blur(8px);
+}
+
+.spect-360-bar {
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.spect-angle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(14, 14, 14, 0.85);
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.spect-bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 380px;
-  perspective: 1400px;
-  margin-bottom: 48px;
-  overflow: visible;
+  margin-right: 4px;
 }
 
-.spectacle-model-wrapper {
-  position: relative;
-  width: 900px;
-  height: 330px;
+.spect-btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.spect-angle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #CCC;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.spect-angle-btn:hover,
+.spect-angle-btn.active {
+  background: #FFFFFF;
+  color: #000000;
+  border-color: #FFFFFF;
+  font-weight: 600;
+}
+
+.spect-slider-box {
   display: flex;
   align-items: center;
-  justify-content: center;
-  perspective: 1400px;
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease;
+  gap: 8px;
+  width: 250px;
 }
 
-/* Ambient Studio Shadow */
-.spectacle-shadow {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 480px;
-  height: 38px;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.75) 45%, transparent 75%);
-  filter: blur(14px);
-  z-index: 0;
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+.spect-slider-box input[type="range"] {
+  flex: 1;
+  accent-color: #FFFFFF;
+  cursor: pointer;
 }
 
-/* Spectacle Front Frame (Rims, Bridge, Lenses, Nose Pads) */
-.spectacle-front-svg {
-  position: relative;
-  width: 530px;
-  height: 220px;
-  z-index: 2;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  filter: drop-shadow(0 18px 30px rgba(0,0,0,0.9));
+.slider-lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: monospace;
 }
 
-/* Spectacle Temples (Left & Right Arms) */
-.spectacle-temple {
-  position: absolute;
-  top: 56px;
-  width: 220px;
-  height: 80px;
-  z-index: 1;
-  transform-style: preserve-3d;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+.spect-spin-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FFF;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.temple-left {
-  left: calc(50% - 265px - 209px + 7px);
-  transform-origin: 209px 14px;
-  transform: rotateY(78deg) rotateZ(-3deg);
-  opacity: 0.85;
-}
-
-.temple-right {
-  left: calc(50% + 265px - 11px - 7px);
-  transform-origin: 11px 14px;
-  transform: rotateY(-78deg) rotateZ(3deg);
-  opacity: 0.85;
-}
-
-/* When Unfolded via scroll */
-.spectacle-interactive-stage.unfolded .temple-left {
-  transform: rotateY(16deg) rotateZ(0deg);
-  opacity: 1;
-}
-
-.spectacle-interactive-stage.unfolded .temple-right {
-  transform: rotateY(-16deg) rotateZ(0deg);
-  opacity: 1;
-}
-
-.spectacle-interactive-stage.unfolded .spectacle-shadow {
-  width: 760px;
-  opacity: 1;
-}
-
-.spectacle-interactive-stage.unfolded .spectacle-front-svg {
-  transform: scale(1.03);
-}
-
-/* Lens Coating Sheen Simulator (Reactive AR Coating Layers) */
-.lens-coating-layer {
-  transition: opacity 0.4s ease, fill 0.4s ease;
-  opacity: 0.35;
-  fill: url(#arDefault);
-}
-
-.spectacle-visual-viewport.filter-bluecut .lens-coating-layer {
-  opacity: 0.95;
-  fill: url(#arBlueCut);
-}
-
-.spectacle-visual-viewport.filter-antiglare .lens-coating-layer {
-  opacity: 0.95;
-  fill: url(#arCrizalGreen);
-}
-
-.spectacle-visual-viewport.filter-progressive .lens-coating-layer {
-  opacity: 0.95;
-  fill: url(#arProgressive);
+.spect-spin-btn:hover,
+.spect-spin-btn.active {
+  background: #FFFFFF;
+  color: #000000;
+  border-color: #FFFFFF;
 }
 
 /* Callout Points */
@@ -1579,11 +1626,15 @@ ul {
     grid-template-columns: 1fr;
     gap: 14px;
   }
-  .spectacle-visual-viewport {
-    height: 280px;
+  .spectacle-360-viewport {
+    height: 440px;
   }
-  .spectacle-model-wrapper {
-    transform: scale(0.68);
+  .spect-angle-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .spect-slider-box {
+    width: 100%;
   }
   .form-grid-2 {
     grid-template-columns: 1fr;
@@ -1594,10 +1645,7 @@ ul {
 }
 
 @media (max-width: 480px) {
-  .spectacle-visual-viewport {
-    height: 220px;
-  }
-  .spectacle-model-wrapper {
-    transform: scale(0.48);
+  .spectacle-360-viewport {
+    height: 380px;
   }
 }
