@@ -295,8 +295,8 @@ async function initDatabase() {
     }
 
     // Seed or synchronize admin user credentials
-    const adminUser = process.env.ADMIN_USERNAME || 'salon_owner';
-    const adminPass = process.env.ADMIN_PASSWORD || 'SalonPerimeter#2026';
+    const adminUser = process.env.ADMIN_USERNAME || 'srinidhi_admin';
+    const adminPass = process.env.ADMIN_PASSWORD || 'SrinidhiEye#2026';
 
     const existingAdmin = await query('SELECT id, username FROM admin_users WHERE username = $1 LIMIT 1', [adminUser]);
 
@@ -306,15 +306,26 @@ async function initDatabase() {
     if (existingAdmin.rows.length === 0) {
       await query(
         'INSERT INTO admin_users (username, password_hash, email, role) VALUES ($1, $2, $3, $4)',
-        [adminUser, hashedPassword, 'perimeter.shimoga@gmail.com', 'owner']
+        [adminUser, hashedPassword, 'care@srinidhieye.com', 'owner']
       );
-      console.log(`[DATABASE] Default admin account seeded: username="${adminUser}"`);
+      console.log(`[DATABASE] Default hospital admin account seeded: username="${adminUser}"`);
     } else {
       await query(
         'UPDATE admin_users SET password_hash = $1 WHERE username = $2',
         [hashedPassword, adminUser]
       );
       console.log(`[DATABASE] Admin account password synchronized for: username="${adminUser}"`);
+    }
+
+    // Also support legacy username salon_owner if present or requested
+    const legacyUser = 'salon_owner';
+    const existingLegacy = await query('SELECT id FROM admin_users WHERE username = $1 LIMIT 1', [legacyUser]);
+    if (existingLegacy.rows.length === 0) {
+      const legacyHash = await bcrypt.hash('SalonPerimeter#2026', salt);
+      await query(
+        'INSERT INTO admin_users (username, password_hash, email, role) VALUES ($1, $2, $3, $4)',
+        [legacyUser, legacyHash, 'admin@srinidhieye.com', 'owner']
+      );
     }
   } catch (error) {
     console.error('[DATABASE] Initialization error:', error.message);

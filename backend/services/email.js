@@ -1,7 +1,7 @@
 /**
- * Salon Perimeter Shimoga — Notification Service
- * Sends new appointment enquiry alerts to the salon owner if SMTP is configured.
- * Does not block or fail customer enquiries if email delivery is disabled or fails.
+ * Srinidhi Eye Care Hospital — Notification Service
+ * Sends new patient OPD appointment alerts to the hospital reception / administration.
+ * Gangavathi, Koppal District, Karnataka
  */
 
 const nodemailer = require('nodemailer');
@@ -32,7 +32,7 @@ function getTransporter() {
 }
 
 /**
- * Sends notification email about a new appointment enquiry
+ * Sends notification email about a new OPD appointment enquiry
  * @param {object} appointment
  */
 async function sendNewEnquiryNotification(appointment) {
@@ -52,54 +52,54 @@ async function sendNewEnquiryNotification(appointment) {
     const { customer_name, phone, service, preferred_date, preferred_time, message, id } = appointment;
 
     const htmlContent = `
-      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #E8E1D9; border-radius: 8px; background-color: #FAF7F2;">
-        <h2 style="color: #A85A65; margin-top: 0;">✨ New Appointment Enquiry — Salon Perimeter Shimoga</h2>
-        <p style="color: #4E4540; font-size: 15px;">A new customer appointment enquiry has been submitted through the website:</p>
+      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #C7D2FE; border-radius: 8px; background-color: #F8FAFC;">
+        <h2 style="color: #0369A1; margin-top: 0;">🏥 New Patient OPD Appointment — Srinidhi Eye Care</h2>
+        <p style="color: #334155; font-size: 15px;">A new patient consultation enquiry has been submitted through the hospital website:</p>
         
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: #FFFFFF; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-          <tr style="border-bottom: 1px solid #F0ECE6;">
-            <td style="padding: 12px 16px; font-weight: bold; color: #736962; width: 35%;">Customer Name:</td>
-            <td style="padding: 12px 16px; color: #1F1B18; font-weight: 600;">${customer_name}</td>
+          <tr style="border-bottom: 1px solid #E2E8F0;">
+            <td style="padding: 12px 16px; font-weight: bold; color: #64748B; width: 35%;">Patient Name:</td>
+            <td style="padding: 12px 16px; color: #0F172A; font-weight: 600;">${customer_name}</td>
           </tr>
-          <tr style="border-bottom: 1px solid #F0ECE6;">
-            <td style="padding: 12px 16px; font-weight: bold; color: #736962;">Phone Number:</td>
-            <td style="padding: 12px 16px;"><a href="tel:${phone}" style="color: #A85A65; text-decoration: none; font-weight: bold;">${phone}</a></td>
+          <tr style="border-bottom: 1px solid #E2E8F0;">
+            <td style="padding: 12px 16px; font-weight: bold; color: #64748B;">Contact Number:</td>
+            <td style="padding: 12px 16px;"><a href="tel:${phone}" style="color: #0284C7; text-decoration: none; font-weight: bold;">${phone}</a></td>
           </tr>
-          <tr style="border-bottom: 1px solid #F0ECE6;">
-            <td style="padding: 12px 16px; font-weight: bold; color: #736962;">Requested Service:</td>
-            <td style="padding: 12px 16px; color: #1F1B18;">${service}</td>
+          <tr style="border-bottom: 1px solid #E2E8F0;">
+            <td style="padding: 12px 16px; font-weight: bold; color: #64748B;">Speciality / Dept:</td>
+            <td style="padding: 12px 16px; color: #0F172A; font-weight: 600;">${service}</td>
           </tr>
-          <tr style="border-bottom: 1px solid #F0ECE6;">
-            <td style="padding: 12px 16px; font-weight: bold; color: #736962;">Preferred Date:</td>
-            <td style="padding: 12px 16px; color: #1F1B18;">${preferred_date}</td>
+          <tr style="border-bottom: 1px solid #E2E8F0;">
+            <td style="padding: 12px 16px; font-weight: bold; color: #64748B;">Preferred Date:</td>
+            <td style="padding: 12px 16px; color: #0F172A;">${preferred_date}</td>
           </tr>
-          <tr style="border-bottom: 1px solid #F0ECE6;">
-            <td style="padding: 12px 16px; font-weight: bold; color: #736962;">Preferred Time:</td>
-            <td style="padding: 12px 16px; color: #1F1B18;">${preferred_time}</td>
+          <tr style="border-bottom: 1px solid #E2E8F0;">
+            <td style="padding: 12px 16px; font-weight: bold; color: #64748B;">Preferred Time:</td>
+            <td style="padding: 12px 16px; color: #0F172A;">${preferred_time}</td>
           </tr>
           <tr>
-            <td style="padding: 12px 16px; font-weight: bold; color: #736962;">Client Notes:</td>
-            <td style="padding: 12px 16px; color: #1F1B18;">${message ? message : '<em>None</em>'}</td>
+            <td style="padding: 12px 16px; font-weight: bold; color: #64748B;">Symptoms / Notes:</td>
+            <td style="padding: 12px 16px; color: #0F172A;">${message ? message : '<em>No additional notes</em>'}</td>
           </tr>
         </table>
 
-        <p style="color: #736962; font-size: 13px; line-height: 1.5;">
-          <strong>Next Action:</strong> Call the client directly at <a href="tel:${phone}" style="color: #A85A65;">${phone}</a> to confirm staff schedule and booking availability.
+        <p style="color: #475569; font-size: 13px; line-height: 1.5;">
+          <strong>Action Required:</strong> Call the patient directly at <a href="tel:${phone}" style="color: #0284C7; font-weight: bold;">${phone}</a> to assign Doctor &amp; Token Number.
         </p>
-        <p style="color: #9C938C; font-size: 11px; margin-top: 24px; border-top: 1px solid #E8E1D9; padding-top: 12px;">
-          Enquiry ID: ${id} &bull; Salon Perimeter Shimoga &bull; Sharavathi Nagar Main Road
+        <p style="color: #94A3B8; font-size: 11px; margin-top: 24px; border-top: 1px solid #E2E8F0; padding-top: 12px;">
+          Enquiry ID: ${id} &bull; Srinidhi Eye Care Hospital &bull; Hospital Road, Gangavathi, Karnataka - 583227
         </p>
       </div>
     `;
 
     const info = await mailer.sendMail({
-      from: `"Salon Perimeter" <${process.env.SMTP_USER}>`,
+      from: `"Srinidhi Eye Care" <${process.env.SMTP_USER}>`,
       to: recipient,
-      subject: `New Enquiry: ${customer_name} - ${service} (${preferred_date})`,
+      subject: `New Patient OPD: ${customer_name} - ${service} (${preferred_date})`,
       html: htmlContent
     });
 
-    console.log(`[NOTIFICATIONS] Email alert dispatched for enquiry ${id}: ${info.messageId}`);
+    console.log(`[NOTIFICATIONS] Email alert dispatched for patient enquiry ${id}: ${info.messageId}`);
     return { sent: true, messageId: info.messageId };
   } catch (error) {
     console.error('[NOTIFICATIONS] Failed to send email alert:', error.message);

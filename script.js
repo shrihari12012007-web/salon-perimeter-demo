@@ -1,191 +1,166 @@
 /**
- * Salon Perimeter Shimoga — Interactive Demo Website Script
- * Exclusively Serving Women & Children • Shivamogga, Karnataka
- * Features: Mobile Nav, Services Filter, Accessible Gallery Lightbox, Form Validation & Demo Simulation Modal
+ * ============================================================================
+ * SRINIDHI EYE CARE HOSPITAL — CLIENT SCRIPT & APPLICATION LOGIC
+ * Super Speciality Eye Hospital & Micro-Surgery Laser Center
+ * Hospital Road, Near CBS Circle, Gangavathi, Koppal District, Karnataka - 583227
+ * ============================================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+(function () {
   'use strict';
 
-  // ==========================================================================
-  // 1. DYNAMIC DATE SETUP & CURRENT YEAR
-  // ==========================================================================
-  const yearSpan = document.getElementById('yearSpan');
-  if (yearSpan) {
-    yearSpan.textContent = new Date().getFullYear();
-  }
+  // Config fallback
+  const config = window.SRINIDHI_CONFIG || window.SALON_CONFIG || {
+    API_BASE_URL: 'http://localhost:5000'
+  };
 
-  const prefDateInput = document.getElementById('prefDate');
-  const dateHint = document.getElementById('dateHint');
-
-  // Prevent selection of past dates by dynamically setting min to today (YYYY-MM-DD)
-  function initMinDate() {
-    if (!prefDateInput) return;
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    prefDateInput.min = `${yyyy}-${mm}-${dd}`;
-  }
-  initMinDate();
-
-  if (prefDateInput) {
-    prefDateInput.addEventListener('change', () => {
-      validateDateSelection(prefDateInput.value);
-    });
-  }
-
-  function validateDateSelection(dateValue) {
-    const dateError = document.getElementById('dateError');
-    const formGroup = prefDateInput ? prefDateInput.closest('.form-group') : null;
-
-    if (!dateValue) {
-      if (dateError) dateError.textContent = 'Please choose a preferred date.';
-      if (formGroup) formGroup.classList.add('has-error');
-      if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'true');
-      return false;
-    }
-
-    const selectedDate = new Date(dateValue + 'T00:00:00');
-    const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 2 = Tuesday, 6 = Saturday
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (selectedDate < today) {
-      if (dateError) dateError.textContent = 'Appointments cannot be scheduled on past dates.';
-      if (formGroup) formGroup.classList.add('has-error');
-      if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'true');
-      return false;
-    }
-
-    // Tuesday is day 2 (Salon Perimeter is closed on Tuesdays)
-    if (dayOfWeek === 2) {
-      if (dateError) dateError.textContent = 'Salon Perimeter is closed on Tuesdays. Please select Wed–Mon.';
-      if (formGroup) formGroup.classList.add('has-error');
-      if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'true');
-      if (dateHint) {
-        dateHint.textContent = '⚠️ Closed on Tuesdays. Please pick another day.';
-        dateHint.classList.add('warning');
-      }
-      return false;
-    }
-
-    // Date is valid
-    if (dateError) dateError.textContent = '';
-    if (formGroup) formGroup.classList.remove('has-error');
-    if (prefDateInput) prefDateInput.setAttribute('aria-invalid', 'false');
-    if (dateHint) {
-      dateHint.textContent = 'Min: Today • Closed on Tuesdays';
-      dateHint.classList.remove('warning');
-    }
-    return true;
-  }
+  const API_URL = `${config.API_BASE_URL}/api/appointments`;
 
   // ==========================================================================
-  // 2. HEADER SCROLL & ACTIVE LINK HIGHLIGHTING
+  // 1. MOBILE DRAWER NAVIGATION
   // ==========================================================================
-  const header = document.getElementById('header');
-  const navLinks = document.querySelectorAll('.desktop-nav .nav-link');
-  const sections = document.querySelectorAll('section[id]');
-
-  window.addEventListener('scroll', () => {
-    const scrollY = window.pageYOffset;
-
-    if (header) {
-      if (scrollY > 40) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-    }
-
-    // Highlight active section nav link
-    let currentSectionId = '';
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop - 120;
-      const sectionHeight = section.offsetHeight;
-      if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
-        currentSectionId = section.getAttribute('id');
-      }
-    });
-
-    if (currentSectionId) {
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${currentSectionId}`) {
-          link.classList.add('active');
-        }
-      });
-    }
-  }, { passive: true });
-
-  // ==========================================================================
-  // 3. MOBILE NAVIGATION DRAWER
-  // ==========================================================================
-  const menuToggle = document.getElementById('menuToggle');
-  const menuClose = document.getElementById('menuClose');
-  const menuBackdrop = document.getElementById('menuBackdrop');
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileDrawer = document.getElementById('mobileDrawer');
-  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-  let lastNavTrigger = null;
+  const mobileLinks = document.querySelectorAll('.mobile-link');
 
-  function openMobileMenu() {
-    if (!mobileDrawer) return;
-    lastNavTrigger = document.activeElement;
-    mobileDrawer.classList.add('open');
-    mobileDrawer.setAttribute('aria-hidden', 'false');
-    if (menuToggle) menuToggle.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-    if (menuClose) menuClose.focus();
+  if (mobileMenuBtn && mobileDrawer) {
+    mobileMenuBtn.addEventListener('click', () => {
+      const isOpen = mobileDrawer.classList.toggle('open');
+      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileDrawer.classList.remove('open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
   }
 
-  function closeMobileMenu() {
-    if (!mobileDrawer) return;
-    mobileDrawer.classList.remove('open');
-    mobileDrawer.setAttribute('aria-hidden', 'true');
-    if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-    if (lastNavTrigger && typeof lastNavTrigger.focus === 'function') {
-      lastNavTrigger.focus();
+  // ==========================================================================
+  // 2. INTERACTIVE VISION SYMPTOM CHECKER
+  // ==========================================================================
+  const symptomData = {
+    cataract: {
+      icon: '🌫️',
+      category: 'Lens Opacity Analysis',
+      title: 'Possible Cataract (Lens Clouding)',
+      description: 'Progressive clouding of the eye’s natural crystalline lens, leading to faded colors, halos around oncoming headlights during night driving, and blurred vision.',
+      investigation: 'Digital Slit Lamp Biomicroscopy + Biometry IOL Master',
+      department: 'Micro-Incision Cataract Surgery (MICS / Phaco)',
+      treatment: 'Blade-free 1.8mm MICS Phacoemulsification with Foldable Toric or Multifocal IOL (Day Care)'
+    },
+    lasik: {
+      icon: '👓',
+      category: 'Refractive Assessment',
+      title: 'High Myopia, Hyperopia or Astigmatism (Glasses Dependency)',
+      description: 'Corneal curvature error preventing light rays from focusing sharply on the retina. Ideal candidates are between 18 and 35 years old with stable refractive power for at least 1 year.',
+      investigation: 'Corneal Topography Pentacam + Pachymetry Corneal Thickness Scan',
+      department: 'Contoura Vision & Blade-Free LASIK',
+      treatment: 'Contoura Vision / Femto Blade-Free LASIK (15-Minute Permanent Specs Removal)'
+    },
+    retina: {
+      icon: '⚡',
+      category: 'Posterior Segment & Vitreo-Retina',
+      title: 'Vitreo-Retinal Changes / Diabetic Retinopathy',
+      description: 'Sudden onset of dark floating spots (floaters), flashes of light, or distorted vision. In diabetic patients, this may indicate microvascular bleeding or macular edema.',
+      investigation: 'Topcon 3D Optical Coherence Tomography (OCT) + Dilated Fundoscopy',
+      department: 'Vitreo-Retina & Diabetic Eye Care',
+      treatment: 'Targeted Green Laser Photocoagulation / Intravitreal Anti-VEGF Injections'
+    },
+    glaucoma: {
+      icon: '👁️',
+      category: 'Optic Nerve & Intraocular Pressure',
+      title: 'Suspected Glaucoma / Ocular Hypertension',
+      description: 'Known as the "silent thief of sight", high intraocular fluid pressure causes gradual peripheral vision tunneling often without initial pain.',
+      investigation: 'Zeiss Humphrey Visual Field (HFA3) + Applanation Tonometry + RNFL OCT',
+      department: 'Glaucoma Early Detection & Treatment',
+      treatment: 'Pressure-lowering eye drops / Selective Laser Trabeculoplasty (SLT) / Trabeculectomy'
+    },
+    dryeye: {
+      icon: '🔥',
+      category: 'Ocular Surface & Tear Film',
+      title: 'Chronic Dry Eye Syndrome / Digital Eye Strain',
+      description: 'Evaporative tear film deficiency caused by prolonged computer/mobile screen usage, AC environment, or Meibomian gland dysfunction (MGD).',
+      investigation: 'Schirmer’s Tear Test + Slit Lamp Tear Break-Up Time (TBUT)',
+      department: 'Cornea, Dry Eye & Ocular Surface Clinic',
+      treatment: 'Ocular Surface Spa, Preservative-Free Lubricants & Blue-Cut Computer Lenses'
+    },
+    pediatric: {
+      icon: '👶',
+      category: 'Pediatric Strabismus & Refraction',
+      title: 'Childhood Strabismus (Squint) / Amblyopia (Lazy Eye)',
+      description: 'Misaligned visual axes where one or both eyes turn inward or outward. Early treatment before age 8 prevents permanent amblyopia (lazy eye).',
+      investigation: 'Cycloplegic Pediatric Refraction + Synoptophore Binocular Vision Test',
+      department: 'Pediatric Ophthalmology & Squint Clinic',
+      treatment: 'Corrective refractive glasses, patch occlusion therapy, or precision micro-squint surgery'
     }
-  }
+  };
 
-  if (menuToggle) menuToggle.addEventListener('click', openMobileMenu);
-  if (menuClose) menuClose.addEventListener('click', closeMobileMenu);
-  if (menuBackdrop) menuBackdrop.addEventListener('click', closeMobileMenu);
+  const symptomCards = document.querySelectorAll('.symptom-card');
+  const recommendationPanel = document.getElementById('recommendationPanel');
+  const recIcon = document.getElementById('recIcon');
+  const recCategory = document.getElementById('recCategory');
+  const recTitle = document.getElementById('recTitle');
+  const recDescription = document.getElementById('recDescription');
+  const recInvestigation = document.getElementById('recInvestigation');
+  const recDept = document.getElementById('recDept');
+  const recTreatment = document.getElementById('recTreatment');
+  const recBookBtn = document.getElementById('recBookBtn');
+  const serviceSelect = document.getElementById('serviceSelect');
 
-  mobileNavLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      closeMobileMenu();
+  let activeSymptomDept = '';
+
+  symptomCards.forEach(card => {
+    card.addEventListener('click', () => {
+      symptomCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+
+      const symptomKey = card.getAttribute('data-symptom');
+      const data = symptomData[symptomKey];
+
+      if (data && recommendationPanel) {
+        recIcon.textContent = data.icon;
+        recCategory.textContent = data.category;
+        recTitle.textContent = data.title;
+        recDescription.textContent = data.description;
+        recInvestigation.textContent = data.investigation;
+        recDept.textContent = data.department;
+        recTreatment.textContent = data.treatment;
+        activeSymptomDept = data.department;
+
+        recommendationPanel.style.display = 'block';
+        recommendationPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     });
   });
 
-  // ==========================================================================
-  // 4. SERVICE CARDS CATEGORY FILTER & ENQUIRE BUTTON PRE-FILL
-  // ==========================================================================
-  const serviceTabs = document.querySelectorAll('.filter-tab');
-  const serviceCards = document.querySelectorAll('.service-card');
+  if (recBookBtn) {
+    recBookBtn.addEventListener('click', () => {
+      if (activeSymptomDept && serviceSelect) {
+        serviceSelect.value = activeSymptomDept;
+      }
+      scrollToBooking();
+    });
+  }
 
-  serviceTabs.forEach(tab => {
+  // ==========================================================================
+  // 3. SPECIALTY CATEGORY FILTER TABS
+  // ==========================================================================
+  const specTabs = document.querySelectorAll('.spec-tab');
+  const specialtyCards = document.querySelectorAll('.specialty-card');
+
+  specTabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      serviceTabs.forEach(t => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
+      specTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
 
-      const filterValue = tab.getAttribute('data-filter');
+      const filter = tab.getAttribute('data-filter');
 
-      serviceCards.forEach(card => {
-        const category = card.getAttribute('data-category');
-        if (filterValue === 'all' || category === filterValue) {
+      specialtyCards.forEach(card => {
+        const cat = card.getAttribute('data-category');
+        if (filter === 'all' || cat === filter) {
           card.style.display = 'flex';
-          card.style.opacity = '0';
-          setTimeout(() => {
-            card.style.opacity = '1';
-          }, 40);
         } else {
           card.style.display = 'none';
         }
@@ -193,406 +168,249 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // "Enquire Now" buttons on service cards pre-fill the form and scroll down
-  const selectServiceBtns = document.querySelectorAll('.select-service-btn');
-  const serviceSelect = document.getElementById('serviceSelect');
-
-  selectServiceBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const serviceValue = btn.getAttribute('data-service-value');
-      
-      if (serviceSelect && serviceValue) {
-        serviceSelect.value = serviceValue;
-        
-        // Scroll smoothly to appointment section
-        const appointmentSection = document.getElementById('appointment');
-        if (appointmentSection) {
-          appointmentSection.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Highlight select field
-        serviceSelect.focus();
-        serviceSelect.style.borderColor = 'var(--rose-gold)';
-        serviceSelect.style.boxShadow = '0 0 0 4px rgba(168, 90, 101, 0.25)';
-        setTimeout(() => {
-          serviceSelect.style.boxShadow = '';
-        }, 1500);
-      }
-    });
-  });
-
-  // ==========================================================================
-  // 5. GALLERY FILTER & ACCESSIBLE LIGHTBOX MODAL
-  // ==========================================================================
-  const galleryFilterBtns = document.querySelectorAll('.gallery-filter-btn');
-  const galleryItems = document.querySelectorAll('.gallery-item');
-
-  galleryFilterBtns.forEach(btn => {
+  // Department quick booking buttons
+  const bookDeptBtns = document.querySelectorAll('.book-dept-btn');
+  bookDeptBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      galleryFilterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const filter = btn.getAttribute('data-gallery-filter');
-
-      galleryItems.forEach(item => {
-        const itemCategory = item.getAttribute('data-category');
-        if (filter === 'all' || itemCategory === filter) {
-          item.style.display = 'block';
-        } else {
-          item.style.display = 'none';
+      const deptName = btn.getAttribute('data-department');
+      if (serviceSelect && deptName) {
+        // Try exact match or select first match
+        let found = false;
+        for (let i = 0; i < serviceSelect.options.length; i++) {
+          if (serviceSelect.options[i].value === deptName || deptName.includes(serviceSelect.options[i].value)) {
+            serviceSelect.selectedIndex = i;
+            found = true;
+            break;
+          }
         }
+        if (!found) {
+          // Add temporary option if doctor specific
+          const newOpt = new Option(deptName, deptName, true, true);
+          serviceSelect.add(newOpt);
+        }
+      }
+      scrollToBooking();
+    });
+  });
+
+  function scrollToBooking() {
+    const bookingSec = document.getElementById('booking');
+    if (bookingSec) {
+      bookingSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        const nameInput = document.getElementById('clientName');
+        if (nameInput) nameInput.focus();
+      }, 600);
+    }
+  }
+
+  // ==========================================================================
+  // 4. ANIMATED STATISTICS COUNTER ON SCROLL
+  // ==========================================================================
+  let countersAnimated = false;
+  const metricNums = document.querySelectorAll('.metric-num');
+
+  function animateCounters() {
+    if (countersAnimated) return;
+    const strip = document.querySelector('.metrics-strip');
+    if (!strip) return;
+
+    const rect = strip.getBoundingClientRect();
+    if (rect.top <= window.innerHeight && rect.bottom >= 0) {
+      countersAnimated = true;
+      metricNums.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'), 10);
+        if (isNaN(target)) return;
+        const duration = 1800;
+        const startTime = performance.now();
+
+        function updateCount(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out expo
+          const currentVal = Math.floor(target * (progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)));
+          counter.textContent = `${currentVal.toLocaleString('en-IN')}+`;
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCount);
+          } else {
+            counter.textContent = `${target.toLocaleString('en-IN')}+`;
+          }
+        }
+
+        requestAnimationFrame(updateCount);
       });
-    });
-  });
-
-  // Lightbox Data & Controls
-  const lightboxModal = document.getElementById('lightboxModal');
-  const lightboxBackdrop = document.getElementById('lightboxBackdrop');
-  const lightboxClose = document.getElementById('lightboxClose');
-  const lightboxPrev = document.getElementById('lightboxPrev');
-  const lightboxNext = document.getElementById('lightboxNext');
-  const lightboxImg = document.getElementById('lightboxImg');
-  const lightboxTitle = document.getElementById('lightboxTitle');
-  const lightboxCategory = document.getElementById('lightboxCategory');
-  const lightboxCounter = document.getElementById('lightboxCounter');
-
-  let currentGalleryIndex = 0;
-  const galleryData = [];
-  let lastGalleryTrigger = null;
-
-  galleryItems.forEach((item, index) => {
-    const img = item.querySelector('img');
-    const title = item.querySelector('.gallery-title')?.textContent || 'Salon Perimeter';
-    const category = item.querySelector('.gallery-category')?.textContent || 'Gallery';
-    const src = img.src;
-    const alt = img.alt;
-
-    galleryData.push({ src, alt, title, category });
-
-    // Open lightbox on click or Enter/Space
-    item.addEventListener('click', () => {
-      lastGalleryTrigger = item;
-      openLightbox(index);
-    });
-
-    item.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        lastGalleryTrigger = item;
-        openLightbox(index);
-      }
-    });
-  });
-
-  function openLightbox(index) {
-    if (!lightboxModal) return;
-    currentGalleryIndex = index;
-    updateLightboxContent();
-    lightboxModal.classList.add('open');
-    lightboxModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    if (lightboxClose) lightboxClose.focus();
-  }
-
-  function closeLightbox() {
-    if (!lightboxModal) return;
-    lightboxModal.classList.remove('open');
-    lightboxModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (lastGalleryTrigger && typeof lastGalleryTrigger.focus === 'function') {
-      lastGalleryTrigger.focus();
     }
   }
 
-  function updateLightboxContent() {
-    const item = galleryData[currentGalleryIndex];
-    if (!item) return;
+  window.addEventListener('scroll', animateCounters, { passive: true });
+  animateCounters(); // Check on init
 
-    if (lightboxImg) {
-      lightboxImg.src = item.src;
-      lightboxImg.alt = item.alt;
+  // ==========================================================================
+  // 5. DATE PICKER SETUP (PREVENT PAST DATES)
+  // ==========================================================================
+  const prefDateInput = document.getElementById('prefDate');
+  if (prefDateInput) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    prefDateInput.min = `${yyyy}-${mm}-${dd}`;
+
+    // Default to tomorrow if current time is late evening
+    const tomorrow = new Date(today);
+    if (today.getHours() >= 17) {
+      tomorrow.setDate(today.getDate() + 1);
     }
-    if (lightboxTitle) lightboxTitle.textContent = item.title;
-    if (lightboxCategory) lightboxCategory.textContent = item.category;
-    if (lightboxCounter) lightboxCounter.textContent = `${currentGalleryIndex + 1} of ${galleryData.length}`;
-  }
-
-  function prevLightboxItem() {
-    currentGalleryIndex = (currentGalleryIndex - 1 + galleryData.length) % galleryData.length;
-    updateLightboxContent();
-  }
-
-  function nextLightboxItem() {
-    currentGalleryIndex = (currentGalleryIndex + 1) % galleryData.length;
-    updateLightboxContent();
-  }
-
-  if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
-  if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeLightbox);
-  if (lightboxPrev) lightboxPrev.addEventListener('click', prevLightboxItem);
-  if (lightboxNext) lightboxNext.addEventListener('click', nextLightboxItem);
-
-  // Close if clicking outside the modal dialog
-  if (lightboxModal) {
-    lightboxModal.addEventListener('click', (e) => {
-      if (e.target === lightboxModal) {
-        closeLightbox();
-      }
-    });
+    const tYyyy = tomorrow.getFullYear();
+    const tMm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const tDd = String(tomorrow.getDate()).padStart(2, '0');
+    prefDateInput.value = `${tYyyy}-${tMm}-${tDd}`;
   }
 
   // ==========================================================================
-  // 6. APPOINTMENT ENQUIRY FORM VALIDATION & FRONT-END SIMULATION
+  // 6. FORM VALIDATION & REAL BACKEND SUBMISSION
   // ==========================================================================
-  const appointmentForm = document.getElementById('appointmentForm');
+  const form = document.getElementById('appointmentForm');
+  const formAlert = document.getElementById('formAlert');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Input Fields
+  // Input fields
   const clientName = document.getElementById('clientName');
   const clientPhone = document.getElementById('clientPhone');
   const clientEmail = document.getElementById('clientEmail');
-  const clientMessage = document.getElementById('clientMessage');
+  const prefDate = document.getElementById('prefDate');
   const prefTime = document.getElementById('prefTime');
+  const clientMessage = document.getElementById('clientMessage');
 
-  // Confirmation Modal Elements
+  // Error spans
+  const nameError = document.getElementById('nameError');
+  const phoneError = document.getElementById('phoneError');
+  const emailError = document.getElementById('emailError');
+  const serviceError = document.getElementById('serviceError');
+  const dateError = document.getElementById('dateError');
+  const timeError = document.getElementById('timeError');
+
+  // Modal elements
   const confirmationModal = document.getElementById('confirmationModal');
-  const confirmationBackdrop = document.getElementById('confirmationBackdrop');
-  const confirmClose = document.getElementById('confirmClose');
-  const confirmDoneBtn = document.getElementById('confirmDoneBtn');
-  let lastModalTrigger = null;
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalAcknowledgeBtn = document.getElementById('modalAcknowledgeBtn');
+  const modalRefCode = document.getElementById('modalRefCode');
+  const modalPatientName = document.getElementById('modalPatientName');
+  const modalDepartment = document.getElementById('modalDepartment');
+  const modalDate = document.getElementById('modalDate');
+  const modalTime = document.getElementById('modalTime');
+  const modalPhone = document.getElementById('modalPhone');
+  const modalEmail = document.getElementById('modalEmail');
+  const modalEmailRow = document.getElementById('modalEmailRow');
 
-  // Summary Ticket Elements
-  const summaryName = document.getElementById('summaryName');
-  const summaryPhone = document.getElementById('summaryPhone');
-  const summaryEmail = document.getElementById('summaryEmail');
-  const summaryEmailRow = document.getElementById('summaryEmailRow');
-  const summaryService = document.getElementById('summaryService');
-  const summaryDate = document.getElementById('summaryDate');
-  const summaryTime = document.getElementById('summaryTime');
-  const summaryNotes = document.getElementById('summaryNotes');
-  const summaryNotesRow = document.getElementById('summaryNotesRow');
-
-  // Helper: Parse embedded email from notes for backward compatibility
-  function parseEnquiryMessage(rawMessage, existingEmail) {
-    let email = existingEmail || '';
-    let notes = (rawMessage || '').trim();
-
-    if (!email && notes) {
-      const match = notes.match(/^Email:\s*([^\r\n]+)/i);
-      if (match) {
-        email = match[1].trim();
-        notes = notes.slice(match[0].length).trim();
-      }
-    } else if (email && notes) {
-      const match = notes.match(/^Email:\s*([^\r\n]+)/i);
-      if (match) {
-        notes = notes.slice(match[0].length).trim();
-      }
-    }
-
-    return { email, notes };
-  }
-
-  // Validation Helpers
-  function setFieldError(field, errorId, message) {
-    if (!field) return;
-    const formGroup = field.closest('.form-group');
-    const errorEl = document.getElementById(errorId);
-    if (formGroup) formGroup.classList.add('has-error');
-    if (errorEl) errorEl.textContent = message;
-    field.setAttribute('aria-invalid', 'true');
-  }
-
-  function clearFieldError(field, errorId) {
-    if (!field) return;
-    const formGroup = field.closest('.form-group');
-    const errorEl = document.getElementById(errorId);
-    if (formGroup) formGroup.classList.remove('has-error');
-    if (errorEl) errorEl.textContent = '';
-    field.setAttribute('aria-invalid', 'false');
-  }
-
-  // Form Error Banner Elements & Helpers
-  const formErrorBanner = document.getElementById('formErrorBanner');
-  const formErrorText = document.getElementById('formErrorText');
-
-  function showFormError(msg) {
-    if (formErrorBanner) {
-      if (formErrorText) formErrorText.textContent = msg;
-      formErrorBanner.style.display = 'flex';
-      formErrorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  function clearErrors() {
+    [nameError, phoneError, emailError, serviceError, dateError, timeError].forEach(span => {
+      if (span) span.textContent = '';
+    });
+    if (formAlert) {
+      formAlert.style.display = 'none';
+      formAlert.className = 'form-alert';
     }
   }
 
-  function hideFormError() {
-    if (formErrorBanner) {
-      formErrorBanner.style.display = 'none';
+  function validateForm() {
+    clearErrors();
+    let isValid = true;
+
+    // 1. Name
+    const nameVal = clientName.value.trim();
+    if (!nameVal) {
+      nameError.textContent = 'Please enter patient full name.';
+      isValid = false;
+    } else if (nameVal.length < 2) {
+      nameError.textContent = 'Name must be at least 2 characters.';
+      isValid = false;
     }
-  }
 
-  // Real-time error clearing on input
-  if (clientName) {
-    clientName.addEventListener('input', () => {
-      hideFormError();
-      if (clientName.value.trim().length >= 2) clearFieldError(clientName, 'nameError');
-    });
-  }
+    // 2. Phone
+    const phoneVal = clientPhone.value.trim();
+    const cleanPhone = phoneVal.replace(/[\s\-\(\)\+]/g, '');
+    const isIndianPhone = /^(?:91|0)?[6-9]\d{9}$/.test(cleanPhone);
+    if (!phoneVal) {
+      phoneError.textContent = 'Mobile phone number is required.';
+      isValid = false;
+    } else if (!isIndianPhone) {
+      phoneError.textContent = 'Enter a valid 10-digit Indian mobile number (e.g. 9448123456).';
+      isValid = false;
+    }
 
-  if (clientPhone) {
-    clientPhone.addEventListener('input', () => {
-      hideFormError();
-      const cleanPhone = clientPhone.value.replace(/[\s\-\(\)\+]/g, '');
-      if (cleanPhone.length >= 10) clearFieldError(clientPhone, 'phoneError');
-    });
-  }
-
-  if (clientEmail) {
-    clientEmail.addEventListener('input', () => {
-      hideFormError();
-      const emailVal = clientEmail.value.trim();
-      if (!emailVal || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
-        clearFieldError(clientEmail, 'emailError');
+    // 3. Email (Optional)
+    const emailVal = clientEmail.value.trim();
+    if (emailVal) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailVal)) {
+        emailError.textContent = 'Please enter a valid email address.';
+        isValid = false;
       }
-    });
+    }
+
+    // 4. Speciality
+    if (!serviceSelect.value) {
+      serviceError.textContent = 'Please select a clinical department.';
+      isValid = false;
+    }
+
+    // 5. Date
+    const dateVal = prefDate.value.trim();
+    if (!dateVal) {
+      dateError.textContent = 'Please select an appointment date.';
+      isValid = false;
+    } else {
+      const chosen = new Date(dateVal + 'T00:00:00');
+      const now = new Date();
+      const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (chosen < todayDate) {
+        dateError.textContent = 'Appointment date cannot be in the past.';
+        isValid = false;
+      }
+    }
+
+    // 6. Time Slot
+    if (!prefTime.value) {
+      timeError.textContent = 'Please select a preferred OPD slot.';
+      isValid = false;
+    }
+
+    return isValid;
   }
 
-  if (serviceSelect) {
-    serviceSelect.addEventListener('change', () => {
-      hideFormError();
-      if (serviceSelect.value) clearFieldError(serviceSelect, 'serviceError');
-    });
-  }
-
-  if (prefTime) {
-    prefTime.addEventListener('change', () => {
-      hideFormError();
-      if (prefTime.value) clearFieldError(prefTime, 'timeError');
-    });
-  }
-
-  // Sensible Indian Mobile Phone Validation
-  function isSensibleIndianPhone(phoneString) {
-    if (!phoneString) return false;
-    // Strip all formatting spaces, hyphens, plus, parentheses
-    const clean = phoneString.replace(/[\s\-\(\)\+]/g, '');
-    
-    // 10 digits starting with 6, 7, 8, or 9
-    if (/^[6-9]\d{9}$/.test(clean)) return true;
-    // 12 digits starting with country code 91 followed by 6-9
-    if (/^91[6-9]\d{9}$/.test(clean)) return true;
-    // 11 digits starting with trunk 0 followed by 6-9
-    if (/^0[6-9]\d{9}$/.test(clean)) return true;
-    
-    return false;
-  }
-
-  // Form Submission Handler with Real Full-Stack API Integration
-  let isSubmitting = false;
-
-  if (appointmentForm) {
-    appointmentForm.addEventListener('submit', async (e) => {
+  if (form) {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Prevent accidental duplicate submission
-      if (isSubmitting) return;
-
-      hideFormError();
-
-      let isValid = true;
-      let firstErrorField = null;
-
-      // 1. Validate Name
-      const nameVal = clientName ? clientName.value.trim() : '';
-      if (!nameVal || nameVal.length < 2) {
-        setFieldError(clientName, 'nameError', 'Please enter your full name (at least 2 characters).');
-        isValid = false;
-        if (!firstErrorField) firstErrorField = clientName;
-      } else {
-        clearFieldError(clientName, 'nameError');
-      }
-
-      // 2. Validate Phone
-      const phoneVal = clientPhone ? clientPhone.value.trim() : '';
-      if (!isSensibleIndianPhone(phoneVal)) {
-        setFieldError(clientPhone, 'phoneError', 'Please enter a valid 10-digit Indian phone number (e.g. +91 98765 43210).');
-        isValid = false;
-        if (!firstErrorField) firstErrorField = clientPhone;
-      } else {
-        clearFieldError(clientPhone, 'phoneError');
-      }
-
-      // 3. Validate Optional Email
-      const emailVal = clientEmail ? clientEmail.value.trim() : '';
-      if (emailVal) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailVal)) {
-          setFieldError(clientEmail, 'emailError', 'Please enter a valid email address.');
-          isValid = false;
-          if (!firstErrorField) firstErrorField = clientEmail;
-        } else {
-          clearFieldError(clientEmail, 'emailError');
+      if (!validateForm()) {
+        const firstError = form.querySelector('.field-error:not(:empty)');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      } else {
-        clearFieldError(clientEmail, 'emailError');
-      }
-
-      // 4. Validate Service Category
-      if (!serviceSelect || !serviceSelect.value) {
-        setFieldError(serviceSelect, 'serviceError', 'Please select a service category.');
-        isValid = false;
-        if (!firstErrorField) firstErrorField = serviceSelect;
-      } else {
-        clearFieldError(serviceSelect, 'serviceError');
-      }
-
-      // 5. Validate Preferred Date (including Tuesday check & past date prevention)
-      const dateVal = prefDateInput ? prefDateInput.value : '';
-      const isDateValid = validateDateSelection(dateVal);
-      if (!isDateValid) {
-        isValid = false;
-        if (!firstErrorField) firstErrorField = prefDateInput;
-      }
-
-      // 6. Validate Preferred Time
-      if (!prefTime || !prefTime.value) {
-        setFieldError(prefTime, 'timeError', 'Please choose a preferred time slot.');
-        isValid = false;
-        if (!firstErrorField) firstErrorField = prefTime;
-      } else {
-        clearFieldError(prefTime, 'timeError');
-      }
-
-      // If validation fails, focus the first invalid field
-      if (!isValid) {
-        if (firstErrorField) firstErrorField.focus();
         return;
       }
 
-      // Set submitting state & show loading spinner
-      isSubmitting = true;
-      if (submitBtn) {
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-      }
+      // Lock UI & show spinner
+      submitBtn.disabled = true;
+      const btnText = submitBtn.querySelector('.btn-text');
+      const spinner = submitBtn.querySelector('.spinner');
+      if (btnText) btnText.textContent = 'Securing OPD Slot...';
+      if (spinner) spinner.style.display = 'inline-block';
 
-      // Build payload for API
-      const messageVal = clientMessage ? clientMessage.value.trim() : '';
       const payload = {
-        customer_name: nameVal,
-        phone: phoneVal,
-        email: emailVal,
+        customer_name: clientName.value.trim(),
+        phone: clientPhone.value.trim(),
+        email: clientEmail.value.trim(),
         service: serviceSelect.value,
-        preferred_date: dateVal,
+        preferred_date: prefDate.value.trim(),
         preferred_time: prefTime.value,
-        message: messageVal
+        message: clientMessage.value.trim()
       };
 
-      const apiBaseUrl = (window.SALON_CONFIG && window.SALON_CONFIG.API_BASE_URL) ? window.SALON_CONFIG.API_BASE_URL : '';
-      const endpoint = `${apiBaseUrl}/api/appointments`;
-
       try {
-        const response = await fetch(endpoint, {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -601,194 +419,100 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
-        if (response.ok && data.success) {
-          // Success confirmed by backend database
-          const savedRecord = data.data || payload;
+        if (response.ok && result.success) {
+          const appointmentData = result.data || {};
+          const refId = appointmentData.id 
+            ? `SNE-${appointmentData.id.substring(0, 8).toUpperCase()}`
+            : `SNE-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-          // Format Date nicely for display without timezone shifting
-          let formattedDate = savedRecord.preferred_date;
-          const dateMatch = String(savedRecord.preferred_date).match(/^(\d{4})-(\d{2})-(\d{2})/);
-          if (dateMatch) {
-            const year = parseInt(dateMatch[1], 10);
-            const monthIndex = parseInt(dateMatch[2], 10) - 1;
-            const day = parseInt(dateMatch[3], 10);
-            const d = new Date(year, monthIndex, day);
-            formattedDate = d.toLocaleDateString('en-IN', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
+          // Populate Confirmation Modal
+          modalRefCode.textContent = refId;
+          modalPatientName.textContent = payload.customer_name;
+          modalDepartment.textContent = payload.service;
+          modalDate.textContent = formatDateIndian(payload.preferred_date);
+          modalTime.textContent = payload.preferred_time;
+          modalPhone.textContent = payload.phone;
+
+          if (payload.email) {
+            modalEmail.textContent = payload.email;
+            modalEmailRow.style.display = 'flex';
           } else {
-            const d = new Date(savedRecord.preferred_date);
-            if (!isNaN(d.getTime())) {
-              formattedDate = d.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              });
-            }
+            modalEmailRow.style.display = 'none';
           }
 
-          // Parse embedded email and notes for backward compatibility
-          const parsed = parseEnquiryMessage(
-            savedRecord.notes !== undefined ? savedRecord.notes : savedRecord.message,
-            savedRecord.email || emailVal
-          );
+          // Open Modal
+          confirmationModal.style.display = 'flex';
+          form.reset();
 
-          // Populate Confirmation Modal with actual confirmed values from database
-          if (summaryName) summaryName.textContent = savedRecord.customer_name;
-          if (summaryPhone) summaryPhone.textContent = savedRecord.phone;
-          if (summaryService) summaryService.textContent = savedRecord.service;
-          if (summaryDate) summaryDate.textContent = formattedDate;
-          if (summaryTime) summaryTime.textContent = savedRecord.preferred_time;
-
-          // 1. Keep optional email displayed only in the Email row
-          if (summaryEmailRow && summaryEmail) {
-            if (parsed.email) {
-              summaryEmail.textContent = parsed.email;
-              summaryEmailRow.style.display = 'flex';
-            } else {
-              summaryEmailRow.style.display = 'none';
-            }
-          }
-
-          // Reference ID row
-          const summaryRefRow = document.getElementById('summaryRefRow');
-          const summaryRefId = document.getElementById('summaryRefId');
-          if (summaryRefRow && summaryRefId) {
-            if (savedRecord.id) {
-              summaryRefId.textContent = savedRecord.id;
-              summaryRefRow.style.display = 'flex';
-            } else {
-              summaryRefRow.style.display = 'none';
-            }
-          }
-
-          // 2 & 3. Do not repeat email inside Message/Notes; if blank, display "No additional notes"
-          if (summaryNotes && summaryNotesRow) {
-            summaryNotesRow.style.display = 'flex';
-            if (parsed.notes && parsed.notes.trim()) {
-              summaryNotes.textContent = parsed.notes.trim();
-              summaryNotes.classList.remove('notes-empty');
-            } else {
-              summaryNotes.textContent = 'No additional notes';
-              summaryNotes.classList.add('notes-empty');
-            }
-          }
-
-          // Clear form after verified database storage
-          appointmentForm.reset();
-          initMinDate();
-
-          // Open Confirmation Modal displaying confirmed request details
-          lastModalTrigger = submitBtn;
-          openConfirmationModal();
+          // Reset date to tomorrow
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          prefDate.value = tomorrow.toISOString().split('T')[0];
         } else {
-          // Server or validation failure — do NOT display fake success modal
-          let errorMsg = data.message || 'Unable to submit your appointment enquiry. Please try again or call +91 98765 43210.';
-          if (data.errors && typeof data.errors === 'object') {
-            const firstKey = Object.keys(data.errors)[0];
-            if (data.errors[firstKey]) errorMsg = data.errors[firstKey];
-          }
-          showFormError(errorMsg);
+          // Display error banner
+          formAlert.textContent = result.message || 'We were unable to process your appointment. Please call our hospital reception directly at +91 94481 23456.';
+          formAlert.className = 'form-alert alert-error';
+          formAlert.style.display = 'block';
+          formAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-      } catch (networkError) {
-        console.error('[APPOINTMENTS] Network connection error:', networkError);
-        showFormError('Could not connect to the booking server. Please verify your connection or call Salon Perimeter directly at +91 98765 43210.');
+      } catch (err) {
+        console.error('[BOOKING] Submission network error:', err);
+        formAlert.innerHTML = `
+          <strong>Connection Timeout / Server Notice:</strong> 
+          We could not reach the server right now. Please call our hospital front desk directly at 
+          <a href="tel:+919448123456" style="color: #00E5FF; text-decoration: underline; font-weight: bold;">+91 94481 23456</a> 
+          or <strong>08533-270123</strong> to book your OPD slot immediately.
+        `;
+        formAlert.className = 'form-alert alert-error';
+        formAlert.style.display = 'block';
+        formAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } finally {
-        isSubmitting = false;
-        if (submitBtn) {
-          submitBtn.classList.remove('loading');
-          submitBtn.disabled = false;
-        }
+        submitBtn.disabled = false;
+        if (btnText) btnText.textContent = 'Confirm OPD Appointment Request';
+        if (spinner) spinner.style.display = 'none';
       }
     });
   }
 
-  function openConfirmationModal() {
-    if (!confirmationModal) return;
-    confirmationModal.classList.add('open');
-    confirmationModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    if (confirmDoneBtn) confirmDoneBtn.focus();
-  }
-
-  function closeConfirmationModal() {
-    if (!confirmationModal) return;
-    confirmationModal.classList.remove('open');
-    confirmationModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (lastModalTrigger && typeof lastModalTrigger.focus === 'function') {
-      lastModalTrigger.focus();
+  function formatDateIndian(dateStr) {
+    if (!dateStr) return '-';
+    try {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return dateStr;
     }
   }
 
-  if (confirmClose) confirmClose.addEventListener('click', closeConfirmationModal);
-  if (confirmationBackdrop) confirmationBackdrop.addEventListener('click', closeConfirmationModal);
-  if (confirmDoneBtn) confirmDoneBtn.addEventListener('click', closeConfirmationModal);
+  // ==========================================================================
+  // 7. CONFIRMATION MODAL CONTROLS
+  // ==========================================================================
+  function closeModal() {
+    if (confirmationModal) {
+      confirmationModal.style.display = 'none';
+    }
+  }
 
-  // Close modal when clicking outside dialog
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+  if (modalAcknowledgeBtn) modalAcknowledgeBtn.addEventListener('click', closeModal);
+
   if (confirmationModal) {
     confirmationModal.addEventListener('click', (e) => {
-      if (e.target === confirmationModal) {
-        closeConfirmationModal();
-      }
+      if (e.target === confirmationModal) closeModal();
     });
   }
 
-  // ==========================================================================
-  // 7. KEYBOARD ACCESSIBILITY (ESCAPE KEY & ARROWS)
-  // ==========================================================================
   document.addEventListener('keydown', (e) => {
-    // Escape key closes open overlay/modal
-    if (e.key === 'Escape') {
-      if (confirmationModal && confirmationModal.classList.contains('open')) {
-        closeConfirmationModal();
-      } else if (lightboxModal && lightboxModal.classList.contains('open')) {
-        closeLightbox();
-      } else if (mobileDrawer && mobileDrawer.classList.contains('open')) {
-        closeMobileMenu();
-      }
-    }
-
-    // Lightbox Arrow Navigation
-    if (lightboxModal && lightboxModal.classList.contains('open')) {
-      if (e.key === 'ArrowLeft') {
-        prevLightboxItem();
-      } else if (e.key === 'ArrowRight') {
-        nextLightboxItem();
-      }
+    if (e.key === 'Escape' && confirmationModal && confirmationModal.style.display !== 'none') {
+      closeModal();
     }
   });
 
-  // ==========================================================================
-  // 8. SMOOTH SCROLLING FOR ALL INTERNAL LINKS
-  // ==========================================================================
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      const targetId = this.getAttribute('href');
-      if (targetId === '#' || targetId === '') return;
-
-      const targetEl = document.querySelector(targetId);
-      if (targetEl) {
-        e.preventDefault();
-        targetEl.scrollIntoView({
-          behavior: 'smooth'
-        });
-      }
-    });
-  });
-
-  // Console Welcome & Transparency Notice
-  console.log(
-    '%c✨ SALON PERIMETER SHIMOGA — PORTFOLIO DEMO CONCEPT ✨\n' +
-    '%cExclusively serving women & children on Sharavathi Nagar Main Road, Shivamogga, Karnataka.\n' +
-    'Notice: This website is an independent portfolio demonstration. It has not been approved or endorsed by Salon Perimeter.',
-    'color: #A85A65; font-size: 14px; font-weight: bold;',
-    'color: #4E4540; font-size: 12px;'
-  );
-});
+})();

@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salon Perimeter Shimoga | Owner Admin Portal</title>
+  <title>Srinidhi Eye Care Hospital | OPD Administration Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body>
 
@@ -16,222 +16,248 @@
   <!-- ============================================== -->
   <div class="login-container" id="loginScreen">
     <div class="login-card">
-      <div class="brand-badge">SALON PERIMETER SHIMOGA</div>
-      <h1 class="login-title">Owner Administration</h1>
-      <p class="login-subtitle">Appointment enquiries management &bull; Women &amp; Children Sanctuary</p>
+      <div class="brand-badge">SRINIDHI EYE CARE HOSPITAL</div>
+      <h1 class="login-title">Hospital Administration</h1>
+      <p class="login-subtitle">OPD &amp; Inpatient Enquiries Portal &bull; Gangavathi, Karnataka</p>
 
       <div class="login-alert" id="loginAlert" role="alert" style="display: none;"></div>
 
       <form id="loginForm">
         <div class="form-field">
           <label for="usernameInput">Username</label>
-          <input type="text" id="usernameInput" name="username" placeholder="e.g. salon_owner" required autocomplete="username">
+          <input type="text" id="usernameInput" name="username" placeholder="e.g. srinidhi_admin or salon_owner" required autocomplete="username">
         </div>
         <div class="form-field">
           <label for="passwordInput">Password</label>
           <input type="password" id="passwordInput" name="password" placeholder="••••••••••••" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary full-width" id="loginBtn">
-          <span>Sign In to Dashboard</span>
+          <span>Sign In to Hospital Portal</span>
           <span class="spinner" aria-hidden="true"></span>
         </button>
       </form>
 
       <div class="login-footer">
-        <small>Sharavathi Nagar Main Road, Shivamogga &bull; +91 98765 43210</small>
+        <p>Protected Medical Administration &bull; Srinidhi Eye Care Gangavathi</p>
       </div>
     </div>
   </div>
 
   <!-- ============================================== -->
-  <!-- 2. ADMIN DASHBOARD SCREEN                      -->
+  <!-- 2. MAIN ADMIN DASHBOARD SHELL                  -->
   <!-- ============================================== -->
-  <div class="dashboard-container" id="dashboardScreen" style="display: none;">
-    <!-- Top Navigation -->
-    <header class="admin-header">
-      <div class="admin-header-inner">
-        <div class="admin-brand">
-          <span class="logo-mark">SP</span>
-          <div>
-            <h2 class="admin-title">Salon Perimeter Shimoga</h2>
-            <p class="admin-subtitle">Appointment Enquiries &bull; Women &amp; Children</p>
-          </div>
-        </div>
+  <div class="dashboard-shell" id="dashboardScreen" style="display: none;">
 
-        <div class="admin-user-group">
-          <span class="user-pill" id="adminUserPill">Logged in as <strong>Owner</strong></span>
-          <button class="btn btn-sm btn-outline" id="changePasswordBtn">Change Password</button>
-          <a href="https://shrihari12012007-web.github.io/salon-perimeter-demo/" target="_blank" class="btn btn-sm btn-ghost">View Website ↗</a>
-          <button class="btn btn-sm btn-outline" id="logoutBtn">Log Out</button>
+    <!-- TOP NAVIGATION BAR -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
         </div>
+        <div>
+          <h2 class="hospital-name">SRINIDHI EYE CARE HOSPITAL</h2>
+          <span class="hospital-sub">Super Speciality Eye &amp; Laser Center &bull; Gangavathi, Karnataka</span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <span class="user-greeting" id="userGreeting">Logged in as Administrator</span>
+        <button type="button" class="btn btn-outline btn-sm" id="refreshBtn" title="Refresh consultation list">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+          </svg>
+          <span>Refresh</span>
+        </button>
+        <button type="button" class="btn btn-danger btn-sm" id="logoutBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Sign Out</span>
+        </button>
       </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="admin-main">
-      <!-- Stats Overview Row -->
-      <section class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-icon pending-icon">⏳</span>
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="dashboard-body">
+
+      <!-- STATS METRIC CARDS -->
+      <section class="stats-row" aria-label="Appointment Statistics">
+        <div class="stat-card" data-status="all">
+          <div class="stat-icon icon-total">📋</div>
           <div class="stat-info">
-            <h3 class="stat-value" id="statPending">0</h3>
-            <span class="stat-label">Pending Action</span>
+            <span class="stat-label">Total OPD Bookings</span>
+            <span class="stat-value" id="statTotal">0</span>
           </div>
         </div>
-        <div class="stat-card">
-          <span class="stat-icon confirmed-icon">✅</span>
+
+        <div class="stat-card" data-status="pending">
+          <div class="stat-icon icon-pending">⏳</div>
           <div class="stat-info">
-            <h3 class="stat-value" id="statConfirmed">0</h3>
-            <span class="stat-label">Confirmed Bookings</span>
+            <span class="stat-label">Pending Review</span>
+            <span class="stat-value" id="statPending">0</span>
           </div>
         </div>
-        <div class="stat-card">
-          <span class="stat-icon completed-icon">🌸</span>
+
+        <div class="stat-card" data-status="confirmed">
+          <div class="stat-icon icon-confirmed">✅</div>
           <div class="stat-info">
-            <h3 class="stat-value" id="statCompleted">0</h3>
-            <span class="stat-label">Completed Visits</span>
+            <span class="stat-label">Confirmed Slots</span>
+            <span class="stat-value" id="statConfirmed">0</span>
           </div>
         </div>
-        <div class="stat-card">
-          <span class="stat-icon total-icon">📋</span>
+
+        <div class="stat-card" data-status="completed">
+          <div class="stat-icon icon-completed">🩺</div>
           <div class="stat-info">
-            <h3 class="stat-value" id="statTotal">0</h3>
-            <span class="stat-label">Total Received</span>
+            <span class="stat-label">Completed OPDs</span>
+            <span class="stat-value" id="statCompleted">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-status="cancelled">
+          <div class="stat-icon icon-cancelled">❌</div>
+          <div class="stat-info">
+            <span class="stat-label">Cancelled</span>
+            <span class="stat-value" id="statCancelled">0</span>
           </div>
         </div>
       </section>
 
-      <!-- Enquiries Management Panel -->
-      <section class="panel-card">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Client Appointment Enquiries</h2>
-            <p class="panel-subtitle">Review incoming reservation requests and update their confirmation status.</p>
-          </div>
-
-          <div class="panel-actions">
-            <!-- Filter Tabs -->
-            <div class="filter-group">
-              <button class="filter-btn active" data-status="all">All</button>
-              <button class="filter-btn" data-status="pending">Pending</button>
-              <button class="filter-btn" data-status="confirmed">Confirmed</button>
-              <button class="filter-btn" data-status="completed">Completed</button>
-              <button class="filter-btn" data-status="cancelled">Cancelled</button>
-            </div>
-
-            <button class="btn btn-sm btn-outline refresh-btn" id="refreshBtn" title="Refresh Enquiries">
-              <span>↻ Refresh</span>
-            </button>
-          </div>
+      <!-- FILTER CONTROLS BAR -->
+      <section class="controls-bar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search by patient name, phone number or ID...">
         </div>
 
-        <!-- Table Loading Indicator -->
-        <div class="table-loader" id="tableLoader" style="display: none;">
-          <div class="spinner"></div>
-          <p>Loading enquiries...</p>
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
         </div>
 
-        <!-- Empty State -->
-        <div class="table-empty" id="tableEmpty" style="display: none;">
-          <div class="empty-icon">📭</div>
-          <h3>No Enquiries Found</h3>
-          <p>No appointment enquiries match the selected filter criteria.</p>
+        <div class="enquiry-counter">
+          Showing <strong id="showingCount">0</strong> patients
         </div>
+      </section>
 
-        <!-- Enquiries Responsive Table -->
-        <div class="table-responsive" id="tableWrap">
-          <table class="data-table">
+      <!-- TOAST NOTIFICATIONS -->
+      <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+      <!-- APPOINTMENTS TABLE CARD -->
+      <section class="table-card">
+        <div class="table-responsive">
+          <table class="appointments-table" id="appointmentsTable">
             <thead>
               <tr>
-                <th>Received</th>
-                <th>Client Name</th>
+                <th>Patient Details</th>
                 <th>Contact</th>
-                <th>Requested Service</th>
-                <th>Preferred Date &amp; Time</th>
-                <th>Notes / Requirements</th>
+                <th>Department / Service</th>
+                <th>OPD Date &amp; Slot</th>
+                <th>Symptoms / Notes</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody id="enquiriesBody">
-              <!-- Dynamically populated via admin.js -->
+            <tbody id="appointmentsBody">
+              <!-- Dynamically populated rows -->
+              <tr>
+                <td colspan="7" class="loading-cell">
+                  <div class="table-spinner"></div>
+                  <span>Loading OPD appointment records...</span>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination Controls -->
-        <div class="pagination-footer" id="paginationFooter">
-          <span class="page-info" id="pageInfo">Showing 0 of 0</span>
-          <div class="page-btns">
-            <button class="btn btn-sm btn-outline" id="prevPageBtn" disabled>&larr; Previous</button>
-            <button class="btn btn-sm btn-outline" id="nextPageBtn" disabled>Next &rarr;</button>
-          </div>
+        <!-- EMPTY STATE -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon">👁️</div>
+          <h3>No Consultation Records Found</h3>
+          <p id="emptyMessage">There are no patient appointments matching your current search or status filter.</p>
         </div>
       </section>
     </main>
-
-    <!-- Change Password Modal -->
-    <div class="modal-overlay" id="passwordModal" style="display: none;">
-      <div class="modal-backdrop" id="passwordModalBackdrop"></div>
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 class="modal-title">Change Admin Password</h3>
-          <button class="modal-close-btn" id="closePasswordModalBtn" type="button" aria-label="Close modal">&times;</button>
-        </div>
-        <form id="changePasswordForm">
-          <div class="login-alert" id="passwordModalAlert" style="display: none;"></div>
-          <div class="form-field">
-            <label for="currentPasswordInput">Current Password</label>
-            <input type="password" id="currentPasswordInput" required autocomplete="current-password" placeholder="Enter current password">
-          </div>
-          <div class="form-field">
-            <label for="newPasswordInput">New Password (minimum 6 characters)</label>
-            <input type="password" id="newPasswordInput" minlength="6" required autocomplete="new-password" placeholder="Enter new strong password">
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn btn-sm btn-outline" id="cancelPasswordModalBtn">Cancel</button>
-            <button type="submit" class="btn btn-sm btn-primary" id="savePasswordBtn">
-              <span>Save New Password</span>
-              <span class="spinner" style="display: none;" aria-hidden="true"></span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Delete Enquiry Confirmation Modal -->
-    <div class="modal-overlay" id="deleteModal" style="display: none;" role="dialog" aria-labelledby="deleteModalTitle" aria-modal="true">
-      <div class="modal-backdrop" id="deleteModalBackdrop"></div>
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 class="modal-title" id="deleteModalTitle">Delete Appointment Enquiry</h3>
-          <button class="modal-close-btn" id="closeDeleteModalBtn" type="button" aria-label="Close modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p style="margin-bottom: 14px; color: var(--text-primary); font-size: 14px;">
-            Are you sure you want to permanently delete this appointment enquiry record?
-          </p>
-          <div class="delete-preview-card" id="deletePreviewCard">
-            <!-- Dynamically populated with client name, phone, service, date -->
-          </div>
-          <p style="margin-top: 14px; font-size: 12px; color: #C62828; line-height: 1.4;">
-            ⚠️ <strong>Notice:</strong> This action cannot be undone. Customer records are never removed automatically.
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-sm btn-outline" id="cancelDeleteModalBtn">Cancel</button>
-          <button type="button" class="btn btn-sm btn-danger" id="confirmDeleteBtn">
-            <span>Delete Enquiry</span>
-            <span class="spinner" style="display: none;" aria-hidden="true"></span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Toast Notification Popup -->
-    <div class="toast-popup" id="toastPopup" role="status" aria-live="polite"></div>
   </div>
 
-  <script src="admin.js?v=2"></script>
+  <!-- ============================================== -->
+  <!-- 3. VIEW APPOINTMENT MODAL                      -->
+  <!-- ============================================== -->
+  <div class="modal-overlay" id="detailModal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-badge" id="modalRefId">SNE-REF</span>
+          <h2 class="modal-title" id="modalCustomerName">Patient Name</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Mobile Phone</span>
+            <span class="detail-val" id="modalPhone">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-val" id="modalEmail">Not provided</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Clinical Department</span>
+            <span class="detail-val highlight" id="modalService">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Appointment Schedule</span>
+            <span class="detail-val" id="modalSchedule">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Current Status</span>
+            <span class="detail-val" id="modalStatusBadge">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Submitted On</span>
+            <span class="detail-val" id="modalSubmitted">-</span>
+          </div>
+
+          <div class="detail-item full-span">
+            <span class="detail-label">Patient Notes &amp; Symptoms</span>
+            <div class="notes-box" id="modalNotes">No additional notes provided.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" id="modalCallBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span>Call Patient</span>
+        </a>
+        <button type="button" class="btn btn-outline" id="modalDismissBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js?v=3"></script>
 </body>
 </html>

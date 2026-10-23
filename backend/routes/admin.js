@@ -214,6 +214,7 @@ router.patch('/appointments/:id/status', validateStatusUpdate, async (req, res) 
       success: true,
       message: `Enquiry status updated to "${newStatus}".`,
       appointment,
+      data: appointment,
       stats
     });
   } catch (error) {

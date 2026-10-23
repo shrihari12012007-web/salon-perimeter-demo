@@ -1,6 +1,7 @@
 /**
- * Salon Perimeter Shimoga — Public Appointment Enquiry API
+ * Srinidhi Eye Care Hospital — Public Appointment & OPD Enquiry API
  * Endpoint: POST /api/appointments
+ * Gangavathi, Koppal District, Karnataka
  */
 
 const express = require('express');
@@ -12,7 +13,7 @@ const { sendNewEnquiryNotification } = require('../services/email');
 
 /**
  * POST /api/appointments
- * Submits a new appointment enquiry from the website form.
+ * Submits a new OPD appointment enquiry from the website form.
  */
 router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
   try {
@@ -32,7 +33,7 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
       return res.status(409).json({
         success: false,
         error: 'DUPLICATE_ENQUIRY',
-        message: 'An enquiry for this phone number and date was already received in the last few minutes. Salon Perimeter will call you shortly to confirm your booking.'
+        message: 'A consultation request for this phone number and date was already received in the last few minutes. Srinidhi Eye Care Hospital will call you shortly to confirm your slot.'
       });
     }
 
@@ -77,13 +78,15 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
     // Return HTTP 201 Created with exact required confirmation phrasing
     return res.status(201).json({
       success: true,
-      message: 'Your appointment request has been received. The salon must confirm availability before your appointment is confirmed.',
+      message: 'Your consultation request has been received. Srinidhi Eye Care Hospital will confirm availability before your OPD slot is finalized.',
       data: {
         id: createdAppointment.id,
         customer_name: createdAppointment.customer_name,
+        patient_name: createdAppointment.customer_name,
         phone: createdAppointment.phone,
         email: email || '',
         service: createdAppointment.service,
+        department: createdAppointment.service,
         preferred_date: createdAppointment.preferred_date,
         preferred_time: createdAppointment.preferred_time,
         notes: (message || '').trim(),
@@ -98,7 +101,7 @@ router.post('/', appointmentLimiter, validateAppointment, async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'SERVER_ERROR',
-      message: 'We were unable to process your appointment enquiry due to an internal error. Please try again or call us directly at +91 98765 43210.'
+      message: 'We were unable to process your consultation request due to an internal server error. Please call our hospital desk directly at +91 94481 23456 or 08533-270123.'
     });
   }
 });

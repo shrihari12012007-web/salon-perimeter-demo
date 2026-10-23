@@ -1,8 +1,9 @@
 /**
  * ============================================================================
- * SALON PERIMETER SHIMOGA — BACKEND API SERVER
- * Women & Children Salon • Sharavathi Nagar Main Road, Shivamogga, Karnataka
- * Production-ready Express API with PostgreSQL on Render & Owner Admin Dashboard
+ * SRINIDHI EYE CARE HOSPITAL — BACKEND API SERVER
+ * Super Speciality Eye Hospital & Micro-Surgery Laser Center
+ * Hospital Road, Near CBS Circle, Gangavathi, Koppal District, Karnataka - 583227
+ * Production-ready Express API with PostgreSQL on Render & Hospital Admin Portal
  * ============================================================================
  */
 
@@ -26,7 +27,7 @@ app.set('trust proxy', 1);
 // Security Headers via Helmet (with permissive CSP for admin dashboard fonts & styles)
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Allows inline fonts and SVGs in admin dashboard
+    contentSecurityPolicy: false, // Allows fonts, SVGs, and inline modals in admin dashboard
     crossOriginEmbedderPolicy: false
   })
 );
@@ -38,133 +39,145 @@ const defaultAllowedOrigins = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
   'http://localhost:3000',
-  'http://localhost:8000',
-  'http://localhost:5000'
+  'http://127.0.0.1:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:5000'
 ];
 
-const envOrigins = (process.env.CORS_ORIGIN || '')
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
+const envOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) 
+  : [];
 
-const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...envOrigins])];
+const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...envOrigins]));
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman, same-origin)
-      if (!origin) return callback(null, true);
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, or local file:// testing)
+    if (!origin) return callback(null, true);
+    
+    // Check exact match
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
 
-      // Check exact match, localhost, GitHub Pages, or Render domain
-      const isAllowed = allowedOrigins.includes(origin) || 
-        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-        origin.endsWith('.github.io') ||
-        origin.endsWith('.onrender.com');
+    // Allow GitHub Pages preview and subdomains
+    if (origin.endsWith('.github.io') || origin.endsWith('.onrender.com')) {
+      return callback(null, true);
+    }
 
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        console.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`);
-        callback(new Error(`Origin ${origin} not permitted by CORS policy`));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-  })
-);
+    return callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
-// Body Parsing Middleware (Strict 100kb limit)
-app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ extended: false, limit: '100kb' }));
+// Body Parsing Middleware
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Health Check Endpoint
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'Salon Perimeter Shimoga API',
-    business: "Women's & Children's Salon • Shivamogga",
-    database: db.isInMemory() ? 'in-memory' : 'postgresql',
-    uptimeSeconds: Math.floor(process.uptime()),
-    timestamp: new Date().toISOString()
+// Serve static frontend assets for the Admin Dashboard
+app.use('/admin', express.static(path.join(__dirname, 'public')));
+
+// Root & Health Check Endpoints
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'online',
+    institution: 'Srinidhi Eye Care Hospital',
+    facility: 'Super Speciality Eye Hospital & Micro-Surgery Laser Center',
+    location: 'Gangavathi, Koppal District, Karnataka - 583227',
+    contact: '+91 94481 23456 / 08533-270123',
+    version: '2.0.0',
+    admin_portal: '/admin',
+    endpoints: {
+      health: '/api/health',
+      appointments: 'POST /api/appointments',
+      auth: 'POST /api/auth/login',
+      admin_appointments: 'GET/PATCH /api/admin/appointments'
+    }
   });
 });
 
-// API Routes
+app.get('/api/health', async (req, res) => {
+  try {
+    let dbStatus = 'healthy';
+    let dbType = db.isInMemory() ? 'in-memory (dev)' : 'postgresql';
+    
+    // Quick probe to verify database query execution
+    const testResult = await db.query('SELECT 1 AS check');
+    if (!testResult || !testResult.rows || testResult.rows.length === 0) {
+      dbStatus = 'degraded';
+    }
+
+    res.status(200).json({
+      status: 'healthy',
+      database: dbStatus,
+      database_type: dbType,
+      timestamp: new Date().toISOString(),
+      uptime_seconds: Math.floor(process.uptime())
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      database: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Mount Application Routes
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Serve Admin Dashboard Static Files at /admin
-app.use('/admin', express.static(path.join(__dirname, 'public')));
-app.get('/admin/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// Root route: Redirects browser visitors to live website; responds with JSON for API clients
-app.get('/', (req, res) => {
-  const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
-  if (acceptsHtml) {
-    return res.redirect(302, 'https://shrihari12012007-web.github.io/salon-perimeter-demo/');
-  }
-
-  res.json({
-    name: 'Salon Perimeter Shimoga Backend API',
-    target: "Women's & Children's Salon",
-    location: 'Sharavathi Nagar Main Road, Shivamogga, Karnataka',
-    contact: '+91 98765 43210',
-    demoNotice: 'Unofficial portfolio demonstration website backend',
-    status: 'operational',
-    adminPanel: '/admin',
-    healthCheck: '/api/health',
-    website: 'https://shrihari12012007-web.github.io/salon-perimeter-demo/'
-  });
-});
-
-// 404 handler for unmatched routes
-app.use((req, res) => {
+// 404 Handler for undefined API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     error: 'NOT_FOUND',
-    message: `Endpoint ${req.method} ${req.originalUrl} does not exist.`
+    message: `API route ${req.method} ${req.originalUrl} does not exist.`
   });
 });
 
-// Global Error Handler
+// Fallback error handler
 app.use((err, req, res, next) => {
+  console.error('[SERVER ERROR]', err);
+  
   if (err.message && err.message.includes('CORS')) {
     return res.status(403).json({
       success: false,
-      error: 'CORS_FORBIDDEN',
+      error: 'CORS_ERROR',
       message: err.message
     });
   }
 
-  console.error('[SERVER] Unhandled server exception:', err);
   res.status(500).json({
     success: false,
-    error: 'INTERNAL_ERROR',
-    message: 'An unexpected server error occurred.'
+    error: 'INTERNAL_SERVER_ERROR',
+    message: 'An unexpected internal error occurred on the server.'
   });
 });
 
-// Start Server when run directly
-if (require.main === module) {
-  db.initDatabase()
-    .then(() => {
-      app.listen(PORT, () => {
-        console.log(`================================================================`);
-        console.log(`✨ Salon Perimeter API running on port ${PORT}`);
-        console.log(`🌐 Health check: http://localhost:${PORT}/api/health`);
-        console.log(`🔐 Owner Admin: http://localhost:${PORT}/admin`);
-        console.log(`🏬 Dedicated to: Women & Children • Shivamogga, Karnataka`);
-        console.log(`================================================================`);
-      });
-    })
-    .catch((err) => {
-      console.error('[SERVER] Failed to initialize database:', err);
-      process.exit(1);
+// Server Initialization
+async function startServer() {
+  try {
+    console.log('[SRINIDHI SERVER] Initializing database connection & tables...');
+    await db.initDatabase();
+
+    app.listen(PORT, () => {
+      console.log(`[SRINIDHI SERVER] Srinidhi Eye Care API listening on port ${PORT}`);
+      console.log(`[SRINIDHI SERVER] Admin Portal live at: http://localhost:${PORT}/admin`);
     });
+  } catch (err) {
+    console.error('[SRINIDHI SERVER] Fatal startup error:', err);
+    process.exit(1);
+  }
+}
+
+// Start the server only if run directly
+if (require.main === module) {
+  startServer();
 }
 
 module.exports = app;

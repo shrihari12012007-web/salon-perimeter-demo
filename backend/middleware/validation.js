@@ -1,6 +1,7 @@
 /**
- * Salon Perimeter Shimoga — Input Validation & Sanitization Middleware
+ * Srinidhi Eye Care Hospital — Input Validation & Sanitization Middleware
  * Validates appointment enquiries and sanitizes input to prevent XSS and SQL injection.
+ * Gangavathi, Koppal District, Karnataka
  */
 
 // Basic HTML sanitization: escape HTML characters
@@ -20,7 +21,7 @@ function isValidIndianPhone(phone) {
   return /^(?:91|0)?[6-9]\d{9}$/.test(clean);
 }
 
-// Normalizes phone string to standard format: +91 XXXXX XXXXX or 10 digits
+// Normalizes phone string to standard format: 10 digits
 function normalizePhone(phone) {
   const clean = phone.replace(/[\s\-\(\)\+]/g, '');
   if (clean.length === 10) return clean;
@@ -30,25 +31,25 @@ function normalizePhone(phone) {
 }
 
 /**
- * Validates appointment enquiry requests
+ * Validates appointment enquiry requests for Srinidhi Eye Care Hospital
  */
 function validateAppointment(req, res, next) {
   const body = req.body || {};
 
   // Support both canonical names and frontend form field names
-  const customer_name = sanitizeString(body.customer_name || body.clientName || body.name || '');
-  const rawPhone = String(body.phone || body.clientPhone || '').trim();
-  const rawEmail = String(body.email || body.clientEmail || '').trim();
-  const service = sanitizeString(body.service || body.serviceSelect || '');
+  const customer_name = sanitizeString(body.customer_name || body.clientName || body.patientName || body.name || '');
+  const rawPhone = String(body.phone || body.clientPhone || body.patientPhone || '').trim();
+  const rawEmail = String(body.email || body.clientEmail || body.patientEmail || '').trim();
+  const service = sanitizeString(body.service || body.serviceSelect || body.department || '');
   const preferred_date = String(body.preferred_date || body.prefDate || '').trim();
   const preferred_time = sanitizeString(body.preferred_time || body.prefTime || '');
-  const message = sanitizeString(body.message || body.clientMessage || '');
+  const message = sanitizeString(body.message || body.clientMessage || body.symptoms || '');
 
   const errors = {};
 
-  // 1. Validate Customer Name
+  // 1. Validate Patient / Customer Name
   if (!customer_name) {
-    errors.customer_name = 'Full name is required.';
+    errors.customer_name = 'Patient full name is required.';
   } else if (customer_name.length < 2) {
     errors.customer_name = 'Name must be at least 2 characters long.';
   } else if (customer_name.length > 100) {
@@ -57,9 +58,9 @@ function validateAppointment(req, res, next) {
 
   // 2. Validate Phone
   if (!rawPhone) {
-    errors.phone = 'Phone number is required.';
+    errors.phone = 'Mobile phone number is required.';
   } else if (!isValidIndianPhone(rawPhone)) {
-    errors.phone = 'Please provide a valid Indian phone number (10 digits starting with 6, 7, 8, or 9).';
+    errors.phone = 'Please provide a valid Indian mobile number (10 digits starting with 6, 7, 8, or 9).';
   }
 
   // 2b. Validate Optional Email
@@ -77,16 +78,16 @@ function validateAppointment(req, res, next) {
     }
   }
 
-  // 3. Validate Service
+  // 3. Validate Speciality / Department / Service
   if (!service) {
-    errors.service = 'Please select a service category.';
-  } else if (service.length > 100) {
-    errors.service = 'Service name exceeds maximum permitted length.';
+    errors.service = 'Please select a clinical eye department or service.';
+  } else if (service.length > 150) {
+    errors.service = 'Service/department name exceeds maximum permitted length.';
   }
 
   // 4. Validate Preferred Date
   if (!preferred_date) {
-    errors.preferred_date = 'Preferred appointment date is required.';
+    errors.preferred_date = 'Preferred consultation date is required.';
   } else {
     // Check ISO format YYYY-MM-DD
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -95,34 +96,29 @@ function validateAppointment(req, res, next) {
     } else {
       const parsedDate = new Date(preferred_date + 'T00:00:00Z');
       if (isNaN(parsedDate.getTime())) {
-        errors.preferred_date = 'Invalid date.';
+        errors.preferred_date = 'Invalid consultation date.';
       } else {
         // Prevent past dates (compare in IST / UTC)
         const now = new Date();
         const todayUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
         if (parsedDate < todayUtc) {
-          errors.preferred_date = 'Appointments cannot be scheduled on past dates.';
+          errors.preferred_date = 'Consultations cannot be scheduled on past dates.';
         }
-
-        // Check if Tuesday (day index 2: 0=Sun, 1=Mon, 2=Tue, 3=Wed, etc.)
-        const dayOfWeek = parsedDate.getUTCDay();
-        if (dayOfWeek === 2) {
-          errors.preferred_date = 'Salon Perimeter is closed on Tuesdays. Please pick a date between Wednesday and Monday.';
-        }
+        // Hospital OPD is open all days (Mon-Sat regular OPD + Sun morning emergency/special OPD)
       }
     }
   }
 
-  // 5. Validate Preferred Time
+  // 5. Validate Preferred Time Slot
   if (!preferred_time) {
-    errors.preferred_time = 'Preferred time slot is required.';
-  } else if (preferred_time.length > 50) {
+    errors.preferred_time = 'Preferred consultation time slot is required.';
+  } else if (preferred_time.length > 80) {
     errors.preferred_time = 'Preferred time format is invalid.';
   }
 
-  // 6. Validate Message
-  if (message.length > 1000) {
-    errors.message = 'Message notes cannot exceed 1000 characters.';
+  // 6. Validate Message / Symptoms
+  if (message.length > 2000) {
+    errors.message = 'Symptom notes cannot exceed 2000 characters.';
   }
 
   // If validation errors exist, return 400 Bad Request
@@ -130,7 +126,7 @@ function validateAppointment(req, res, next) {
     return res.status(400).json({
       success: false,
       error: 'VALIDATION_FAILED',
-      message: 'Please review and correct the marked fields.',
+      message: 'Please review and correct the marked consultation fields.',
       errors
     });
   }
@@ -151,7 +147,7 @@ function validateAppointment(req, res, next) {
 }
 
 /**
- * Validates status update requests from admin
+ * Validates status update requests from hospital admin
  */
 function validateStatusUpdate(req, res, next) {
   const allowedStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];

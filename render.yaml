@@ -1,5 +1,6 @@
 # ==============================================================================
-# SALON PERIMETER SHIMOGA — RENDER BLUEPRINT (render.yaml)
+# SRINIDHI EYE CARE HOSPITAL — RENDER BLUEPRINT (render.yaml)
+# Super Speciality Eye Hospital & Micro-Surgery Laser Center • Gangavathi, Karnataka
 # Deploys the Node.js/Express Backend Web Service and Managed PostgreSQL Database
 # ==============================================================================
 
@@ -26,9 +27,9 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_USERNAME
-        value: salon_owner
+        value: srinidhi_admin
       - key: ADMIN_PASSWORD
-        value: SalonPerimeter#2026
+        value: SrinidhiEye#2026
       - key: EMAIL_NOTIFICATIONS_ENABLED
         value: "false"
 
